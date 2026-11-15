@@ -1,0 +1,15 @@
+id: general/factores-agrupamiento
+tipo: factores_agrupamiento
+version: 0.1.0
+vigente_desde: 2011-01-01
+fuente:
+  norma: Conocimiento general, por contrastar con NFPA 70 / IEC 60364-5-52 (RD-04)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: Corrección por número de conductores portadores de corriente en un mismo ducto.
+filas:
+  - {n_max: 3, factor: 1.00}
+  - {n_max: 6, factor: 0.80}
+  - {n_max: 9, factor: 0.70}
+  - {n_max: 20, factor: 0.50}

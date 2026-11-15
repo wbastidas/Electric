@@ -1,0 +1,29 @@
+id: cnel-ep/sistemas-tension
+tipo: sistemas_tension
+version: 0.1.0
+vigente_desde: 2025-10-01
+fuente:
+  norma: Documento de requerimientos, RC-06
+  numeral: null
+  url: null
+estado: por_verificar
+nota: >-
+  Tensiones citadas en RC-06. Falta confirmar con CNEL qué sistema aplica por
+  unidad de negocio y tipo de servicio.
+unidades: {v_fase_neutro: V, v_linea: V}
+filas:
+  - id: monofasico_trifilar_120_240
+    descripcion: Monofásico trifilar 120/240 V (dos líneas y neutro)
+    fases: 2
+    v_fase_neutro: 120
+    v_linea: 240
+  - id: monofasico_bifilar_120
+    descripcion: Monofásico bifilar 120 V (una línea y neutro)
+    fases: 1
+    v_fase_neutro: 120
+    v_linea: 120
+  - id: trifasico_127_220
+    descripcion: Trifásico 220/127 V
+    fases: 3
+    v_fase_neutro: 127
+    v_linea: 220

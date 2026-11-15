@@ -1,0 +1,18 @@
+id: general/factores-temperatura
+tipo: factores_temperatura
+version: 0.1.0
+vigente_desde: 2011-01-01
+fuente:
+  norma: Conocimiento general, por contrastar con NFPA 70 / IEC 60364-5-52 (RD-04)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: Corrección de ampacidad para aislamiento 75 °C, base 30 °C.
+unidades: {t_max: C}
+filas:
+  - {t_max: 25, factor: 1.05}
+  - {t_max: 30, factor: 1.00}
+  - {t_max: 35, factor: 0.94}
+  - {t_max: 40, factor: 0.88}
+  - {t_max: 45, factor: 0.82}
+  - {t_max: 50, factor: 0.75}

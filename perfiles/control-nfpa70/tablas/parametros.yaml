@@ -1,0 +1,29 @@
+id: cnel-ep/parametros
+tipo: parametros
+version: 0.1.0
+vigente_desde: 2025-10-01
+fuente:
+  norma: Documento de requerimientos, secciones 2 y 5
+  numeral: null
+  url: null
+estado: por_verificar
+nota: Parámetros por defecto del perfil; cada uno indica de dónde sale.
+filas:
+  - clave: factor_potencia
+    valor: 1
+    nota: El caso de control trabaja en VA - factor de potencia 1.
+  - {clave: temperatura_ambiente_c, valor: 30, unidad: C, nota: Supuesto del diseño; se puede sobrescribir.}
+  - {clave: factor_diseno_conductor, valor: 1.25, nota: RC-07 - 125 % de la corriente.}
+  - {clave: caida_ramal_max_pct, valor: 3, unidad: '%', nota: RC-08.}
+  - {clave: caida_total_max_pct, valor: 5, unidad: '%', nota: RC-08. El alimentador admite la diferencia entre total y ramal.}
+  - {clave: desbalance_max_pct, valor: 5, unidad: '%', nota: RC-10.}
+  - {clave: umbral_tipo_i_kw, valor: 12, unidad: kW, nota: PR-TEC-CTR-002 v5.}
+  - {clave: umbral_tipo_ii_kw, valor: 500, unidad: kW, nota: PR-TEC-CTR-002 v5.}
+  - {clave: relleno_ducto_max_pct, valor: 40, unidad: '%', nota: RC-13.}
+  - {clave: reserva_polos_cada, valor: 5, nota: RC-11 - una reserva por cada cinco polos usados.}
+  - {clave: principal_min_a, valor: 30, unidad: A, nota: RC-12.}
+  - {clave: resistencia_tierra_max_ohm, valor: 20, unidad: ohm, nota: RC-14 - hasta 250 kVA.}
+  - {clave: pasos_max_calibre, valor: 6, nota: Tope de subidas de calibre por caída de tensión.}
+  - {clave: diferencial_zonas_humedas, valor: 1, nota: RC-09 - 1 exige protección diferencial en zonas húmedas; 0 no la exige.}
+  - {clave: electrodo_longitud_m, valor: 1.80, unidad: m, nota: RC-14 - varilla de puesta a tierra.}
+  - {clave: electrodo_diametro_pulg, valor: 0.625, unidad: pulg, nota: RC-14 - varilla de 5/8 de pulgada.}

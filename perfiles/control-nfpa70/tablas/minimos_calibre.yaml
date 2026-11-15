@@ -1,0 +1,18 @@
+id: nec-sb-ie/minimos-calibre
+tipo: minimos_calibre
+version: 0.1.0
+vigente_desde: 2018-01-01
+fuente:
+  norma: NEC-SB-IE Instalaciones Eléctricas (MIDUVI 2018)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Del documento de requerimientos (RC-07 y RF-18): 14 AWG luz con 15 A,
+  12 AWG tomas con 20 A, 10 AWG especiales, 6 AWG alimentador.
+unidades: {breaker_min: A}
+filas:
+  - {uso: iluminacion, calibre: 14 AWG, breaker_min: 15}
+  - {uso: tomacorrientes, calibre: 12 AWG, breaker_min: 20}
+  - {uso: especial, calibre: 10 AWG}
+  - {uso: alimentador, calibre: 6 AWG}

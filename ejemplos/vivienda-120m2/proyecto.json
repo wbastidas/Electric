@@ -1,0 +1,293 @@
+{
+  "id": "ejemplo-vivienda-120",
+  "nombre": "Vivienda unifamiliar de ejemplo, 120 m²",
+  "uso": "vivienda_unifamiliar",
+  "area_construida_m2": "120",
+  "perfil": {
+    "id": "cnel-ep",
+    "version": "0.1.0"
+  },
+  "puntos": [
+    {
+      "id": "L1-01",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "ambiente": "zona social",
+      "origen": "fijado"
+    },
+    {
+      "id": "L1-02",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "ambiente": "zona social",
+      "origen": "fijado"
+    },
+    {
+      "id": "L1-03",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "ambiente": "zona social",
+      "origen": "fijado"
+    },
+    {
+      "id": "L1-04",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "ambiente": "zona social",
+      "origen": "fijado"
+    },
+    {
+      "id": "L1-05",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "ambiente": "zona social",
+      "origen": "fijado"
+    },
+    {
+      "id": "L1-06",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "ambiente": "zona social",
+      "origen": "fijado"
+    },
+    {
+      "id": "L1-07",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "ambiente": "zona social",
+      "origen": "fijado"
+    },
+    {
+      "id": "L1-08",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "ambiente": "zona social",
+      "origen": "fijado"
+    },
+    {
+      "id": "L1-09",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "ambiente": "zona social",
+      "origen": "fijado"
+    },
+    {
+      "id": "L1-10",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "ambiente": "zona social",
+      "origen": "fijado"
+    },
+    {
+      "id": "L2-01",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "ambiente": "dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "L2-02",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "ambiente": "dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "L2-03",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "ambiente": "dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "L2-04",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "ambiente": "dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "L2-05",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "ambiente": "dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "L2-06",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "ambiente": "dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "L2-07",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "ambiente": "dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "L2-08",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "ambiente": "dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "T3-01",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "ambiente": "zona social y dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "T3-02",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "ambiente": "zona social y dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "T3-03",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "ambiente": "zona social y dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "T3-04",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "ambiente": "zona social y dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "T3-05",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "ambiente": "zona social y dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "T3-06",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "ambiente": "zona social y dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "T3-07",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "ambiente": "zona social y dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "T3-08",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "ambiente": "zona social y dormitorios",
+      "origen": "fijado"
+    },
+    {
+      "id": "T4-01",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "ambiente": "cocina y lavandería",
+      "origen": "fijado"
+    },
+    {
+      "id": "T4-02",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "ambiente": "cocina y lavandería",
+      "origen": "fijado"
+    },
+    {
+      "id": "T4-03",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "ambiente": "cocina y lavandería",
+      "origen": "fijado"
+    },
+    {
+      "id": "T4-04",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "ambiente": "cocina y lavandería",
+      "origen": "fijado"
+    },
+    {
+      "id": "T4-05",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "ambiente": "cocina y lavandería",
+      "origen": "fijado"
+    },
+    {
+      "id": "T4-06",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "ambiente": "cocina y lavandería",
+      "origen": "fijado"
+    },
+    {
+      "id": "T4-07",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "ambiente": "cocina y lavandería",
+      "origen": "fijado"
+    }
+  ],
+  "cargas_especiales": [
+    {
+      "id": "DUCHA-1",
+      "tipo": "ducha",
+      "circuito": "C5"
+    },
+    {
+      "id": "COCINA-1",
+      "tipo": "cocina",
+      "circuito": "C6"
+    }
+  ],
+  "circuitos": [
+    {
+      "id": "C1",
+      "tipo": "iluminacion",
+      "longitud_m": "18"
+    },
+    {
+      "id": "C2",
+      "tipo": "iluminacion",
+      "longitud_m": "22"
+    },
+    {
+      "id": "C3",
+      "tipo": "tomacorrientes",
+      "longitud_m": "20"
+    },
+    {
+      "id": "C4",
+      "tipo": "tomacorrientes",
+      "longitud_m": "25",
+      "zona_humeda": true
+    },
+    {
+      "id": "C5",
+      "tipo": "especial",
+      "longitud_m": "12",
+      "zona_humeda": true
+    },
+    {
+      "id": "C6",
+      "tipo": "especial",
+      "longitud_m": "10"
+    }
+  ],
+  "tablero": {
+    "id": "TD-1",
+    "alimentador_longitud_m": "15"
+  }
+}

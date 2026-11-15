@@ -1,0 +1,19 @@
+id: nec-sb-ie/tierra-equipos
+tipo: tierra_equipos
+version: 0.1.0
+vigente_desde: 2018-01-01
+fuente:
+  norma: NEC-SB-IE Instalaciones Eléctricas (MIDUVI 2018)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  El documento de requerimientos da los extremos (14 AWG con 15 A a 6 AWG con
+  200 A); las filas intermedias son de conocimiento general.
+unidades: {breaker_max: A}
+filas:
+  - {breaker_max: 15, calibre: 14 AWG}
+  - {breaker_max: 20, calibre: 12 AWG}
+  - {breaker_max: 60, calibre: 10 AWG}
+  - {breaker_max: 100, calibre: 8 AWG}
+  - {breaker_max: 200, calibre: 6 AWG}

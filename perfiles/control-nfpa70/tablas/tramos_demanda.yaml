@@ -1,0 +1,17 @@
+id: control-nfpa70/tramos-demanda
+tipo: tramos_demanda
+version: 0.1.0
+vigente_desde: 2011-01-01
+fuente:
+  norma: Tesis UPS CT012742, con base en NFPA 70
+  numeral: null
+  url: null
+estado: defecto_fuente
+nota: >-
+  La tesis aplica el 35 % a todo el subtotal sobre los primeros 3.000 VA,
+  incluidas cargas que no son iluminación general. Se reproduce a propósito
+  para igualar sus cifras.
+unidades: {hasta: VA}
+filas:
+  - {hasta: 3000, factor: 1.00}
+  - {hasta: null, factor: 0.35}

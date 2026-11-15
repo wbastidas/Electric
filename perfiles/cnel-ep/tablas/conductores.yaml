@@ -1,0 +1,34 @@
+id: general/conductores-cobre
+tipo: conductores
+version: 0.1.0
+vigente_desde: 2011-01-01
+fuente:
+  norma: Conocimiento general, por contrastar con NFPA 70 / IEC 60364-5-52 (RD-04)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Cobre, aislamiento 75 °C, en ducto no metálico. Ampacidad, resistencia y
+  reactancia son valores de uso general; el breaker máximo de 14 a 6 AWG viene
+  del documento de requerimientos (RC-09). Solo parámetros, sin texto de norma.
+unidades:
+  seccion_mm2: mm2
+  ampacidad: A
+  r_ohm_km: ohm/km
+  x_ohm_km: ohm/km
+  area_aislado_mm2: mm2
+  breaker_max: A
+filas:
+  - {calibre: 14 AWG, seccion_mm2: 2.08, ampacidad: 20, r_ohm_km: 10.2, x_ohm_km: 0.190, area_aislado_mm2: 6.26, breaker_max: 15}
+  - {calibre: 12 AWG, seccion_mm2: 3.31, ampacidad: 25, r_ohm_km: 6.6, x_ohm_km: 0.177, area_aislado_mm2: 8.58, breaker_max: 20}
+  - {calibre: 10 AWG, seccion_mm2: 5.26, ampacidad: 35, r_ohm_km: 3.9, x_ohm_km: 0.164, area_aislado_mm2: 13.61, breaker_max: 30}
+  - {calibre: 8 AWG, seccion_mm2: 8.37, ampacidad: 50, r_ohm_km: 2.56, x_ohm_km: 0.171, area_aislado_mm2: 23.61, breaker_max: 40}
+  - {calibre: 6 AWG, seccion_mm2: 13.3, ampacidad: 65, r_ohm_km: 1.61, x_ohm_km: 0.167, area_aislado_mm2: 32.71, breaker_max: 50}
+  - {calibre: 4 AWG, seccion_mm2: 21.2, ampacidad: 85, r_ohm_km: 1.02, x_ohm_km: 0.157, area_aislado_mm2: 53.16}
+  - {calibre: 3 AWG, seccion_mm2: 26.7, ampacidad: 100, r_ohm_km: 0.82, x_ohm_km: 0.154, area_aislado_mm2: 62.77}
+  - {calibre: 2 AWG, seccion_mm2: 33.6, ampacidad: 115, r_ohm_km: 0.62, x_ohm_km: 0.148, area_aislado_mm2: 74.71}
+  - {calibre: 1 AWG, seccion_mm2: 42.4, ampacidad: 130, r_ohm_km: 0.49, x_ohm_km: 0.151, area_aislado_mm2: 100.8}
+  - {calibre: 1/0 AWG, seccion_mm2: 53.5, ampacidad: 150, r_ohm_km: 0.39, x_ohm_km: 0.144, area_aislado_mm2: 119.7}
+  - {calibre: 2/0 AWG, seccion_mm2: 67.4, ampacidad: 175, r_ohm_km: 0.33, x_ohm_km: 0.141, area_aislado_mm2: 143.4}
+  - {calibre: 3/0 AWG, seccion_mm2: 85.0, ampacidad: 200, r_ohm_km: 0.253, x_ohm_km: 0.138, area_aislado_mm2: 172.8}
+  - {calibre: 4/0 AWG, seccion_mm2: 107, ampacidad: 230, r_ohm_km: 0.203, x_ohm_km: 0.135, area_aislado_mm2: 208.8}

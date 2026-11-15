@@ -1,0 +1,28 @@
+id: control-nfpa70
+version: 0.1.0
+nombre: Perfil de prueba para el caso de control UPS CT012742 (NFPA 70)
+distribuidora: ninguna
+norma_base: NFPA 70, según la tesis UPS CT012742
+sistema_defecto: monofasico_trifilar_120_240
+demanda_metodo: escalonado
+nota: >-
+  Solo para pruebas. Reproduce el método de demanda de la tesis, que aplica el
+  35 % a todo el subtotal. No usar en proyectos. Las demás tablas son copia de
+  las del perfil cnel-ep.
+tablas:
+  - tablas/cargas.yaml
+  - tablas/tramos_demanda.yaml
+  - tablas/circuitos_minimos.yaml
+  - tablas/sistemas_tension.yaml
+  - tablas/conductores.yaml
+  - tablas/factores_temperatura.yaml
+  - tablas/factores_agrupamiento.yaml
+  - tablas/minimos_calibre.yaml
+  - tablas/breakers.yaml
+  - tablas/espacios_tablero.yaml
+  - tablas/barras.yaml
+  - tablas/medidores.yaml
+  - tablas/ductos.yaml
+  - tablas/tierra_equipos.yaml
+  - tablas/parametros.yaml
+  - tablas/redondeo.yaml

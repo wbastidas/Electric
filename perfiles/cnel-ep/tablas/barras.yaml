@@ -1,0 +1,13 @@
+id: general/barras-tablero
+tipo: serie
+serie: barras
+version: 0.1.0
+vigente_desde: 2026-01-01
+fuente:
+  norma: Corrientes de barras de centros de carga comerciales; propuesta propia
+  numeral: null
+  url: null
+estado: por_verificar
+nota: Confirmar con el catálogo homologado (RD-06).
+unidades: {valor: A}
+filas: [100, 125, 150, 200, 225]

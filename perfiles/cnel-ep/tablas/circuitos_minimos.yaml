@@ -1,0 +1,19 @@
+id: nec-sb-ie/circuitos-minimos
+tipo: circuitos_minimos
+version: 0.1.0
+vigente_desde: 2018-01-01
+fuente:
+  norma: NEC-SB-IE Instalaciones Eléctricas (MIDUVI 2018)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Del documento de requerimientos (RC-02): menos de 80 m², 1+1; 80 a 200, 2+2;
+  201 a 300, 3+3; 301 a 400, 4+4; más de 400, 1+1 por cada 100 m².
+unidades: {area_max: m2}
+filas:
+  - {area_max: 80, incluye_max: false, iluminacion: 1, tomacorrientes: 1}
+  - {area_max: 200, iluminacion: 2, tomacorrientes: 2}
+  - {area_max: 300, iluminacion: 3, tomacorrientes: 3}
+  - {area_max: 400, iluminacion: 4, tomacorrientes: 4}
+  - {area_max: null, por_cada_m2: 100}

@@ -1,0 +1,20 @@
+id: cnel-ep/redondeo
+tipo: redondeo
+version: 0.1.0
+vigente_desde: 2026-11-15
+fuente:
+  norma: Decisión de diseño
+  numeral: null
+  url: null
+estado: por_verificar
+nota: >-
+  Decimales al presentar, redondeo de medio hacia arriba. El cálculo interno
+  conserva la precisión completa. Ajustar para igualar las memorias que acepta CNEL.
+filas:
+  - {unidad: W, decimales: 0}
+  - {unidad: VA, decimales: 0}
+  - {unidad: kW, decimales: 2}
+  - {unidad: A, decimales: 2}
+  - {unidad: V, decimales: 2}
+  - {unidad: '%', decimales: 2}
+  - {unidad: mm2, decimales: 2}

@@ -1,0 +1,15 @@
+id: control-nfpa70/cargas
+tipo: cargas
+version: 0.1.0
+vigente_desde: 2011-01-01
+fuente:
+  norma: Tesis UPS CT012742 (reconstrucción)
+  numeral: null
+  url: null
+estado: por_verificar
+nota: >-
+  El caso de control declara cada carga con su potencia; esta fila solo define
+  el tipo genérico. Su potencia por defecto no se usa.
+unidades: {potencia: VA}
+filas:
+  - {tipo: carga_declarada, potencia: 1500, especial: true, conexion: fase_neutro}

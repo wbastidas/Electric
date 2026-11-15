@@ -1,0 +1,22 @@
+id: nec-sb-ie/cargas
+tipo: cargas
+version: 0.1.0
+vigente_desde: 2018-01-01
+fuente:
+  norma: NEC-SB-IE Instalaciones Eléctricas (MIDUVI 2018)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Potencias del documento de requerimientos (RC-01); falta el PDF oficial
+  MIDUVI (RD-01). La conexión de cada equipo (fase-neutro o entre líneas) no
+  viene del documento: es un supuesto por confirmar.
+unidades: {potencia: W}
+filas:
+  - {tipo: punto_luz, potencia: 100}
+  - {tipo: tomacorriente, potencia: 200}
+  - {tipo: ducha, potencia: 3500, especial: true, conexion: fase_neutro}
+  - {tipo: cocina, potencia: 6000, especial: true, conexion: linea}
+  - {tipo: calefon, potencia: 8000, especial: true, conexion: linea}
+  - {tipo: aire_acondicionado, potencia: 2500, especial: true, conexion: linea}
+  - {tipo: cargador_ev, potencia: 7500, especial: true, conexion: linea}

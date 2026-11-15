@@ -1,0 +1,12 @@
+id: general/espacios-tablero
+tipo: serie
+serie: espacios_tablero
+version: 0.1.0
+vigente_desde: 2026-01-01
+fuente:
+  norma: Tamaños comerciales de centros de carga; propuesta propia
+  numeral: null
+  url: null
+estado: por_verificar
+nota: Número de espacios (polos) de tableros comerciales; confirmar con el catálogo homologado (RD-06).
+filas: [2, 4, 6, 8, 12, 16, 20, 24, 30, 42]

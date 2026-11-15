@@ -1,0 +1,77 @@
+{
+  "id": "control-ups-ct012742",
+  "nombre": "Caso de control: vivienda de 1.045 ft² (tesis UPS CT012742, NFPA 70)",
+  "area_construida_m2": "97.0837",
+  "perfil": {
+    "id": "control-nfpa70",
+    "version": "0.1.0"
+  },
+  "cargas_especiales": [
+    {
+      "id": "ILUMINACION-GENERAL",
+      "tipo": "carga_declarada",
+      "circuito": "G1",
+      "potencia_w": "3135",
+      "conexion": "fase_neutro"
+    },
+    {
+      "id": "PEQUENOS-ARTEFACTOS-1",
+      "tipo": "carga_declarada",
+      "circuito": "PA1",
+      "potencia_w": "1500",
+      "conexion": "fase_neutro"
+    },
+    {
+      "id": "PEQUENOS-ARTEFACTOS-2",
+      "tipo": "carga_declarada",
+      "circuito": "PA2",
+      "potencia_w": "1500",
+      "conexion": "fase_neutro"
+    },
+    {
+      "id": "LAVANDERIA",
+      "tipo": "carga_declarada",
+      "circuito": "LV",
+      "potencia_w": "1500",
+      "conexion": "fase_neutro"
+    },
+    {
+      "id": "RESTO-NO-IDENTIFICADO",
+      "tipo": "carga_declarada",
+      "circuito": "AF",
+      "potencia_w": "2226",
+      "conexion": "linea"
+    }
+  ],
+  "circuitos": [
+    {
+      "id": "G1",
+      "tipo": "especial",
+      "longitud_m": "10"
+    },
+    {
+      "id": "PA1",
+      "tipo": "especial",
+      "longitud_m": "10"
+    },
+    {
+      "id": "PA2",
+      "tipo": "especial",
+      "longitud_m": "10"
+    },
+    {
+      "id": "LV",
+      "tipo": "especial",
+      "longitud_m": "10"
+    },
+    {
+      "id": "AF",
+      "tipo": "especial",
+      "longitud_m": "10"
+    }
+  ],
+  "tablero": {
+    "id": "TD-1",
+    "alimentador_longitud_m": "10"
+  }
+}

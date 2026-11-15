@@ -1,0 +1,29 @@
+id: cnel-ep
+version: 0.1.0
+nombre: CNEL EP + NEC-SB-IE
+distribuidora: CNEL EP
+norma_base: NEC-SB-IE Instalaciones Eléctricas (MIDUVI 2018)
+sistema_defecto: monofasico_trifilar_120_240
+demanda_metodo: por_categoria
+nota: >-
+  Versión inicial. Todas las tablas están por verificar: los valores vienen del
+  documento de requerimientos o de conocimiento general, no del PDF oficial.
+  Ningún expediente debe emitirse con este perfil sin verificar (compuerta G1).
+tablas:
+  - tablas/cargas.yaml
+  - tablas/circuitos_minimos.yaml
+  - tablas/factores_demanda.yaml
+  - tablas/factores_especiales.yaml
+  - tablas/sistemas_tension.yaml
+  - tablas/conductores.yaml
+  - tablas/factores_temperatura.yaml
+  - tablas/factores_agrupamiento.yaml
+  - tablas/minimos_calibre.yaml
+  - tablas/breakers.yaml
+  - tablas/espacios_tablero.yaml
+  - tablas/barras.yaml
+  - tablas/medidores.yaml
+  - tablas/ductos.yaml
+  - tablas/tierra_equipos.yaml
+  - tablas/parametros.yaml
+  - tablas/redondeo.yaml

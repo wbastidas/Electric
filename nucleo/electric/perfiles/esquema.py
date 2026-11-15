@@ -1,0 +1,287 @@
+"""Esquema de los perfiles normativos.
+
+Un perfil es una carpeta con `perfil.yaml` y sus tablas. Cada tabla declara su
+fuente y su estado de verificación. Las tablas guardan parámetros y la
+referencia al numeral, nunca el texto de la norma (RL-04).
+"""
+
+from __future__ import annotations
+
+from datetime import date
+from decimal import Decimal
+from typing import Annotated, Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+
+Estado = Literal["verificado", "por_verificar", "defecto_fuente"]
+MetodoDemanda = Literal["por_categoria", "escalonado"]
+
+#: De mejor a peor; un resultado hereda el peor estado de lo que usa.
+ORDEN_ESTADO: dict[Estado, int] = {"verificado": 0, "por_verificar": 1, "defecto_fuente": 2}
+
+
+def peor_estado(estados: list[Estado]) -> Estado:
+    return max(estados, key=lambda e: ORDEN_ESTADO[e], default="verificado")
+
+
+class Dato(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class Fuente(Dato):
+    norma: str
+    numeral: str | None = None
+    url: str | None = None
+
+
+class Verificacion(Dato):
+    """Quién comparó la tabla con el documento oficial y cuándo."""
+
+    por: str
+    fecha: date
+
+
+class TablaBase(Dato):
+    id: str
+    version: str
+    vigente_desde: date
+    fuente: Fuente
+    estado: Estado
+    nota: str | None = None
+    verificacion: Verificacion | None = None
+    unidades: dict[str, str] = Field(default_factory=dict)
+
+
+# --- Filas ---------------------------------------------------------------
+
+
+class FilaCarga(Dato):
+    tipo: str
+    potencia: Decimal = Field(gt=0)
+    especial: bool = False
+    conexion: Literal["fase_neutro", "linea"] = "fase_neutro"
+
+
+class FilaCircuitosMinimos(Dato):
+    #: Límite superior del tramo de área; `None` es el último tramo.
+    area_max: Decimal | None = None
+    incluye_max: bool = True
+    iluminacion: int | None = Field(default=None, ge=1)
+    tomacorrientes: int | None = Field(default=None, ge=1)
+    #: Si se da, el mínimo es un circuito de cada tipo por cada tantos m².
+    por_cada_m2: Decimal | None = Field(default=None, gt=0)
+
+
+class FilaFactorDemanda(Dato):
+    categoria: str
+    area_max: Decimal | None = None
+    incluye_max: bool = True
+    iluminacion: Decimal = Field(gt=0, le=1)
+    tomacorrientes: Decimal = Field(gt=0, le=1)
+
+
+class FilaFactorEspeciales(Dato):
+    cantidad_min: int = Field(ge=1)
+    factor: Decimal = Field(gt=0, le=1)
+
+
+class FilaTramoDemanda(Dato):
+    #: Límite superior del tramo de carga; `None` es el resto.
+    hasta: Decimal | None = None
+    factor: Decimal = Field(gt=0, le=1)
+
+
+class FilaSistema(Dato):
+    id: str
+    descripcion: str
+    fases: int = Field(ge=1, le=3)
+    v_fase_neutro: Decimal = Field(gt=0)
+    v_linea: Decimal = Field(gt=0)
+
+
+class FilaConductor(Dato):
+    calibre: str
+    seccion_mm2: Decimal = Field(gt=0)
+    ampacidad: Decimal = Field(gt=0)
+    r_ohm_km: Decimal = Field(gt=0)
+    x_ohm_km: Decimal = Field(ge=0)
+    #: Área del conductor con aislamiento, para el relleno de ducto.
+    area_aislado_mm2: Decimal = Field(gt=0)
+    #: Mayor breaker admitido; si falta, el mayor normalizado ≤ ampacidad.
+    breaker_max: Decimal | None = Field(default=None, gt=0)
+
+
+class FilaFactorTemperatura(Dato):
+    t_max: Decimal
+    factor: Decimal = Field(gt=0)
+
+
+class FilaFactorAgrupamiento(Dato):
+    n_max: int = Field(ge=1)
+    factor: Decimal = Field(gt=0, le=1)
+
+
+class FilaMinimoCalibre(Dato):
+    uso: Literal["iluminacion", "tomacorrientes", "especial", "alimentador"]
+    calibre: str
+    breaker_min: Decimal | None = Field(default=None, gt=0)
+
+
+class FilaMedidor(Dato):
+    #: Mayor breaker principal de la clase; `None` es la última clase.
+    breaker_max: Decimal | None = None
+    clase: str
+
+
+class FilaDucto(Dato):
+    designacion: str
+    area_mm2: Decimal = Field(gt=0)
+
+
+class FilaTierraEquipos(Dato):
+    breaker_max: Decimal = Field(gt=0)
+    calibre: str
+
+
+class FilaParametro(Dato):
+    clave: str
+    valor: Decimal
+    unidad: str | None = None
+    nota: str | None = None
+
+
+class FilaRedondeo(Dato):
+    unidad: str
+    decimales: int = Field(ge=0, le=9)
+
+
+# --- Tablas --------------------------------------------------------------
+
+
+class TablaCargas(TablaBase):
+    tipo: Literal["cargas"]
+    filas: tuple[FilaCarga, ...]
+
+
+class TablaCircuitosMinimos(TablaBase):
+    tipo: Literal["circuitos_minimos"]
+    filas: tuple[FilaCircuitosMinimos, ...]
+
+
+class TablaFactoresDemanda(TablaBase):
+    tipo: Literal["factores_demanda"]
+    filas: tuple[FilaFactorDemanda, ...]
+
+
+class TablaFactoresEspeciales(TablaBase):
+    tipo: Literal["factores_especiales"]
+    filas: tuple[FilaFactorEspeciales, ...]
+
+
+class TablaTramosDemanda(TablaBase):
+    tipo: Literal["tramos_demanda"]
+    filas: tuple[FilaTramoDemanda, ...]
+
+
+class TablaSistemas(TablaBase):
+    tipo: Literal["sistemas_tension"]
+    filas: tuple[FilaSistema, ...]
+
+
+class TablaConductores(TablaBase):
+    """Catálogo ordenado de menor a mayor calibre."""
+
+    tipo: Literal["conductores"]
+    filas: tuple[FilaConductor, ...]
+
+
+class TablaFactoresTemperatura(TablaBase):
+    tipo: Literal["factores_temperatura"]
+    filas: tuple[FilaFactorTemperatura, ...]
+
+
+class TablaFactoresAgrupamiento(TablaBase):
+    tipo: Literal["factores_agrupamiento"]
+    filas: tuple[FilaFactorAgrupamiento, ...]
+
+
+class TablaMinimosCalibre(TablaBase):
+    tipo: Literal["minimos_calibre"]
+    filas: tuple[FilaMinimoCalibre, ...]
+
+
+class TablaSerie(TablaBase):
+    """Serie de valores normalizados, de menor a mayor."""
+
+    tipo: Literal["serie"]
+    serie: Literal["breakers", "espacios_tablero", "barras"]
+    filas: tuple[Decimal, ...]
+
+
+class TablaMedidores(TablaBase):
+    tipo: Literal["medidores"]
+    filas: tuple[FilaMedidor, ...]
+
+
+class TablaDuctos(TablaBase):
+    tipo: Literal["ductos"]
+    filas: tuple[FilaDucto, ...]
+
+
+class TablaTierraEquipos(TablaBase):
+    tipo: Literal["tierra_equipos"]
+    filas: tuple[FilaTierraEquipos, ...]
+
+
+class TablaParametros(TablaBase):
+    tipo: Literal["parametros"]
+    filas: tuple[FilaParametro, ...]
+
+
+class TablaRedondeo(TablaBase):
+    tipo: Literal["redondeo"]
+    filas: tuple[FilaRedondeo, ...]
+
+
+Tabla = Annotated[
+    TablaCargas
+    | TablaCircuitosMinimos
+    | TablaFactoresDemanda
+    | TablaFactoresEspeciales
+    | TablaTramosDemanda
+    | TablaSistemas
+    | TablaConductores
+    | TablaFactoresTemperatura
+    | TablaFactoresAgrupamiento
+    | TablaMinimosCalibre
+    | TablaSerie
+    | TablaMedidores
+    | TablaDuctos
+    | TablaTierraEquipos
+    | TablaParametros
+    | TablaRedondeo,
+    Field(discriminator="tipo"),
+]
+
+
+class MetaPerfil(Dato):
+    """Contenido de `perfil.yaml`."""
+
+    id: str
+    version: str
+    nombre: str
+    distribuidora: str
+    norma_base: str
+    sistema_defecto: str
+    demanda_metodo: MetodoDemanda
+    nota: str | None = None
+    tablas: tuple[str, ...]
+
+
+class RefTabla(Dato):
+    """Rastro de una consulta a una tabla: qué fila se usó y en qué estado está."""
+
+    id: str
+    version: str
+    fila: str
+    estado: Estado

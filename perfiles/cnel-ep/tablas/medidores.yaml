@@ -1,0 +1,17 @@
+id: cnel-ep/medidores
+tipo: medidores
+version: 0.1.0
+vigente_desde: 2026-08-01
+fuente:
+  norma: CNEL MN-COM-AC-001 v5 (ago. 2026)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Del documento de requerimientos (RC-12): hasta 60 A, clase 100; de 70 a
+  175 A, clase 200; más de 175 A, con transformadores de corriente.
+unidades: {breaker_max: A}
+filas:
+  - {breaker_max: 60, clase: clase 100}
+  - {breaker_max: 175, clase: clase 200}
+  - {breaker_max: null, clase: con transformadores de corriente}

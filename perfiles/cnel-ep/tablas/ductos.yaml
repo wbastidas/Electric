@@ -1,0 +1,18 @@
+id: general/ductos
+tipo: ductos
+version: 0.1.0
+vigente_desde: 2011-01-01
+fuente:
+  norma: Conocimiento general, por contrastar con NFPA 70 / IEC 60364-5-52 (RD-04)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: Área interior total de tubería EMT por designación comercial.
+unidades: {area_mm2: mm2}
+filas:
+  - {designacion: '1/2"', area_mm2: 196}
+  - {designacion: '3/4"', area_mm2: 343}
+  - {designacion: '1"', area_mm2: 556}
+  - {designacion: '1 1/4"', area_mm2: 968}
+  - {designacion: '1 1/2"', area_mm2: 1314}
+  - {designacion: '2"', area_mm2: 2165}

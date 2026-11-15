@@ -1,0 +1,20 @@
+id: nec-sb-ie/factores-demanda
+tipo: factores_demanda
+version: 0.1.0
+vigente_desde: 2018-01-01
+fuente:
+  norma: NEC-SB-IE Instalaciones Eléctricas (MIDUVI 2018)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  El documento de requerimientos solo da los extremos (0,70/0,50 a 0,53/0,30
+  según tamaño). Las filas intermedias se reconstruyeron de memoria y deben
+  confirmarse con el PDF oficial antes de usarse.
+unidades: {area_max: m2}
+filas:
+  - {categoria: pequeña, area_max: 80, incluye_max: false, iluminacion: 0.70, tomacorrientes: 0.50}
+  - {categoria: mediana, area_max: 200, iluminacion: 0.70, tomacorrientes: 0.50}
+  - {categoria: mediana grande, area_max: 300, iluminacion: 0.55, tomacorrientes: 0.40}
+  - {categoria: grande, area_max: 400, iluminacion: 0.55, tomacorrientes: 0.40}
+  - {categoria: especial, area_max: null, iluminacion: 0.53, tomacorrientes: 0.30}

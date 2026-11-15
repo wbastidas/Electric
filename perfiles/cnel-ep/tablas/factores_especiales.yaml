@@ -1,0 +1,13 @@
+id: nec-sb-ie/factores-especiales
+tipo: factores_especiales
+version: 0.1.0
+vigente_desde: 2018-01-01
+fuente:
+  norma: NEC-SB-IE Instalaciones Eléctricas (MIDUVI 2018)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: Del documento de requerimientos (RC-03) - 0,80 con una carga especial; 0,75 con dos o más.
+filas:
+  - {cantidad_min: 1, factor: 0.80}
+  - {cantidad_min: 2, factor: 0.75}
