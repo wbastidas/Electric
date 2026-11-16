@@ -48,6 +48,14 @@ export function Lista() {
 
       <section className="tarjeta">
         <h2>Nuevo proyecto</h2>
+        <div className="acciones izquierda">
+          <a className="boton primario" href="#/nuevo">Nuevo proyecto con el asistente</a>
+          <span className="tenue">
+            Datos, plano, clima, gustos de iluminación y equipos: al final le propone tres opciones para elegir.
+          </span>
+        </div>
+        <details>
+          <summary>Crear un proyecto vacío, sin asistente</summary>
         <form className="fila-formulario" onSubmit={alEnviar}>
           <Campo etiqueta="Nombre del proyecto">
             <input
@@ -77,8 +85,9 @@ export function Lista() {
             Ejemplo por formulario
           </button>
         </form>
+        </details>
         <div className="acciones izquierda">
-          <button className="primario" disabled={ejemplo.isPending} onClick={() => ejemplo.mutate()}>
+          <button disabled={ejemplo.isPending} onClick={() => ejemplo.mutate()}>
             {ejemplo.isPending ? "Diseñando…" : "Abrir el modelo de prueba con plano"}
           </button>
           <span className="tenue">

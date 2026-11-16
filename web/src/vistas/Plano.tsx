@@ -383,6 +383,9 @@ export function Plano({ id, revision, datos, perfil, sinGuardar, deshacer, cambi
               {disenar.isPending ? "Diseñando…" : disenado ? "Volver a diseñar" : "Diseñar instalación"}
             </button>
           </div>
+          <p>
+            <a href={`#/proyectos/${id}/asistente`}>Asistente: generar opciones Básica, Recomendada y Confort</a>
+          </p>
           <p className="tenue">
             {disenado
               ? "Volver a diseñar reemplaza puntos y circuitos; conserva los equipos declarados y lo que usted fijó (●). Lo agregado a mano y los cambios de circuito se pierden."

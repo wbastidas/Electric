@@ -656,6 +656,60 @@
         }
       }
     },
+    "/api/v1/proyectos/{id}/opciones": {
+      "post": {
+        "summary": "Generar Opciones",
+        "description": "Diseña las opciones Básica, Recomendada y Confort a partir del asistente.\n\nLa Recomendada queda en este proyecto; Básica y Confort se crean como\nescenarios hermanos con el mismo plano. Las tres llevan los equipos que\ndeclaró el usuario y se devuelven listas para comparar.",
+        "operationId": "generar_opciones_api_v1_proyectos__id__opciones_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Asistente"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EscenarioOut"
+                  },
+                  "title": "Response Generar Opciones Api V1 Proyectos  Id  Opciones Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/proyectos/{id}/salida.{formato}": {
       "get": {
         "summary": "Descargar Salida",
@@ -848,6 +902,24 @@
           "perimetro_m"
         ],
         "title": "Ambiente"
+      },
+      "Asistente": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "respuestas": {
+            "$ref": "#/components/schemas/Respuestas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "respuestas"
+        ],
+        "title": "Asistente"
       },
       "Borrador": {
         "properties": {
@@ -2635,6 +2707,82 @@
         ],
         "title": "RefTabla",
         "description": "Rastro de una consulta a una tabla: qué fila se usó y en qué estado está."
+      },
+      "Respuestas": {
+        "properties": {
+          "zona_climatica": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zona Climatica"
+          },
+          "aire": {
+            "type": "string",
+            "enum": [
+              "zona",
+              "dormitorios",
+              "todos",
+              "ninguno"
+            ],
+            "title": "Aire",
+            "default": "zona"
+          },
+          "iluminacion": {
+            "type": "string",
+            "title": "Iluminacion",
+            "default": "plafon"
+          },
+          "iluminacion_social": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iluminacion Social"
+          },
+          "iluminacion_dormitorios": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iluminacion Dormitorios"
+          },
+          "refrigeradora": {
+            "type": "boolean",
+            "title": "Refrigeradora",
+            "default": true
+          },
+          "exteriores": {
+            "type": "boolean",
+            "title": "Exteriores",
+            "default": true
+          },
+          "equipos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Equipos",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Respuestas",
+        "description": "Lo que el usuario contestó en el asistente."
       },
       "ResultadoOut": {
         "properties": {

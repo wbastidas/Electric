@@ -32,6 +32,7 @@ filas:
     equipos: [cocina]
     zona_humeda: true
     refrigeradora: true
+    zona_casa: social
   - uso: lavanderia
     patrones: [lavanderia, lavado, laundry]
     area_por_luminaria_m2: 8
@@ -49,6 +50,7 @@ filas:
     altura_tomas_m: 0.40
     equipos: [aire_acondicionado]
     aire: true
+    zona_casa: social
   - uso: dormitorio
     patrones: [dormitorio, dorm, habitacion, cuarto, recamara]
     area_por_luminaria_m2: 14
@@ -58,6 +60,7 @@ filas:
     equipos: [aire_acondicionado]
     aire: true
     tomas_distribucion: extremos
+    zona_casa: dormitorios
   - uso: estudio
     patrones: [estudio, oficina, biblioteca]
     area_por_luminaria_m2: 10
@@ -66,6 +69,7 @@ filas:
     altura_tomas_m: 0.40
     equipos: [aire_acondicionado]
     aire: true
+    zona_casa: social
   - uso: pasillo
     patrones: [pasillo, hall, corredor, circulacion, vestibulo]
     area_por_luminaria_m2: 10

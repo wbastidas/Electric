@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type FormEvent, useState } from "react";
-import { api, type Perfil } from "../api/cliente";
+import { api, type Escenario, type Perfil } from "../api/cliente";
 import { Aviso, Campo, MensajeError } from "./comunes";
 
 interface Props {
@@ -34,18 +34,6 @@ export function Escenarios({ id, revision, perfil, sinGuardar }: Props) {
   };
 
   const lista = escenarios.data ?? [];
-  const estilo = (clave: string) => perfil.estilos.find((x) => x.id === clave)?.nombre ?? clave;
-  const zona = (clave: string | null | undefined) =>
-    clave ? perfil.zonas.find((x) => x.id === clave)?.nombre ?? clave : "Sin zona";
-  const etiquetas = Array.from(new Set(lista.flatMap((e) => e.resumen.map((d) => d.etiqueta))));
-  const fila = (titulo: string, valores: (string | number)[]) => (
-    <tr key={titulo}>
-      <th scope="row">{titulo}</th>
-      {valores.map((v, i) => (
-        <td key={lista[i].id} className={lista[i].id === id ? "actual" : ""}>{v}</td>
-      ))}
-    </tr>
-  );
 
   return (
     <div className="columnas">
@@ -58,37 +46,7 @@ export function Escenarios({ id, revision, perfil, sinGuardar }: Props) {
         {sinGuardar ? <Aviso tipo="alerta">Guarde los cambios para verlos en la comparación.</Aviso> : null}
         {escenarios.isError ? <MensajeError error={escenarios.error} /> : null}
         {lista.length ? (
-          <div className="tabla-ancha">
-            <table className="comparacion">
-              <thead>
-                <tr>
-                  <th />
-                  {lista.map((e) => (
-                    <th key={e.id} className={e.id === id ? "actual" : ""}>
-                      {e.id === id ? e.nombre : <a href={`#/proyectos/${e.id}`}>{e.nombre}</a>}
-                      {e.id === id ? <span className="tenue"> (abierto)</span> : null}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {fila("Iluminación", lista.map((e) => estilo(e.iluminacion)))}
-                {fila("Zona climática", lista.map((e) => zona(e.zona_climatica)))}
-                {fila("Luminarias", lista.map((e) => e.luminarias))}
-                {fila("Tomacorrientes", lista.map((e) => e.tomacorrientes))}
-                {fila("Aires acondicionados", lista.map((e) => e.aires))}
-                {fila("Circuitos", lista.map((e) => e.circuitos))}
-                {etiquetas.map((etiqueta) =>
-                  fila(
-                    etiqueta,
-                    lista.map((e) =>
-                      e.estado === "listo" ? e.resumen.find((d) => d.etiqueta === etiqueta)?.texto ?? "—" : "incompleto",
-                    ),
-                  ),
-                )}
-              </tbody>
-            </table>
-          </div>
+          <Comparacion lista={lista} perfil={perfil} actual={id} />
         ) : escenarios.isLoading ? (
           <p>Calculando…</p>
         ) : null}
@@ -111,6 +69,63 @@ export function Escenarios({ id, revision, perfil, sinGuardar }: Props) {
         </p>
         {crear.isError ? <MensajeError error={crear.error} /> : null}
       </section>
+    </div>
+  );
+}
+
+/** Tabla con un escenario por columna; `actual` es el que está abierto. */
+export function Comparacion({
+  lista,
+  perfil,
+  actual,
+}: {
+  lista: Escenario[];
+  perfil: Perfil;
+  actual?: string;
+}) {
+  const estilo = (clave: string) => perfil.estilos.find((x) => x.id === clave)?.nombre ?? clave;
+  const zona = (clave: string | null | undefined) =>
+    clave ? perfil.zonas.find((x) => x.id === clave)?.nombre ?? clave : "Sin zona";
+  const etiquetas = Array.from(new Set(lista.flatMap((e) => e.resumen.map((d) => d.etiqueta))));
+  const fila = (titulo: string, valores: (string | number)[]) => (
+    <tr key={titulo}>
+      <th scope="row">{titulo}</th>
+      {valores.map((v, i) => (
+        <td key={lista[i].id} className={lista[i].id === actual ? "actual" : ""}>{v}</td>
+      ))}
+    </tr>
+  );
+  return (
+    <div className="tabla-ancha">
+      <table className="comparacion">
+        <thead>
+          <tr>
+            <th />
+            {lista.map((e) => (
+              <th key={e.id} className={e.id === actual ? "actual" : ""}>
+                {e.id === actual ? e.nombre : <a href={`#/proyectos/${e.id}`}>{e.nombre}</a>}
+                {e.id === actual ? <span className="tenue"> (abierto)</span> : null}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {fila("Iluminación", lista.map((e) => estilo(e.iluminacion)))}
+          {fila("Zona climática", lista.map((e) => zona(e.zona_climatica)))}
+          {fila("Luminarias", lista.map((e) => e.luminarias))}
+          {fila("Tomacorrientes", lista.map((e) => e.tomacorrientes))}
+          {fila("Aires acondicionados", lista.map((e) => e.aires))}
+          {fila("Circuitos", lista.map((e) => e.circuitos))}
+          {etiquetas.map((etiqueta) =>
+            fila(
+              etiqueta,
+              lista.map((e) =>
+                e.estado === "listo" ? e.resumen.find((d) => d.etiqueta === etiqueta)?.texto ?? "—" : "incompleto",
+              ),
+            ),
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -220,6 +220,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/proyectos/{id}/opciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generar Opciones
+         * @description Diseña las opciones Básica, Recomendada y Confort a partir del asistente.
+         *
+         *     La Recomendada queda en este proyecto; Básica y Confort se crean como
+         *     escenarios hermanos con el mismo plano. Las tres llevan los equipos que
+         *     declaró el usuario y se devuelven listas para comparar.
+         */
+        post: operations["generar_opciones_api_v1_proyectos__id__opciones_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/proyectos/{id}/salida.{formato}": {
         parameters: {
             query?: never;
@@ -305,6 +329,12 @@ export interface components {
              * @default []
              */
             banderas: string[];
+        };
+        /** Asistente */
+        Asistente: {
+            /** Revision */
+            revision: number;
+            respuestas: components["schemas"]["Respuestas"];
         };
         /**
          * Borrador
@@ -1048,6 +1078,44 @@ export interface components {
              */
             estado: "verificado" | "por_verificar" | "defecto_fuente";
         };
+        /**
+         * Respuestas
+         * @description Lo que el usuario contestó en el asistente.
+         */
+        Respuestas: {
+            /** Zona Climatica */
+            zona_climatica?: string | null;
+            /**
+             * Aire
+             * @default zona
+             * @enum {string}
+             */
+            aire: "zona" | "dormitorios" | "todos" | "ninguno";
+            /**
+             * Iluminacion
+             * @default plafon
+             */
+            iluminacion: string;
+            /** Iluminacion Social */
+            iluminacion_social?: string | null;
+            /** Iluminacion Dormitorios */
+            iluminacion_dormitorios?: string | null;
+            /**
+             * Refrigeradora
+             * @default true
+             */
+            refrigeradora: boolean;
+            /**
+             * Exteriores
+             * @default true
+             */
+            exteriores: boolean;
+            /**
+             * Equipos
+             * @default []
+             */
+            equipos: string[];
+        };
         /** ResultadoOut */
         ResultadoOut: {
             /** Id */
@@ -1662,6 +1730,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProyectoDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generar_opciones_api_v1_proyectos__id__opciones_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Asistente"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EscenarioOut"][];
                 };
             };
             /** @description Validation Error */

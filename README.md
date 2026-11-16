@@ -39,6 +39,26 @@ Para repetirlo desde `nucleo/`:
 En la aplicación web, el botón **Abrir el modelo de prueba con plano** hace lo
 mismo y muestra la red en el visor.
 
+### Asistente: tres opciones para elegir
+
+**Nuevo proyecto con el asistente** (en la lista de proyectos) pregunta, paso a
+paso: datos del predio, plano DXF, zona climática y aire acondicionado (según
+la zona, solo dormitorios, todos o ninguno), gusto de iluminación (general, zonas
+sociales y dormitorios), equipos con circuito propio, refrigeradora y
+exteriores. Al terminar diseña tres opciones y las muestra comparadas:
+
+| Opción | Qué lleva |
+| --- | --- |
+| Básica | Plafón según el área, sin aire ni refrigeradora dedicada; exteriores solo si se pidieron |
+| Recomendada | Exactamente lo que se respondió |
+| Confort | Ojos de buey en zonas sociales, aire en todos los ambientes que lo admiten, refrigeradora y fachada completa |
+
+Las tres quedan como escenarios del proyecto, con los mismos equipos
+declarados. El usuario abre la que prefiera y la ajusta. El asistente también
+se abre desde un proyecto con plano (pestaña Plano), sin pisar las opciones
+anteriores. Ojos de buey es solo una opción de estilo: el general por defecto
+es plafón.
+
 ### Escenarios y criterios de diseño
 
 En la pestaña **Plano**, la tarjeta *Criterios del escenario* define cómo se

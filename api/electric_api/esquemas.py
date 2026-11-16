@@ -6,6 +6,7 @@ from decimal import Decimal
 from typing import Literal
 
 from electric.diseno.edicion import Edicion
+from electric.diseno.opciones import Respuestas
 from electric.modelo.entidades import (
     CargaEspecial,
     Circuito,
@@ -206,6 +207,11 @@ class OpcionZona(Esquema):
     id: str
     nombre: str
     aire: bool
+
+
+class Asistente(Esquema):
+    revision: int
+    respuestas: Respuestas
 
 
 class NuevoEscenario(Esquema):

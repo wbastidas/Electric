@@ -178,6 +178,9 @@ class FilaPlantilla(Dato):
     #: "perimetro": tomas repartidos por las paredes; "extremos": en los
     #: extremos de las paredes sin puerta (a los lados de cama o mesón).
     tomas_distribucion: Literal["perimetro", "extremos"] = "perimetro"
+    #: Zona de la casa para las preguntas del asistente: "social" (sala,
+    #: comedor, cocina, estudio), "dormitorios" o "servicio".
+    zona_casa: Literal["social", "dormitorios", "servicio"] = "servicio"
 
 
 class FilaEstiloLuz(Dato):

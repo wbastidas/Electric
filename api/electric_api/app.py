@@ -9,11 +9,12 @@ from typing import Annotated
 
 from electric.calculo import calcular
 from electric.diseno import disenar, editar
+from electric.diseno.opciones import NOMBRES, OPCIONES, preferencias_para
 from electric.errores import ErrorElectric
 from electric.flujo import proyecto_desde_plano
 from electric.ingesta import leer_dxf
 from electric.interpretacion import interpretar
-from electric.modelo import Proyecto, a_json_canonico, hash_canonico
+from electric.modelo import CargaEspecial, Proyecto, a_json_canonico, hash_canonico
 from electric.perfiles import Perfil
 from electric.salida_cad import generar_dxf, renderizar
 from fastapi import APIRouter, Body, Depends, FastAPI, Query, Request, Response
@@ -34,6 +35,7 @@ from electric_api.db import (
     crear_sesiones,
 )
 from electric_api.esquemas import (
+    Asistente,
     Borrador,
     Calculos,
     DisenoOut,
@@ -519,27 +521,28 @@ def listar_escenarios(id: str, sesion: SesionDep, perfiles: PerfilesDep) -> list
     return sorted(salida, key=lambda e: (e.nombre != "Base", e.nombre))
 
 
-@rutas.post("/proyectos/{id}/escenarios", status_code=201)
-def crear_escenario(id: str, cuerpo: NuevoEscenario, sesion: SesionDep) -> ProyectoDetalle:
-    """Copia el proyecto, con su plano, como un escenario nuevo para probar otros criterios."""
-    fila = _buscar(sesion, id)
+def _grupo(sesion: Session, id: str, nombre_si_falta: str) -> EscenarioBD:
     propio = _escenario(sesion, id)
     if propio is None:
-        propio = EscenarioBD(proyecto_id=id, grupo=id, nombre="Base")
+        propio = EscenarioBD(proyecto_id=id, grupo=id, nombre=nombre_si_falta)
         sesion.add(propio)
-    nombres = {
-        e.nombre
-        for e in sesion.scalars(select(EscenarioBD).where(EscenarioBD.grupo == propio.grupo))
-    }
-    if cuerpo.nombre in nombres:
-        raise Problema(409, "escenario_repetido", "Ya hay un escenario con ese nombre")
-    datos = Borrador.model_validate_json(fila.datos)
+        sesion.flush()
+    return propio
+
+
+def _nombres(sesion: Session, grupo: str) -> set[str]:
+    return {e.nombre for e in sesion.scalars(select(EscenarioBD).where(EscenarioBD.grupo == grupo))}
+
+
+def _copiar(
+    sesion: Session, fila: ProyectoBD, datos: Borrador, grupo: str, nombre: str, resumen: str
+) -> ProyectoBD:
+    """Crea un proyecto hermano con `datos` y el mismo plano, como escenario del grupo."""
     base = datos.nombre.split(" — ")[0]
-    datos = datos.model_copy(update={"nombre": f"{base} — {cuerpo.nombre}"[:200]})
-    nuevo_id = str(uuid.uuid4())
+    datos = datos.model_copy(update={"nombre": f"{base} — {nombre}"[:200]})
     momento = ahora()
     nueva = ProyectoBD(
-        id=nuevo_id,
+        id=str(uuid.uuid4()),
         nombre=datos.nombre,
         revision=1,
         datos=a_json_canonico(datos),
@@ -548,26 +551,116 @@ def crear_escenario(id: str, cuerpo: NuevoEscenario, sesion: SesionDep) -> Proye
     )
     sesion.add(nueva)
     sesion.flush()
-    archivo = sesion.get(ArchivoBD, id)
+    archivo = sesion.get(ArchivoBD, fila.id)
     if archivo is not None:
         sesion.add(
             ArchivoBD(
-                proyecto_id=nuevo_id,
+                proyecto_id=nueva.id,
                 nombre=archivo.nombre,
                 sha256=archivo.sha256,
                 contenido=archivo.contenido,
             )
         )
-    sesion.add(EscenarioBD(proyecto_id=nuevo_id, grupo=propio.grupo, nombre=cuerpo.nombre))
-    _anotar(
+    sesion.add(EscenarioBD(proyecto_id=nueva.id, grupo=grupo, nombre=nombre))
+    _anotar(sesion, nueva, "crear escenario", datos, resumen=resumen)
+    return nueva
+
+
+@rutas.post("/proyectos/{id}/escenarios", status_code=201)
+def crear_escenario(id: str, cuerpo: NuevoEscenario, sesion: SesionDep) -> ProyectoDetalle:
+    """Copia el proyecto, con su plano, como un escenario nuevo para probar otros criterios."""
+    fila = _buscar(sesion, id)
+    propio = _grupo(sesion, id, "Base")
+    if cuerpo.nombre in _nombres(sesion, propio.grupo):
+        raise Problema(409, "escenario_repetido", "Ya hay un escenario con ese nombre")
+    nueva = _copiar(
         sesion,
-        nueva,
-        "crear escenario",
-        datos,
-        resumen=f"copia de {fila.nombre} (rev. {fila.revision})",
+        fila,
+        Borrador.model_validate_json(fila.datos),
+        propio.grupo,
+        cuerpo.nombre,
+        f"copia de {fila.nombre} (rev. {fila.revision})",
     )
     sesion.commit()
     return _detalle(nueva)
+
+
+@rutas.post("/proyectos/{id}/opciones")
+def generar_opciones(
+    id: str, cuerpo: Asistente, sesion: SesionDep, perfiles: PerfilesDep
+) -> list[EscenarioOut]:
+    """Diseña las opciones Básica, Recomendada y Confort a partir del asistente.
+
+    La Recomendada queda en este proyecto; Básica y Confort se crean como
+    escenarios hermanos con el mismo plano. Las tres llevan los equipos que
+    declaró el usuario y se devuelven listas para comparar.
+    """
+    fila = _buscar(sesion, id)
+    _exigir_revision(fila, cuerpo.revision)
+    datos = Borrador.model_validate_json(fila.datos)
+    if datos.plano is None:
+        raise Problema(409, "sin_plano", "Cargue el plano antes de generar las opciones")
+    perfil = _perfil_de(datos, perfiles)
+    r = cuerpo.respuestas
+    equipos = tuple(
+        CargaEspecial(id=f"declarada-{n}", tipo=t, circuito="-")
+        for n, t in enumerate(r.equipos, start=1)
+    )
+    limpio = datos.plano.model_copy(
+        update={"ubicaciones": (), "interruptores": (), "recorridos": ()}
+    )
+    disenados: dict[str, Borrador] = {}
+    avisos: dict[str, tuple[str, ...]] = {}
+    try:
+        for opcion in OPCIONES:
+            preferencias = preferencias_para(opcion, r, limpio, perfil)
+            diseno = disenar(limpio, equipos, perfil, preferencias)
+            avisos[opcion] = diseno.avisos
+            disenados[opcion] = datos.model_copy(
+                update={
+                    "puntos": list(diseno.puntos),
+                    "cargas_especiales": list(diseno.cargas_especiales),
+                    "circuitos": list(diseno.circuitos),
+                    "plano": diseno.plano,
+                    "preferencias": preferencias,
+                }
+            )
+    except ErrorElectric as error:
+        raise Problema(
+            422, error.codigo, "No se pudieron generar las opciones", str(error)
+        ) from error
+
+    propio = _grupo(sesion, id, NOMBRES["recomendada"])
+    tomados = _nombres(sesion, propio.grupo) - {propio.nombre}
+    propio.nombre = _libre(NOMBRES["recomendada"], tomados)
+    _actualizar(
+        sesion,
+        fila,
+        disenados["recomendada"],
+        "asistente",
+        resumen="opción Recomendada con las respuestas del asistente",
+    )
+    for opcion in ("basica", "confort"):
+        nombre = _libre(NOMBRES[opcion], _nombres(sesion, propio.grupo))
+        _copiar(
+            sesion,
+            fila,
+            disenados[opcion],
+            propio.grupo,
+            nombre,
+            f"opción {NOMBRES[opcion]} del asistente sobre {fila.nombre}",
+        )
+    sesion.commit()
+    return listar_escenarios(id, sesion, perfiles)
+
+
+def _libre(nombre: str, tomados: set[str]) -> str:
+    if nombre not in tomados:
+        return nombre
+    n = 2
+    while f"{nombre} {n}" in tomados:
+        n += 1
+    return f"{nombre} {n}"
 
 
 _TIPOS = {"dxf": "application/dxf", "png": "image/png", "pdf": "application/pdf"}

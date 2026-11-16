@@ -20,6 +20,7 @@ export type Diseno = S["DisenoOut"];
 export type Edicion = S["Editar"]["ediciones"][number];
 export type Escenario = S["EscenarioOut"];
 export type Preferencias = S["Preferencias"];
+export type Respuestas = S["Respuestas"];
 
 /** Lo mínimo para crear un proyecto; el servidor completa el resto. */
 export type BorradorNuevo = Partial<Borrador> & Pick<Borrador, "nombre" | "perfil">;
@@ -98,5 +99,10 @@ export const api = {
   escenarios: (id: string) => pedir<Escenario[]>(`/proyectos/${id}/escenarios`),
   crearEscenario: (id: string, nombre: string) =>
     pedir<ProyectoDetalle>(`/proyectos/${id}/escenarios`, { method: "POST", body: JSON.stringify({ nombre }) }),
+  opciones: (id: string, revision: number, respuestas: Respuestas) =>
+    pedir<Escenario[]>(`/proyectos/${id}/opciones`, {
+      method: "POST",
+      body: JSON.stringify({ revision, respuestas }),
+    }),
   urlSalida: (id: string, formato: "dxf" | "png" | "pdf") => `/api/v1/proyectos/${id}/salida.${formato}`,
 };

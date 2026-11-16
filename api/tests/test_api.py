@@ -393,3 +393,55 @@ def test_el_perfil_ofrece_estilos_y_zonas(cliente: TestClient) -> None:
     assert {z["id"]: z["aire"] for z in perfil["zonas"]}["sierra"] is False
     dormitorio = next(u for u in perfil["usos"] if u["uso"] == "dormitorio")
     assert dormitorio["aire"] and dormitorio["tomas_distribucion"] == "extremos"
+
+
+def test_asistente_genera_basica_recomendada_y_confort(cliente: TestClient) -> None:
+    proyecto = _crear(
+        cliente,
+        {
+            "nombre": "Casa Pérez",
+            "perfil": PERFIL,
+            "predio": {"propietario": "Familia Pérez"},
+            "tablero": {"id": "TD-1", "alimentador_longitud_m": "15"},
+        },
+    )
+    ruta = f"/api/v1/proyectos/{proyecto['id']}"
+    sin_plano = cliente.post(f"{ruta}/opciones", json={"revision": 1, "respuestas": {}})
+    assert sin_plano.json()["codigo"] == "sin_plano"
+    cliente.post(
+        f"{ruta}/plano", params={"revision": 1}, content=PLANTA.read_bytes(), headers=BINARIO
+    )
+    respuestas = {
+        "zona_climatica": "costa",
+        "aire": "dormitorios",
+        "iluminacion": "plafon",
+        "iluminacion_social": "foco_central",
+        "equipos": ["ducha", "cocina"],
+    }
+    opciones = cliente.post(f"{ruta}/opciones", json={"revision": 2, "respuestas": respuestas})
+    assert opciones.status_code == 200, opciones.text
+    por_nombre = {e["nombre"]: e for e in opciones.json()}
+    assert set(por_nombre) == {"Básica", "Recomendada", "Confort"}
+    assert por_nombre["Recomendada"]["id"] == proyecto["id"]
+    assert [por_nombre[n]["aires"] for n in ("Básica", "Recomendada", "Confort")] == [0, 3, 4]
+    assert all(e["estado"] == "listo" for e in por_nombre.values())
+    confort = cliente.get(f"/api/v1/proyectos/{por_nombre['Confort']['id']}").json()
+    assert confort["datos"]["nombre"] == "Casa Pérez — Confort"
+    assert confort["datos"]["preferencias"]["ambientes"]
+    assert (
+        cliente.get(f"/api/v1/proyectos/{por_nombre['Básica']['id']}/salida.png").status_code == 200
+    )
+
+    # Repetir el asistente no pisa las opciones anteriores.
+    otra = cliente.post(f"{ruta}/opciones", json={"revision": 3, "respuestas": respuestas})
+    assert {e["nombre"] for e in otra.json()} == {
+        "Básica",
+        "Básica 2",
+        "Recomendada",
+        "Confort",
+        "Confort 2",
+    }
+    malo = cliente.post(
+        f"{ruta}/opciones", json={"revision": 4, "respuestas": {"iluminacion": "neon"}}
+    )
+    assert malo.status_code == 422
