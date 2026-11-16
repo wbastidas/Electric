@@ -117,8 +117,8 @@ def test_mover_un_punto_a_otro_ambiente_le_cambia_el_ambiente(
 
 def test_no_se_puede_mover_fuera_de_los_ambientes(proyecto: Proyecto, perfil_cnel: Perfil) -> None:
     luz = _luz_de(proyecto, "COCINA")
-    with pytest.raises(DatoInvalido, match="ningún ambiente"):
-        editar(proyecto, [Mover(id=luz, x=D(-5), y=D(-5))], perfil_cnel)
+    with pytest.raises(DatoInvalido, match="fuera del plano"):
+        editar(proyecto, [Mover(id=luz, x=D(-50), y=D(-50))], perfil_cnel)
     with pytest.raises(DatoInvalido, match="no hay un elemento"):
         editar(proyecto, [Mover(id="X-9", x=D(1), y=D(1))], perfil_cnel)
 

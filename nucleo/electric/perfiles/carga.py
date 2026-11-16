@@ -17,23 +17,28 @@ from pydantic import TypeAdapter, ValidationError
 
 from electric.errores import ErrorPerfil, FilaNoEncontrada
 from electric.perfiles.esquema import (
+    FilaAire,
     FilaCarga,
     FilaConductor,
     FilaDucto,
+    FilaEstiloLuz,
     FilaFactorDemanda,
     FilaMedidor,
     FilaMinimoCalibre,
     FilaPlantilla,
     FilaSistema,
     FilaTramoDemanda,
+    FilaZonaClimatica,
     MetaPerfil,
     RefTabla,
     Tabla,
+    TablaAires,
     TablaBase,
     TablaCargas,
     TablaCircuitosMinimos,
     TablaConductores,
     TablaDuctos,
+    TablaEstilosLuz,
     TablaFactoresAgrupamiento,
     TablaFactoresDemanda,
     TablaFactoresEspeciales,
@@ -47,6 +52,7 @@ from electric.perfiles.esquema import (
     TablaSistemas,
     TablaTierraEquipos,
     TablaTramosDemanda,
+    TablaZonasClimaticas,
 )
 
 _ADAPTADOR_TABLA: TypeAdapter[Tabla] = TypeAdapter(Tabla)
@@ -190,6 +196,43 @@ class Perfil:
             if fila.uso == uso:
                 return fila, self._ref(tabla, uso)
         raise FilaNoEncontrada(tabla.id, f"el uso '{uso}'")
+
+    # -- preferencias de diseño (tablas opcionales) -------------------------
+
+    def estilos_iluminacion(self) -> tuple[FilaEstiloLuz, ...]:
+        if "estilos_iluminacion" not in self.tablas:
+            return ()
+        return self._tabla("estilos_iluminacion", TablaEstilosLuz).filas
+
+    def estilo_iluminacion(self, id: str) -> tuple[FilaEstiloLuz, RefTabla]:
+        tabla = self._tabla("estilos_iluminacion", TablaEstilosLuz)
+        for fila in tabla.filas:
+            if fila.id == id:
+                return fila, self._ref(tabla, id)
+        raise FilaNoEncontrada(tabla.id, f"el estilo de iluminación '{id}'")
+
+    def zonas_climaticas(self) -> tuple[FilaZonaClimatica, ...]:
+        if "zonas_climaticas" not in self.tablas:
+            return ()
+        return self._tabla("zonas_climaticas", TablaZonasClimaticas).filas
+
+    def zona_climatica(self, id: str) -> tuple[FilaZonaClimatica, RefTabla]:
+        tabla = self._tabla("zonas_climaticas", TablaZonasClimaticas)
+        for fila in tabla.filas:
+            if fila.id == id:
+                return fila, self._ref(tabla, id)
+        raise FilaNoEncontrada(tabla.id, f"la zona climática '{id}'")
+
+    def aires(self) -> tuple[FilaAire, ...]:
+        return self._tabla("aires", TablaAires).filas
+
+    def aire_para(self, btu: Decimal) -> tuple[FilaAire, RefTabla]:
+        """Menor equipo comercial cuya capacidad cubre la requerida."""
+        tabla = self._tabla("aires", TablaAires)
+        for fila in tabla.filas:
+            if fila.btu >= btu:
+                return fila, self._ref(tabla, f"{fila.btu} BTU")
+        raise FilaNoEncontrada(tabla.id, f"una capacidad de {btu} BTU")
 
     # -- sistema de tensión ------------------------------------------------
 

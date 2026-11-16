@@ -39,6 +39,34 @@ Para repetirlo desde `nucleo/`:
 En la aplicación web, el botón **Abrir el modelo de prueba con plano** hace lo
 mismo y muestra la red en el visor.
 
+### Escenarios y criterios de diseño
+
+En la pestaña **Plano**, la tarjeta *Criterios del escenario* define cómo se
+diseña; la tabla de ambientes permite cambiarlo en uno solo:
+
+| Criterio | Opciones | Por ambiente |
+| --- | --- | --- |
+| Estilo de iluminación | Plafón según el área, un foco central, ojos de buey en cuadrícula | Sí |
+| Zona climática | Costa, Sierra, Amazonía, Galápagos o sin zona | Aire sí, no o según zona |
+| Tomacorrientes | Repartidos por el perímetro o en los extremos de las paredes | Sí |
+| Refrigeradora | Tomacorriente dedicado con circuito propio en la cocina | — |
+| Exteriores | Luz y toma de intemperie junto a cada puerta a la calle, luces de fachada cada 6 m, interruptor adentro | — |
+
+Con zona Costa, Amazonía o Galápagos se propone aire acondicionado en
+dormitorios, sala y estudio: área × 600 BTU/m², redondeado al equipo comercial
+siguiente (9 000 a 36 000 BTU). La carga es la mayor entre la del equipo y la
+de la tabla de cargas (2 500 W). Cada luminaria, sea foco u ojo de buey, cuenta
+con la potencia por punto de CNEL (100 W).
+
+La pestaña **Escenarios** copia el proyecto con su plano para probar otros
+criterios, y compara todos lado a lado: luminarias, tomas, aires, circuitos,
+carga, demanda, Tipo CNEL, breaker principal y medidor. En el modelo de prueba,
+pasar a Costa con ojos de buey lleva la vivienda de Tipo I (2P 60 A) a Tipo II
+(2P 100 A).
+
+Desde la línea de comandos: `electric disenar … --zona costa --iluminacion
+ojos_de_buey [--sin-exteriores] [--sin-refrigeradora]`.
+
 ### Corregir la red a mano
 
 En la pestaña **Plano**, con la instalación diseñada:
@@ -182,5 +210,9 @@ en `api/` y `pnpm gen` en `web/`.
   comparten ducto entre circuitos.
 - La caída de tensión de un circuito diseñado usa la longitud equivalente por
   momento de carga (promedio de la distancia del tablero a cada punto).
+- Estilos de iluminación, zonas climáticas (600 BTU/m² en Costa, Amazonía y
+  Galápagos), capacidades y potencias de los aires, refrigeradora de 400 W,
+  alturas de exteriores y aire, separación de luces de fachada (6 m) y muro
+  exterior de 20 cm para ubicarlas.
 
 Cada uno está anotado en la tabla correspondiente y marcado `por_verificar`.

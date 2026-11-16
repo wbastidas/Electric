@@ -10,6 +10,7 @@ from electric.modelo.entidades import (
     CargaEspecial,
     Circuito,
     Predio,
+    Preferencias,
     Proyectista,
     Punto,
     RefPerfil,
@@ -46,6 +47,8 @@ class Borrador(Esquema):
     supuestos: list[Supuesto] = []
     #: Ambientes leídos del plano y ubicación de la instalación diseñada.
     plano: Plano | None = None
+    #: Criterios del diseño automático de este escenario.
+    preferencias: Preferencias = Preferencias()
 
 
 class ProyectoResumen(Esquema):
@@ -65,6 +68,8 @@ class ProyectoDetalle(Esquema):
     datos: Borrador
     #: Acción que se desharía con «Deshacer»; nada si no hay a qué volver.
     deshacer: str | None = None
+    #: Nombre del escenario, si el proyecto tiene varios.
+    escenario: str | None = None
 
 
 class Guardar(Esquema):
@@ -187,6 +192,40 @@ class Fondo(Esquema):
 class OpcionUso(Esquema):
     uso: str
     equipos: list[str]
+    aire: bool = False
+    tomas_distribucion: str = "perimetro"
+
+
+class OpcionEstilo(Esquema):
+    id: str
+    nombre: str
+    descripcion: str
+
+
+class OpcionZona(Esquema):
+    id: str
+    nombre: str
+    aire: bool
+
+
+class NuevoEscenario(Esquema):
+    nombre: str = Field(min_length=1, max_length=80)
+
+
+class EscenarioOut(Esquema):
+    """Un escenario del proyecto, resumido para compararlo con los demás."""
+
+    id: str
+    nombre: str
+    revision: int
+    estado: Literal["listo", "incompleto"]
+    iluminacion: str
+    zona_climatica: str | None
+    luminarias: int
+    tomacorrientes: int
+    aires: int
+    circuitos: int
+    resumen: list[DatoResumenOut] = []
 
 
 class EntradaBitacora(Esquema):
@@ -229,4 +268,6 @@ class PerfilOut(Esquema):
     cargas: list[CargaOut]
     #: Usos de ambiente que admite el diseño automático; vacío si el perfil no lo trae.
     usos: list[OpcionUso]
+    estilos: list[OpcionEstilo] = []
+    zonas: list[OpcionZona] = []
     tablas: list[TablaOut]

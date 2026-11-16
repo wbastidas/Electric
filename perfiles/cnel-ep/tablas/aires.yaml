@@ -1,0 +1,20 @@
+id: cnel-ep/aires
+tipo: aires
+version: 0.1.0
+vigente_desde: 2026-11-16
+fuente:
+  norma: Valores comerciales de uso general; no vienen de la norma
+  numeral: null
+  url: null
+estado: por_verificar
+nota: >-
+  Capacidades comerciales de split y su potencia eléctrica aproximada. La
+  carga del equipo es la mayor entre esta potencia y la del aire
+  acondicionado en la tabla de cargas.
+unidades: {potencia: W}
+filas:
+  - {btu: 9000, potencia: 900}
+  - {btu: 12000, potencia: 1200}
+  - {btu: 18000, potencia: 1800}
+  - {btu: 24000, potencia: 2400}
+  - {btu: 36000, potencia: 3600}

@@ -1,6 +1,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ChangeEvent, useEffect, useState } from "react";
-import { api, type Borrador, type Edicion, type Perfil, type ProyectoDetalle } from "../api/cliente";
+import {
+  api,
+  type Borrador,
+  type Edicion,
+  type Perfil,
+  type Preferencias,
+  type ProyectoDetalle,
+} from "../api/cliente";
 import { ETIQUETA_TIPO, legible } from "../util";
 import { Aviso, Campo, MensajeError } from "./comunes";
 import { type Capas, COLORES, Visor } from "./Visor";
@@ -42,7 +49,7 @@ function ficha(id: string, datos: Borrador): Ficha | null {
   const plano = datos.plano;
   if (!plano) return null;
   const nombreAmbiente = (a?: string | null) =>
-    plano.ambientes.find((x) => x.id === a)?.nombre || a || "";
+    a === "EXT" ? "Exterior (fachada)" : plano.ambientes.find((x) => x.id === a)?.nombre || a || "";
   const s = plano.interruptores?.find((x) => x.id === id);
   if (s) {
     return {
@@ -65,7 +72,10 @@ function ficha(id: string, datos: Borrador): Ficha | null {
   }
   const carga = datos.cargas_especiales.find((c) => c.id === id);
   if (carga) {
-    return { ...base, clase: "especial", tipo: carga.tipo, circuito: carga.circuito, nombre: `Carga especial: ${legible(carga.tipo)}` };
+    return {
+      ...base, clase: "especial", tipo: carga.tipo, circuito: carga.circuito,
+      nombre: `${legible(carga.tipo)}${carga.origen === "auto" ? " (propuesto)" : ""}${carga.nota ? ` · ${carga.nota}` : ""}`,
+    };
   }
   return null;
 }
@@ -220,6 +230,20 @@ export function Plano({ id, revision, datos, perfil, sinGuardar, deshacer, cambi
   const filaCuadro = (circuito: string) =>
     calculos.data?.estado === "listo" ? calculos.data.cuadro.find((f) => f.circuito === circuito) : undefined;
 
+  const pref: Preferencias = datos.preferencias ?? { iluminacion: "plafon", refrigeradora: true, exteriores: true, ambientes: {} };
+  const cambiarPref = (cambio: Partial<Preferencias>) =>
+    cambiar({ ...datos, preferencias: { ...pref, ...cambio } });
+  const propia = (ambiente: string) => pref.ambientes?.[ambiente] ?? {};
+  const cambiarPropia = (ambiente: string, cambio: Record<string, unknown>) => {
+    const nueva = { ...propia(ambiente), ...cambio };
+    const limpia = Object.fromEntries(Object.entries(nueva).filter(([, v]) => v !== null && v !== undefined));
+    const ambientes = { ...(pref.ambientes ?? {}) };
+    if (Object.keys(limpia).length) ambientes[ambiente] = limpia;
+    else delete ambientes[ambiente];
+    cambiarPref({ ambientes });
+  };
+  const zonaElegida = perfil.zonas.find((z) => z.id === pref.zona_climatica);
+
   const cuenta = (circuito: string) =>
     datos.puntos.filter((p) => p.circuito === circuito).length ||
     datos.cargas_especiales.filter((c) => c.circuito === circuito).length;
@@ -284,6 +308,70 @@ export function Plano({ id, revision, datos, perfil, sinGuardar, deshacer, cambi
         </p>
         {editar.isError ? <MensajeError error={editar.error} /> : null}
         {deshacerM.isError ? <MensajeError error={deshacerM.error} /> : null}
+        <section className="tarjeta">
+          <h2>Ambientes</h2>
+          {dudas.length ? (
+            <Aviso tipo="alerta">
+              {dudas.length === 1 ? "Un ambiente necesita" : `${dudas.length} ambientes necesitan`} que confirme su uso.
+            </Aviso>
+          ) : null}
+          <p className="tenue">
+            «General» toma el estilo del escenario ({perfil.estilos.find((e) => e.id === pref.iluminacion)?.nombre}); cambie
+            solo los ambientes que deban ser distintos.
+          </p>
+          <div className="tabla-ancha">
+            <table className="ambientes">
+              <thead>
+                <tr><th>Ambiente</th><th>Uso</th><th>Área</th>{perfil.estilos.length ? <><th>Luz</th><th>Tomas</th><th>Aire</th></> : null}</tr>
+              </thead>
+              <tbody>
+                {plano.ambientes.map((a) => (
+                  <tr key={a.id} className={a.banderas?.length ? "dudoso" : ""}>
+                    <td title={a.banderas?.join("; ")}>{a.nombre || `${a.id} (sin nombre)`}</td>
+                    <td>
+                      <select aria-label={`Uso de ${a.nombre || a.id}`} value={a.uso} onChange={(e) => cambiarUso(a.id, e.target.value)}>
+                        {usos.map((u) => <option key={u} value={u}>{legible(u)}</option>)}
+                      </select>
+                    </td>
+                    <td>{String(a.area_m2).replace(".", ",")} m²</td>
+                    {perfil.estilos.length ? (
+                      <>
+                        <td>
+                          <select aria-label={`Luz de ${a.nombre || a.id}`} value={propia(a.id).iluminacion ?? ""}
+                            onChange={(e) => cambiarPropia(a.id, { iluminacion: e.target.value || null })}>
+                            <option value="">General</option>
+                            {perfil.estilos.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
+                          </select>
+                        </td>
+                        <td>
+                          <select aria-label={`Tomas de ${a.nombre || a.id}`} value={propia(a.id).tomas ?? ""}
+                            onChange={(e) => cambiarPropia(a.id, { tomas: e.target.value || null })}>
+                            <option value="">
+                              Por uso: {perfil.usos.find((u) => u.uso === a.uso)?.tomas_distribucion === "extremos" ? "extremos" : "repartidos"}
+                            </option>
+                            <option value="perimetro">Repartidos</option>
+                            <option value="extremos">En los extremos</option>
+                          </select>
+                        </td>
+                        <td>
+                          <select aria-label={`Aire de ${a.nombre || a.id}`}
+                            value={propia(a.id).aire === true ? "si" : propia(a.id).aire === false ? "no" : ""}
+                            onChange={(e) => cambiarPropia(a.id, { aire: e.target.value === "" ? null : e.target.value === "si" })}>
+                            <option value="">
+                              Zona: {zonaElegida?.aire && perfil.usos.find((u) => u.uso === a.uso)?.aire ? "sí" : "no"}
+                            </option>
+                            <option value="si">Sí</option>
+                            <option value="no">No</option>
+                          </select>
+                        </td>
+                      </>
+                    ) : null}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
         {fondo.isError ? <MensajeError error={fondo.error} /> : null}
       </div>
 
@@ -434,6 +522,42 @@ export function Plano({ id, revision, datos, perfil, sinGuardar, deshacer, cambi
           ) : null}
         </section>
 
+        {perfil.estilos.length ? (
+          <section className="tarjeta">
+            <h2>Criterios del escenario</h2>
+            <div className="rejilla">
+              <Campo etiqueta="Estilo de iluminación" ayuda="Para toda la casa; cada ambiente puede cambiarlo abajo.">
+                <select value={pref.iluminacion} onChange={(e) => cambiarPref({ iluminacion: e.target.value })}>
+                  {perfil.estilos.map((e) => <option key={e.id} value={e.id}>{e.nombre}</option>)}
+                </select>
+              </Campo>
+              <Campo etiqueta="Zona climática" ayuda="Costa, Amazonía y Galápagos proponen aire en dormitorios y sala.">
+                <select
+                  value={pref.zona_climatica ?? ""}
+                  onChange={(e) => cambiarPref({ zona_climatica: e.target.value || null })}
+                >
+                  <option value="">Sin zona (sin aire automático)</option>
+                  {perfil.zonas.map((z) => <option key={z.id} value={z.id}>{z.nombre}</option>)}
+                </select>
+              </Campo>
+            </div>
+            <label className="casilla">
+              <input type="checkbox" checked={pref.refrigeradora ?? true}
+                onChange={(e) => cambiarPref({ refrigeradora: e.target.checked })} />
+              Tomacorriente dedicado para refrigeradora
+            </label>
+            <label className="casilla">
+              <input type="checkbox" checked={pref.exteriores ?? true}
+                onChange={(e) => cambiarPref({ exteriores: e.target.checked })} />
+              Luces y tomas exteriores en la fachada
+            </label>
+            <p className="tenue">
+              {perfil.estilos.find((e) => e.id === pref.iluminacion)?.descripcion} Cada luminaria cuenta con la potencia
+              por punto de CNEL. Los cambios se aplican al pulsar «{disenado ? "Volver a diseñar" : "Diseñar instalación"}».
+            </p>
+          </section>
+        ) : null}
+
         <section className="tarjeta">
           <h2>Equipos declarados</h2>
           <p className="tenue">Cargas especiales que el plano no dice; el diseño las ubica en su ambiente.</p>
@@ -453,32 +577,6 @@ export function Plano({ id, revision, datos, perfil, sinGuardar, deshacer, cambi
           </select>
         </section>
 
-        <section className="tarjeta">
-          <h2>Ambientes</h2>
-          {dudas.length ? (
-            <Aviso tipo="alerta">
-              {dudas.length === 1 ? "Un ambiente necesita" : `${dudas.length} ambientes necesitan`} que confirme su uso.
-            </Aviso>
-          ) : null}
-          <div className="tabla-ancha">
-            <table>
-              <thead><tr><th>Ambiente</th><th>Uso</th><th>Área</th></tr></thead>
-              <tbody>
-                {plano.ambientes.map((a) => (
-                  <tr key={a.id} className={a.banderas?.length ? "dudoso" : ""}>
-                    <td title={a.banderas?.join("; ")}>{a.nombre || `${a.id} (sin nombre)`}</td>
-                    <td>
-                      <select aria-label={`Uso de ${a.nombre || a.id}`} value={a.uso} onChange={(e) => cambiarUso(a.id, e.target.value)}>
-                        {usos.map((u) => <option key={u} value={u}>{legible(u)}</option>)}
-                      </select>
-                    </td>
-                    <td>{String(a.area_m2).replace(".", ",")} m²</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
 
         <section className="tarjeta columnas">
           <h2>Archivo</h2>

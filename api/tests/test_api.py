@@ -183,8 +183,9 @@ def test_modelo_de_prueba_con_plano_de_punta_a_punta(cliente: TestClient) -> Non
     ruta = f"/api/v1/proyectos/{proyecto['id']}"
     plano = proyecto["datos"]["plano"]
     assert len(plano["ambientes"]) == 9
-    assert len(plano["recorridos"]) == 7
-    assert len(plano["interruptores"]) == 9
+    # 7 circuitos interiores + fachada (luces y tomas) + refrigeradora.
+    assert len(plano["recorridos"]) == 10
+    assert len(plano["interruptores"]) == 10  # 9 ambientes + luces de fachada
 
     calculos = cliente.get(f"{ruta}/calculos").json()
     assert calculos["estado"] == "listo"
@@ -238,7 +239,7 @@ def test_subir_plano_corregir_un_uso_y_disenar(cliente: TestClient) -> None:
     final = diseno.json()["proyecto"]
     assert final["revision"] == 4
     nuevos = final["datos"]
-    assert [c["tipo"] for c in nuevos["cargas_especiales"]] == ["ducha"]
+    assert [c["tipo"] for c in nuevos["cargas_especiales"]] == ["ducha", "refrigeradora"]
     assert nuevos["cargas_especiales"][0]["circuito"].startswith("C")
     estudio = next(a for a in nuevos["plano"]["ambientes"] if a["nombre"] == "DORMITORIO 3")
     luces = [
@@ -327,7 +328,7 @@ def test_ediciones_invalidas_se_explican_y_no_cambian_nada(cliente: TestClient) 
         },
     )
     assert fuera.status_code == 422
-    assert "ningún ambiente" in fuera.json()["detail"]
+    assert "fuera del plano" in fuera.json()["detail"]
     assert cliente.get(ruta).json()["revision"] == 1
     desconocida = cliente.post(
         f"{ruta}/ediciones", json={"revision": 1, "ediciones": [{"op": "girar", "id": "TD-1"}]}
@@ -345,3 +346,50 @@ def test_no_se_deshace_mas_alla_de_un_cambio_de_plano(cliente: TestClient) -> No
     bloqueado = cliente.post(f"{ruta}/deshacer", json={"revision": 2})
     assert bloqueado.status_code == 409
     assert bloqueado.json()["codigo"] == "plano_reemplazado"
+
+
+def test_escenarios_se_crean_disenan_y_comparan(cliente: TestClient) -> None:
+    base = cliente.post("/api/v1/ejemplos/vivienda-plano").json()
+    ruta = f"/api/v1/proyectos/{base['id']}"
+    solo = cliente.get(f"{ruta}/escenarios").json()
+    assert [e["nombre"] for e in solo] == ["Base"]
+
+    creado = cliente.post(f"{ruta}/escenarios", json={"nombre": "Costa con ojos de buey"})
+    assert creado.status_code == 201, creado.text
+    otro = creado.json()
+    assert otro["escenario"] == "Costa con ojos de buey"
+    assert otro["datos"]["nombre"] == "Vivienda de prueba con plano — Costa con ojos de buey"
+    repetido = cliente.post(f"{ruta}/escenarios", json={"nombre": "Costa con ojos de buey"})
+    assert repetido.status_code == 409
+
+    # El escenario nuevo tiene su propio plano y sus preferencias.
+    ruta_otro = f"/api/v1/proyectos/{otro['id']}"
+    datos = otro["datos"]
+    datos["preferencias"] = {"iluminacion": "ojos_de_buey", "zona_climatica": "costa"}
+    guardado = cliente.put(ruta_otro, json={"revision": 1, "datos": datos})
+    assert guardado.status_code == 200, guardado.text
+    disenado = cliente.post(f"{ruta_otro}/diseno", json={"revision": 2})
+    assert disenado.status_code == 200, disenado.text
+    assert cliente.get(f"{ruta_otro}/salida.png").status_code == 200
+
+    comparados = {e["nombre"]: e for e in cliente.get(f"{ruta}/escenarios").json()}
+    assert list(comparados) == ["Base", "Costa con ojos de buey"]
+    assert cliente.get(ruta).json()["escenario"] == "Base"
+    b, c = comparados["Base"], comparados["Costa con ojos de buey"]
+    assert (b["aires"], c["aires"]) == (0, 4)
+    assert c["luminarias"] > b["luminarias"]
+    tipo = {e["nombre"]: {d["etiqueta"]: d["texto"] for d in e["resumen"]} for e in (b, c)}
+    assert tipo["Base"]["Clasificación CNEL"] == "Tipo I"
+    assert tipo["Costa con ojos de buey"]["Clasificación CNEL"] == "Tipo II"
+
+    # Borrar un escenario no toca los demás.
+    assert cliente.delete(ruta_otro).status_code == 204
+    assert [e["nombre"] for e in cliente.get(f"{ruta}/escenarios").json()] == ["Base"]
+
+
+def test_el_perfil_ofrece_estilos_y_zonas(cliente: TestClient) -> None:
+    perfil = next(p for p in cliente.get("/api/v1/perfiles").json() if p["id"] == "cnel-ep")
+    assert [e["id"] for e in perfil["estilos"]] == ["plafon", "foco_central", "ojos_de_buey"]
+    assert {z["id"]: z["aire"] for z in perfil["zonas"]}["sierra"] is False
+    dormitorio = next(u for u in perfil["usos"] if u["uso"] == "dormitorio")
+    assert dormitorio["aire"] and dormitorio["tomas_distribucion"] == "extremos"

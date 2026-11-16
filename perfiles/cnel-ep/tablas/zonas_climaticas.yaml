@@ -1,0 +1,19 @@
+id: cnel-ep/zonas-climaticas
+tipo: zonas_climaticas
+version: 0.1.0
+vigente_desde: 2026-11-16
+fuente:
+  norma: Propuesta propia de diseño; regla práctica de dimensionamiento, no viene de la norma
+  numeral: null
+  url: null
+estado: por_verificar
+nota: >-
+  Si la zona pide aire acondicionado, se propone en los ambientes cuya
+  plantilla lo admite, con una capacidad de BTU por m² de área. El usuario lo
+  quita o lo agrega por ambiente.
+unidades: {btu_por_m2: BTU/h/m2}
+filas:
+  - {id: costa, nombre: Costa, aire: true, btu_por_m2: 600}
+  - {id: sierra, nombre: Sierra, aire: false, btu_por_m2: 400}
+  - {id: amazonia, nombre: Amazonía, aire: true, btu_por_m2: 600}
+  - {id: galapagos, nombre: Galápagos, aire: true, btu_por_m2: 600}

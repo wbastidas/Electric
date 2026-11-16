@@ -20,7 +20,7 @@ from electric.ingesta import leer_dxf
 from electric.ingesta.dxf import clasificar_capa
 from electric.interpretacion import interpretar
 from electric.interpretacion.ambientes import reconocer_uso
-from electric.modelo import hash_canonico
+from electric.modelo import Preferencias, hash_canonico
 from electric.modelo.plano import Ambiente, Plano
 from electric.perfiles import Perfil
 from electric.salida_cad import CAPAS, generar_dxf, renderizar
@@ -28,6 +28,8 @@ from electric.salida_cad import CAPAS, generar_dxf, renderizar
 from .conftest import EJEMPLOS
 
 PLANTA = EJEMPLOS / "vivienda-plano" / "planta.dxf"
+#: Estas pruebas miran el diseño interior; exteriores y cargas propuestas van en test_escenarios.
+SOLO_INTERIOR = Preferencias(refrigeradora=False, exteriores=False)
 
 # Ambiente → (uso, ancho × alto interior en metros), medidos sobre los ejes del plano.
 ESPERADOS = {
@@ -63,6 +65,7 @@ def resultado(contenido: bytes, perfil_cnel: Perfil) -> Resultado:
         nombre="Vivienda de prueba con plano",
         equipos=("ducha", "cocina"),
         alimentador_m=D(12),
+        preferencias=SOLO_INTERIOR,
     )
 
 
@@ -363,6 +366,7 @@ def test_el_diseno_es_determinista(
         nombre="Vivienda de prueba con plano",
         equipos=("ducha", "cocina"),
         alimentador_m=D(12),
+        preferencias=SOLO_INTERIOR,
     )
     assert hash_canonico(otra_vez.proyecto) == hash_canonico(resultado.proyecto)
     assert otra_vez.calculado.hash == resultado.calculado.hash

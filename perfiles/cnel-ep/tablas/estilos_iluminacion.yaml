@@ -1,0 +1,29 @@
+id: cnel-ep/estilos-iluminacion
+tipo: estilos_iluminacion
+version: 0.1.0
+vigente_desde: 2026-11-16
+fuente:
+  norma: Propuesta propia de diseño; no viene de la norma ni del documento de requerimientos
+  numeral: null
+  url: null
+estado: por_verificar
+nota: >-
+  Estilos que el usuario elige para todo el proyecto o por ambiente. Cambian
+  cuántas luminarias se colocan y cómo se reparten; cada una cuenta para la
+  carga con la potencia por punto de luz de la tabla de cargas, sea cual sea
+  la luminaria (criterio conservador para la aprobación de CNEL).
+unidades: {area_por_luminaria_m2: m2}
+filas:
+  - id: plafon
+    nombre: Plafón o lámpara según el área
+    descripcion: Densidad de la plantilla de cada ambiente, en fila por el lado mayor.
+  - id: foco_central
+    nombre: Un foco central
+    area_por_luminaria_m2: 40
+    descripcion: Un solo punto por ambiente salvo ambientes muy grandes.
+  - id: ojos_de_buey
+    nombre: Ojos de buey (empotrados)
+    area_por_luminaria_m2: 2.5
+    luminarias_min: 2
+    distribucion: reticula
+    descripcion: Empotrados en cuadrícula, uno cada 2,5 m².

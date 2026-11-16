@@ -26,6 +26,7 @@ from electric_api.config import Config, leer_config
 from electric_api.db import (
     ArchivoBD,
     BitacoraBD,
+    EscenarioBD,
     ProyectoBD,
     VersionBD,
     ahora,
@@ -38,8 +39,10 @@ from electric_api.esquemas import (
     DisenoOut,
     Editar,
     EntradaBitacora,
+    EscenarioOut,
     Fondo,
     Guardar,
+    NuevoEscenario,
     PerfilOut,
     ProyectoDetalle,
     ProyectoResumen,
@@ -103,9 +106,14 @@ def _a_deshacer(sesion: Session, fila: ProyectoBD) -> tuple[VersionBD, BitacoraB
     return destino, cambio
 
 
+def _escenario(sesion: Session, id: str) -> EscenarioBD | None:
+    return sesion.get(EscenarioBD, id)
+
+
 def _detalle(fila: ProyectoBD) -> ProyectoDetalle:
     sesion = object_session(fila)
     previo = _a_deshacer(sesion, fila) if sesion is not None else None
+    escenario = _escenario(sesion, fila.id) if sesion is not None else None
     return ProyectoDetalle(
         id=fila.id,
         revision=fila.revision,
@@ -113,6 +121,7 @@ def _detalle(fila: ProyectoBD) -> ProyectoDetalle:
         actualizado=fila.actualizado,
         datos=Borrador.model_validate_json(fila.datos),
         deshacer=previo[1].accion if previo else None,
+        escenario=escenario.nombre if escenario else None,
     )
 
 
@@ -231,6 +240,9 @@ def borrar_proyecto(id: str, sesion: SesionDep) -> Response:
         sesion.delete(entrada)
     for version in sesion.scalars(select(VersionBD).where(VersionBD.proyecto_id == id)):
         sesion.delete(version)
+    escenario = sesion.get(EscenarioBD, id)
+    if escenario is not None:
+        sesion.delete(escenario)
     archivo = sesion.get(ArchivoBD, id)
     if archivo is not None:
         sesion.delete(archivo)
@@ -378,7 +390,7 @@ def disenar_instalacion(
         }
     )
     try:
-        diseno = disenar(limpio, tuple(datos.cargas_especiales), perfil)
+        diseno = disenar(limpio, tuple(datos.cargas_especiales), perfil, datos.preferencias)
     except ErrorElectric as error:
         raise Problema(
             422, error.codigo, "No se pudo diseñar la instalación", str(error)
@@ -468,6 +480,94 @@ def deshacer(id: str, cuerpo: Revision, sesion: SesionDep) -> ProyectoDetalle:
         base=destino.base,
         resumen=f"deshizo «{cambio.accion}» (revisión {cambio.revision}): {cambio.resumen}",
     )
+
+
+# --- Escenarios ---------------------------------------------------------------
+
+
+def _resumen_escenario(fila: ProyectoBD, nombre: str, perfiles: Perfiles) -> EscenarioOut:
+    datos = Borrador.model_validate_json(fila.datos)
+    calculos = calcular_borrador(fila.id, fila.revision, datos, perfiles)
+    return EscenarioOut(
+        id=fila.id,
+        nombre=nombre,
+        revision=fila.revision,
+        estado=calculos.estado,
+        iluminacion=datos.preferencias.iluminacion,
+        zona_climatica=datos.preferencias.zona_climatica,
+        luminarias=sum(1 for p in datos.puntos if p.tipo == "punto_luz"),
+        tomacorrientes=sum(1 for p in datos.puntos if p.tipo == "tomacorriente"),
+        aires=sum(1 for c in datos.cargas_especiales if c.tipo == "aire_acondicionado"),
+        circuitos=len(datos.circuitos),
+        resumen=calculos.resumen,
+    )
+
+
+@rutas.get("/proyectos/{id}/escenarios")
+def listar_escenarios(id: str, sesion: SesionDep, perfiles: PerfilesDep) -> list[EscenarioOut]:
+    """Escenarios del mismo proyecto, con sus resultados para compararlos."""
+    fila = _buscar(sesion, id)
+    propio = _escenario(sesion, id)
+    if propio is None:
+        return [_resumen_escenario(fila, "Base", perfiles)]
+    hermanos = sesion.scalars(select(EscenarioBD).where(EscenarioBD.grupo == propio.grupo)).all()
+    salida = []
+    for escenario in hermanos:
+        otro = sesion.get(ProyectoBD, escenario.proyecto_id)
+        if otro is not None:
+            salida.append(_resumen_escenario(otro, escenario.nombre, perfiles))
+    return sorted(salida, key=lambda e: (e.nombre != "Base", e.nombre))
+
+
+@rutas.post("/proyectos/{id}/escenarios", status_code=201)
+def crear_escenario(id: str, cuerpo: NuevoEscenario, sesion: SesionDep) -> ProyectoDetalle:
+    """Copia el proyecto, con su plano, como un escenario nuevo para probar otros criterios."""
+    fila = _buscar(sesion, id)
+    propio = _escenario(sesion, id)
+    if propio is None:
+        propio = EscenarioBD(proyecto_id=id, grupo=id, nombre="Base")
+        sesion.add(propio)
+    nombres = {
+        e.nombre
+        for e in sesion.scalars(select(EscenarioBD).where(EscenarioBD.grupo == propio.grupo))
+    }
+    if cuerpo.nombre in nombres:
+        raise Problema(409, "escenario_repetido", "Ya hay un escenario con ese nombre")
+    datos = Borrador.model_validate_json(fila.datos)
+    base = datos.nombre.split(" — ")[0]
+    datos = datos.model_copy(update={"nombre": f"{base} — {cuerpo.nombre}"[:200]})
+    nuevo_id = str(uuid.uuid4())
+    momento = ahora()
+    nueva = ProyectoBD(
+        id=nuevo_id,
+        nombre=datos.nombre,
+        revision=1,
+        datos=a_json_canonico(datos),
+        creado=momento,
+        actualizado=momento,
+    )
+    sesion.add(nueva)
+    sesion.flush()
+    archivo = sesion.get(ArchivoBD, id)
+    if archivo is not None:
+        sesion.add(
+            ArchivoBD(
+                proyecto_id=nuevo_id,
+                nombre=archivo.nombre,
+                sha256=archivo.sha256,
+                contenido=archivo.contenido,
+            )
+        )
+    sesion.add(EscenarioBD(proyecto_id=nuevo_id, grupo=propio.grupo, nombre=cuerpo.nombre))
+    _anotar(
+        sesion,
+        nueva,
+        "crear escenario",
+        datos,
+        resumen=f"copia de {fila.nombre} (rev. {fila.revision})",
+    )
+    sesion.commit()
+    return _detalle(nueva)
 
 
 _TIPOS = {"dxf": "application/dxf", "png": "image/png", "pdf": "application/pdf"}

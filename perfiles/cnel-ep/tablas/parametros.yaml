@@ -33,3 +33,8 @@ filas:
   - {clave: altura_tablero_m, valor: 1.60, unidad: m, nota: Propuesta de diseño; por confirmar con el manual de CNEL.}
   - {clave: altura_techo_m, valor: 2.50, unidad: m, nota: Supuesto para las bajadas de tubería; se ajustará por proyecto.}
   - {clave: distancia_interruptor_puerta_m, valor: 0.20, unidad: m, nota: Propuesta de diseño.}
+  - {clave: altura_aire_m, valor: 2.20, unidad: m, nota: Propuesta de diseño - salida para split de pared.}
+  - {clave: altura_luz_exterior_m, valor: 2.20, unidad: m, nota: Propuesta de diseño - aplique en fachada.}
+  - {clave: altura_toma_exterior_m, valor: 0.40, unidad: m, nota: Propuesta de diseño - toma de intemperie con diferencial.}
+  - {clave: separacion_luces_exteriores_m, valor: 6, unidad: m, nota: 'Propuesta de diseño - una luz de fachada cada tantos metros, además de una por puerta exterior.'}
+  - {clave: muro_exterior_m, valor: 0.20, unidad: m, nota: Supuesto - espesor para ubicar luces y tomas en la cara exterior de la fachada.}

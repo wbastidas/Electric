@@ -20,11 +20,18 @@ import math
 from dataclasses import dataclass
 from decimal import ROUND_CEILING, Decimal
 
-from shapely.geometry import LineString, Point, Polygon
+from shapely.geometry import LineString, MultiPolygon, Point, Polygon
+from shapely.ops import unary_union
 
 from electric.diseno.trazado import Coord, trazar_red
-from electric.errores import DatoInvalido
-from electric.modelo.entidades import CargaEspecial, Circuito, Punto, TipoCircuito
+from electric.errores import DatoInvalido, FilaNoEncontrada
+from electric.modelo.entidades import (
+    CargaEspecial,
+    Circuito,
+    Preferencias,
+    Punto,
+    TipoCircuito,
+)
 from electric.modelo.plano import Ambiente, Interruptor, Plano, Ubicacion, mm
 from electric.perfiles.carga import Perfil
 from electric.perfiles.esquema import FilaPlantilla
@@ -36,6 +43,8 @@ LIBRE_DE_PUERTA_M = 0.40
 LIBRE_DE_ESQUINA_M = 0.30
 ENTRE_PUNTOS_M = 0.80
 PASO_M = 0.10
+#: Ambiente de lo que va fuera de la edificación: luces y tomas de fachada.
+EXTERIOR = "EXT"
 
 
 @dataclass(frozen=True)
@@ -94,14 +103,23 @@ def _techo(valor: Decimal) -> int:
     return int(valor.to_integral_value(rounding=ROUND_CEILING))
 
 
-def _luminarias(recinto: _Recinto) -> list[Coord]:
-    """Luminarias repartidas a lo largo del lado mayor del ambiente."""
+def _luminarias(
+    recinto: _Recinto,
+    area_por_luminaria: Decimal | None = None,
+    minimo: int | None = None,
+    distribucion: str = "eje",
+) -> list[Coord]:
+    """Luminarias en fila por el lado mayor del ambiente, o en cuadrícula."""
     plantilla = recinto.plantilla
+    area = area_por_luminaria or plantilla.area_por_luminaria_m2
     n = max(
-        plantilla.luminarias_min, _techo(recinto.ambiente.area_m2 / plantilla.area_por_luminaria_m2)
+        plantilla.luminarias_min if minimo is None else minimo,
+        _techo(recinto.ambiente.area_m2 / area),
     )
     if n <= 0:
         return []
+    if distribucion == "reticula" and n > 1:
+        return _reticula(recinto.poligono, n)
     poligono = recinto.poligono
     if n == 1:
         centro = poligono.centroid
@@ -135,15 +153,72 @@ def _luminarias(recinto: _Recinto) -> list[Coord]:
     return posiciones
 
 
-def _en_pared(recinto: _Recinto, cantidad: int, ocupados: list[Coord]) -> list[Coord]:
-    """`cantidad` puntos de pared repartidos por el perímetro, lejos de vanos y entre sí."""
+def _reticula(poligono: Polygon, n: int) -> list[Coord]:
+    """Cuadrícula de unas `n` luminarias alineada con el rectángulo del ambiente."""
+    rectangulo = poligono.minimum_rotated_rectangle
+    if not isinstance(rectangulo, Polygon):
+        punto = poligono.representative_point()
+        return [(punto.x, punto.y)]
+    caja = list(rectangulo.exterior.coords)[:4]
+    a, b, c = caja[0], caja[1], caja[2]
+    if math.dist(a, b) < math.dist(b, c):
+        a, b, c = b, c, caja[3]
+    largo, ancho = math.dist(a, b), math.dist(b, c)
+    columnas = max(1, round(math.sqrt(n * largo / max(ancho, 0.01))))
+    filas = max(1, math.ceil(n / columnas))
+    posiciones = []
+    for j in range(filas):
+        for i in range(columnas):
+            t, u = (i + 0.5) / columnas, (j + 0.5) / filas
+            p = Point(
+                a[0] + (b[0] - a[0]) * t + (c[0] - b[0]) * u,
+                a[1] + (b[1] - a[1]) * t + (c[1] - b[1]) * u,
+            )
+            if poligono.contains(p):
+                posiciones.append((p.x, p.y))
+    if not posiciones:
+        punto = poligono.representative_point()
+        posiciones.append((punto.x, punto.y))
+    return posiciones
+
+
+def _ideales_extremos(recinto: _Recinto, cantidad: int) -> list[float]:
+    """Posiciones a 45 cm de cada extremo de las paredes sin puerta, la más larga primero."""
+    anillo = recinto.poligono.exterior
+    coords = list(anillo.coords)
+    paredes = []
+    s = 0.0
+    for p, q in zip(coords, coords[1:], strict=False):
+        largo = math.dist(p, q)
+        tramo = LineString([p, q])
+        if largo >= 1.2 and not any(tramo.distance(v) < 0.05 for v in recinto.vanos):
+            paredes.append((-round(largo, 6), s, largo))
+        s += largo
+    ideales: list[float] = []
+    for _, inicio, largo in sorted(paredes):
+        ideales += [inicio + 0.45, inicio + largo - 0.45]
+    return ideales[:cantidad]
+
+
+def _en_pared(
+    recinto: _Recinto,
+    cantidad: int,
+    ocupados: list[Coord],
+    ideales: list[float] | None = None,
+) -> list[Coord]:
+    """`cantidad` puntos de pared lejos de vanos y entre sí.
+
+    Sin `ideales` se reparten por el perímetro; con ellos, se buscan cerca de
+    esas distancias recorridas, y lo que falte se completa por el perímetro.
+    """
     candidatos = recinto.candidatos_de_pared()
     if not candidatos or cantidad <= 0:
         return []
     perimetro = recinto.poligono.exterior.length
+    objetivos = list(ideales or [])[:cantidad]
+    objetivos += [(i + 0.5) * perimetro / cantidad for i in range(len(objetivos), cantidad)]
     elegidos: list[Coord] = []
-    for i in range(cantidad):
-        ideal = (i + 0.5) * perimetro / cantidad
+    for ideal in objetivos:
         libres = [
             (abs(s - ideal), s, p)
             for s, p in candidatos
@@ -168,6 +243,35 @@ def _interruptor(recinto: _Recinto, distancia: float) -> Coord | None:
                 sobre = anillo.interpolate(anillo.project(p))
                 return recinto.hacia_adentro(sobre)
     return None
+
+
+def huella(plano: Plano, muro_m: float) -> Polygon:
+    """Contorno exterior de la edificación: los ambientes unidos y engrosados por el muro."""
+    poligonos = [
+        Polygon([(float(p.x), float(p.y)) for p in a.poligono]).buffer(muro_m, join_style="mitre")
+        for a in plano.ambientes
+    ]
+    union = unary_union(poligonos)
+    partes = list(union.geoms) if isinstance(union, MultiPolygon) else [union]
+    mayor = max(partes, key=lambda g: g.area)
+    assert isinstance(mayor, Polygon)
+    return Polygon(mayor.exterior)
+
+
+def _hacia_afuera(huella_: Polygon, s: float) -> Coord:
+    """Punto de la fachada a `s` metros recorridos, unos centímetros hacia afuera."""
+    anillo = huella_.exterior
+    p = anillo.interpolate(s % anillo.length)
+    mejor: tuple[float, Coord] = (-1.0, (p.x, p.y))
+    for angulo in range(0, 360, 45):
+        a = math.radians(angulo)
+        q = Point(p.x + DESDE_MURO_M * math.cos(a), p.y + DESDE_MURO_M * math.sin(a))
+        if huella_.covers(q):
+            continue
+        separacion = round(huella_.distance(q), 6)
+        if separacion > mejor[0]:
+            mejor = (separacion, (q.x, q.y))
+    return mejor[1]
 
 
 def _repartir(grupos: list[list[str]], minimo: int, maximo: int) -> list[list[str]]:
@@ -203,7 +307,12 @@ def _repartir(grupos: list[list[str]], minimo: int, maximo: int) -> list[list[st
     return [puntos[a:b] for a, b in zip(cortes, cortes[1:], strict=False)]
 
 
-def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> Diseno:
+def disenar(
+    plano: Plano,
+    cargas: tuple[CargaEspecial, ...],
+    perfil: Perfil,
+    preferencias: Preferencias | None = None,
+) -> Diseno:
     """Coloca la instalación en los ambientes del plano y arma circuitos y recorridos.
 
     `cargas` son los equipos especiales que declaró el usuario; se conservan su
@@ -212,7 +321,14 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
     Si el plano ya trae ubicaciones o interruptores fijados por el usuario, el
     diseño los deja donde están; el resto se vuelve a colocar. Lo que no vuelve
     a generarse (un punto agregado a mano) se descarta con un aviso.
+
+    `preferencias` son las del escenario: estilo de iluminación, zona
+    climática, refrigeradora, exteriores y cambios por ambiente. Las cargas
+    que el diseño propone (aire, refrigeradora) se regeneran siempre: las que
+    llegan con origen "auto" se descartan.
     """
+    preferencias = preferencias or Preferencias()
+    cargas = tuple(c for c in cargas if c.origen != "auto")
     if not plano.ambientes:
         raise DatoInvalido("el plano no tiene ambientes; no hay dónde diseñar")
     avisos: list[str] = []
@@ -227,6 +343,14 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
     max_il = int(par("puntos_max_iluminacion")[0])
     max_to = int(par("salidas_max_tomacorrientes")[0])
     min_il, min_to = perfil.circuitos_minimos(plano.area_construida_m2)[0]
+    estilos = {e.id: e for e in perfil.estilos_iluminacion()}
+    if estilos and preferencias.iluminacion not in estilos:
+        raise DatoInvalido(f"el perfil no tiene el estilo {preferencias.iluminacion}")
+    zona = (
+        perfil.zona_climatica(preferencias.zona_climatica)[0]
+        if preferencias.zona_climatica
+        else None
+    )
 
     recintos: list[_Recinto] = []
     for ambiente in plano.ambientes:
@@ -250,7 +374,18 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
     for recinto in recintos:
         aid = recinto.ambiente.id
         luces[aid], tomas[aid] = [], []
-        for n, p in enumerate(_luminarias(recinto), start=1):
+        propia = preferencias.ambientes.get(aid)
+        estilo = estilos.get((propia.iluminacion if propia else None) or preferencias.iluminacion)
+        if propia and propia.iluminacion and propia.iluminacion not in estilos:
+            raise DatoInvalido(f"el perfil no tiene el estilo de iluminación {propia.iluminacion}")
+        repartidas = (
+            _luminarias(
+                recinto, estilo.area_por_luminaria_m2, estilo.luminarias_min, estilo.distribucion
+            )
+            if estilo is not None
+            else _luminarias(recinto)
+        )
+        for n, p in enumerate(repartidas, start=1):
             pid = f"L-{aid}-{n}"
             posicion[pid], altura[pid], de_ambiente[pid] = p, alt_techo, aid
             luces[aid].append(pid)
@@ -258,7 +393,9 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
         cantidad = max(
             plantilla.tomas_min, _techo(recinto.ambiente.perimetro_m / plantilla.separacion_tomas_m)
         )
-        ubicadas = _en_pared(recinto, cantidad, [])
+        modo = (propia.tomas if propia else None) or plantilla.tomas_distribucion
+        ideales = _ideales_extremos(recinto, cantidad) if modo == "extremos" else None
+        ubicadas = _en_pared(recinto, cantidad, [], ideales)
         if len(ubicadas) < cantidad:
             avisos.append(
                 f"{aid} {recinto.ambiente.nombre}: caben {len(ubicadas)} "
@@ -303,6 +440,127 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
         posicion[cid], altura[cid], de_ambiente[cid] = p, destino.plantilla.altura_tomas_m, aid
         nuevas_cargas.append((carga, cid))
 
+    # Cargas que propone el diseño: aire acondicionado por zona y refrigeradora.
+    for recinto in recintos:
+        aid = recinto.ambiente.id
+        propia = preferencias.ambientes.get(aid)
+        quiere = propia.aire if propia and propia.aire is not None else None
+        if quiere is None:
+            quiere = bool(zona and zona.aire and recinto.plantilla.aire)
+        if not quiere:
+            continue
+        por_m2 = zona.btu_por_m2 if zona else Decimal(600)
+        requerido = recinto.ambiente.area_m2 * por_m2
+        try:
+            equipo = perfil.aire_para(requerido)[0]
+            exceso = ""
+        except FilaNoEncontrada:
+            equipo = perfil.aires()[-1]
+            exceso = " (no alcanza: considere dos equipos)"
+        base = perfil.carga("aire_acondicionado")[0]
+        alt_aire = par("altura_aire_m")[0]
+        sitios = _en_pared(recinto, 1, ocupados[aid])
+        p = sitios[0] if sitios else _interior(recinto.poligono)
+        ocupados[aid].append(p)
+        cid = f"E-{aid}-AA"
+        posicion[cid], altura[cid], de_ambiente[cid] = p, alt_aire, aid
+        nota = (
+            f"{equipo.btu} BTU para {recinto.ambiente.area_m2} m² × {por_m2} BTU/m²"
+            f"{' (' + zona.nombre + ')' if zona else ''}{exceso}"
+        )
+        if exceso:
+            avisos.append(f"{aid} {recinto.ambiente.nombre}: aire de {requerido} BTU{exceso}")
+        nuevas_cargas.append(
+            (
+                CargaEspecial(
+                    id=cid,
+                    tipo="aire_acondicionado",
+                    circuito="-",
+                    potencia_w=max(equipo.potencia, base.potencia),
+                    conexion=equipo.conexion,
+                    origen="auto",
+                    nota=nota,
+                ),
+                cid,
+            )
+        )
+    if preferencias.refrigeradora:
+        cocina = next((r for r in recintos if r.plantilla.refrigeradora), None)
+        if cocina is not None:
+            aid = cocina.ambiente.id
+            sitios = _en_pared(cocina, 1, ocupados[aid])
+            p = sitios[0] if sitios else _interior(cocina.poligono)
+            ocupados[aid].append(p)
+            cid = f"E-{aid}-REF"
+            posicion[cid], altura[cid], de_ambiente[cid] = p, cocina.plantilla.altura_tomas_m, aid
+            nuevas_cargas.append(
+                (
+                    CargaEspecial(
+                        id=cid,
+                        tipo="refrigeradora",
+                        circuito="-",
+                        origen="auto",
+                        nota="Tomacorriente dedicado",
+                    ),
+                    cid,
+                )
+            )
+
+    # Exteriores: luz y toma junto a cada puerta que da afuera, y luces por la fachada.
+    luces_ext: list[str] = []
+    tomas_ext: list[str] = []
+    centro_interior = list(posicion.values())
+    if preferencias.exteriores:
+        muro = float(par("muro_exterior_m")[0])
+        contorno = huella(plano, muro)
+        anillo = contorno.exterior
+        separacion = float(par("separacion_luces_exteriores_m")[0])
+        alt_luz_ext = par("altura_luz_exterior_m")[0]
+        alt_toma_ext = par("altura_toma_exterior_m")[0]
+        puertas_ext = [d for d in plano.puertas if len(d.ambientes) == 1]
+        en_fachada: list[float] = []
+        for d in puertas_ext:
+            medio = Point(
+                (float(d.bisagra.x) + float(d.extremo.x)) / 2,
+                (float(d.bisagra.y) + float(d.extremo.y)) / 2,
+            )
+            if anillo.distance(medio) > muro + 0.3:
+                continue  # puerta a un patio interior o mal leída
+            s0 = anillo.project(medio)
+            en_fachada.append(s0 + 0.75)
+            n = len(tomas_ext) + 1
+            tid = f"T-{EXTERIOR}-{n}"
+            posicion[tid] = _hacia_afuera(contorno, s0 - 1.0)
+            altura[tid], de_ambiente[tid] = alt_toma_ext, EXTERIOR
+            tomas_ext.append(tid)
+        largo = anillo.length
+        k = 0.0
+        while k < largo:
+            cerca = [abs(k - x) % largo for x in en_fachada]
+            if all(min(c, largo - c) >= separacion / 2 for c in cerca):
+                en_fachada.append(k)
+            k += separacion
+        for n, s_ in enumerate(sorted(x % largo for x in en_fachada), start=1):
+            lid = f"L-{EXTERIOR}-{n}"
+            posicion[lid] = _hacia_afuera(contorno, s_)
+            altura[lid], de_ambiente[lid] = alt_luz_ext, EXTERIOR
+            luces_ext.append(lid)
+        # Interruptor de exteriores: dentro, junto a la primera puerta que da afuera.
+        for d in puertas_ext:
+            dentro = next((r for r in recintos if r.ambiente.id == d.ambientes[0]), None)
+            if dentro is None:
+                continue
+            vano = LineString(
+                [(float(d.bisagra.x), float(d.bisagra.y)), (float(d.extremo.x), float(d.extremo.y))]
+            )
+            solo = _Recinto(dentro.ambiente, dentro.poligono, dentro.plantilla, [vano])
+            lugar = _interruptor(solo, dist_interruptor + 0.25)
+            if lugar is not None:
+                interruptores[EXTERIOR] = lugar
+                break
+        if luces_ext and EXTERIOR not in interruptores:
+            avisos.append("sin puerta exterior donde ubicar el interruptor de las luces de fachada")
+
     # Lo que el usuario fijó se queda donde lo dejó.
     for pid, u in fijas.items():
         if pid in posicion and u.ambiente:
@@ -325,8 +583,8 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
     else:
         casa = recintos[0]
         avisos.append(f"ningún ambiente admite el tablero; se ubicó en {casa.ambiente.id}")
-    cx = sum(p[0] for p in posicion.values()) / len(posicion)
-    cy = sum(p[1] for p in posicion.values()) / len(posicion)
+    cx = sum(p[0] for p in centro_interior) / len(centro_interior)
+    cy = sum(p[1] for p in centro_interior) / len(centro_interior)
     paredes = [
         (round(math.dist(p, (cx, cy)), 6), s, p)
         for s, p in casa.candidatos_de_pared()
@@ -369,7 +627,11 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
 
     for grupo in _repartir([luces[r.ambiente.id] for r in en_orden], min_il, max_il):
         agregar("iluminacion", grupo, "punto_luz")
+    for grupo in _repartir([luces_ext], 1, max_il):
+        agregar("iluminacion", grupo, "punto_luz")
     for grupo in _repartir([tomas[r.ambiente.id] for r in en_orden], min_to, max_to):
+        agregar("tomacorrientes", grupo, "tomacorriente")
+    for grupo in _repartir([tomas_ext], 1, max_to):
         agregar("tomacorrientes", grupo, "tomacorriente")
     cargas_finales = []
     for carga, cid_punto in nuevas_cargas:
@@ -382,16 +644,25 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
                 potencia_w=carga.potencia_w,
                 conexion=carga.conexion,
                 origen=carga.origen,
+                nota=carga.nota,
             )
         )
 
+    # Se traza con las mismas coordenadas, al milímetro, que se guardan; así
+    # volver a trazar lo guardado da exactamente lo mismo.
+    def al_mm(c: Coord) -> Coord:
+        return (float(mm(c[0])), float(mm(c[1])))
+
+    posicion = {i: al_mm(c) for i, c in posicion.items()}
+    tablero = al_mm(tablero)
+    interruptores = {aid: al_mm(c) for aid, c in interruptores.items()}
     red = trazar_red(
         circuitos,
         miembros,
         posicion,
         altura,
         de_ambiente,
-        {r.ambiente.id: r.plantilla.zona_humeda for r in recintos},
+        {r.ambiente.id: r.plantilla.zona_humeda for r in recintos} | {EXTERIOR: True},
         tablero,
         alt_tablero,
         alt_techo,

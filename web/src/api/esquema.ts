@@ -196,6 +196,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/proyectos/{id}/escenarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar Escenarios
+         * @description Escenarios del mismo proyecto, con sus resultados para compararlos.
+         */
+        get: operations["listar_escenarios_api_v1_proyectos__id__escenarios_get"];
+        put?: never;
+        /**
+         * Crear Escenario
+         * @description Copia el proyecto, con su plano, como un escenario nuevo para probar otros criterios.
+         */
+        post: operations["crear_escenario_api_v1_proyectos__id__escenarios_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/proyectos/{id}/salida.{formato}": {
         parameters: {
             query?: never;
@@ -343,6 +367,15 @@ export interface components {
              */
             supuestos: components["schemas"]["Supuesto"][];
             plano?: components["schemas"]["Plano"] | null;
+            /**
+             * @default {
+             *       "iluminacion": "plafon",
+             *       "refrigeradora": true,
+             *       "exteriores": true,
+             *       "ambientes": {}
+             *     }
+             */
+            preferencias: components["schemas"]["Preferencias"];
         };
         /** Calculos */
         Calculos: {
@@ -429,6 +462,8 @@ export interface components {
              * @enum {string}
              */
             origen: "auto" | "editado" | "fijado";
+            /** Nota */
+            nota?: string | null;
         };
         /** CargaOut */
         CargaOut: {
@@ -505,6 +540,40 @@ export interface components {
             huella: string;
             /** Resumen */
             resumen: string;
+        };
+        /**
+         * EscenarioOut
+         * @description Un escenario del proyecto, resumido para compararlo con los demás.
+         */
+        EscenarioOut: {
+            /** Id */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Revision */
+            revision: number;
+            /**
+             * Estado
+             * @enum {string}
+             */
+            estado: "listo" | "incompleto";
+            /** Iluminacion */
+            iluminacion: string;
+            /** Zona Climatica */
+            zona_climatica: string | null;
+            /** Luminarias */
+            luminarias: number;
+            /** Tomacorrientes */
+            tomacorrientes: number;
+            /** Aires */
+            aires: number;
+            /** Circuitos */
+            circuitos: number;
+            /**
+             * Resumen
+             * @default []
+             */
+            resumen: components["schemas"]["DatoResumenOut"][];
         };
         /** FilaCuadroOut */
         FilaCuadroOut: {
@@ -627,12 +696,45 @@ export interface components {
             /** Y */
             y: number | string;
         };
+        /** NuevoEscenario */
+        NuevoEscenario: {
+            /** Nombre */
+            nombre: string;
+        };
+        /** OpcionEstilo */
+        OpcionEstilo: {
+            /** Id */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Descripcion */
+            descripcion: string;
+        };
         /** OpcionUso */
         OpcionUso: {
             /** Uso */
             uso: string;
             /** Equipos */
             equipos: string[];
+            /**
+             * Aire
+             * @default false
+             */
+            aire: boolean;
+            /**
+             * Tomas Distribucion
+             * @default perimetro
+             */
+            tomas_distribucion: string;
+        };
+        /** OpcionZona */
+        OpcionZona: {
+            /** Id */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Aire */
+            aire: boolean;
         };
         /**
          * Pendiente
@@ -664,6 +766,16 @@ export interface components {
             cargas: components["schemas"]["CargaOut"][];
             /** Usos */
             usos: components["schemas"]["OpcionUso"][];
+            /**
+             * Estilos
+             * @default []
+             */
+            estilos: components["schemas"]["OpcionEstilo"][];
+            /**
+             * Zonas
+             * @default []
+             */
+            zonas: components["schemas"]["OpcionZona"][];
             /** Tablas */
             tablas: components["schemas"]["TablaOut"][];
         };
@@ -737,6 +849,48 @@ export interface components {
             plantas: number;
         };
         /**
+         * PreferenciaAmbiente
+         * @description Lo que el usuario cambia en un ambiente respecto de lo general del escenario.
+         */
+        PreferenciaAmbiente: {
+            /** Iluminacion */
+            iluminacion?: string | null;
+            /** Tomas */
+            tomas?: ("perimetro" | "extremos") | null;
+            /** Aire */
+            aire?: boolean | null;
+        };
+        /**
+         * Preferencias
+         * @description Criterios del diseño automático; cada escenario tiene los suyos.
+         */
+        Preferencias: {
+            /**
+             * Iluminacion
+             * @default plafon
+             */
+            iluminacion: string;
+            /** Zona Climatica */
+            zona_climatica?: string | null;
+            /**
+             * Refrigeradora
+             * @default true
+             */
+            refrigeradora: boolean;
+            /**
+             * Exteriores
+             * @default true
+             */
+            exteriores: boolean;
+            /**
+             * Ambientes
+             * @default {}
+             */
+            ambientes: {
+                [key: string]: components["schemas"]["PreferenciaAmbiente"];
+            };
+        };
+        /**
          * Proyectista
          * @description Profesional que revisa y firma el proyecto (RF-03).
          */
@@ -775,6 +929,8 @@ export interface components {
             datos: components["schemas"]["Borrador"];
             /** Deshacer */
             deshacer?: string | null;
+            /** Escenario */
+            escenario?: string | null;
         };
         /** ProyectoResumen */
         ProyectoResumen: {
@@ -1435,6 +1591,72 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProyectoDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_escenarios_api_v1_proyectos__id__escenarios_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EscenarioOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_escenario_api_v1_proyectos__id__escenarios_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevoEscenario"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -82,6 +82,8 @@ class CargaEspecial(Entidad):
     #: Si falta, se usa la conexión por defecto del perfil para ese equipo.
     conexion: Conexion | None = None
     origen: Origen = "fijado"
+    #: Cómo se dimensionó, cuando lo propuso el diseño (p. ej. capacidad del aire).
+    nota: str | None = None
 
 
 class Circuito(Entidad):
@@ -123,6 +125,28 @@ class Supuesto(Entidad):
         return self
 
 
+class PreferenciaAmbiente(Entidad):
+    """Lo que el usuario cambia en un ambiente respecto de lo general del escenario."""
+
+    #: Estilo de iluminación; si falta, el del escenario.
+    iluminacion: str | None = None
+    tomas: Literal["perimetro", "extremos"] | None = None
+    #: Aire acondicionado: sí, no, o (si falta) según la zona climática.
+    aire: bool | None = None
+
+
+class Preferencias(Entidad):
+    """Criterios del diseño automático; cada escenario tiene los suyos."""
+
+    iluminacion: str = "plafon"
+    #: Zona climática del perfil; sin zona no se propone aire acondicionado.
+    zona_climatica: str | None = None
+    refrigeradora: bool = True
+    exteriores: bool = True
+    #: Por id de ambiente.
+    ambientes: dict[str, PreferenciaAmbiente] = {}
+
+
 class Proyecto(Entidad):
     id: str
     nombre: str
@@ -140,6 +164,7 @@ class Proyecto(Entidad):
     supuestos: tuple[Supuesto, ...] = ()
     #: Geometría leída del plano y ubicación de la instalación; opcional.
     plano: Plano | None = None
+    preferencias: Preferencias = Preferencias()
 
     @model_validator(mode="after")
     def _coherencia(self) -> Self:

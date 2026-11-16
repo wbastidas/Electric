@@ -171,6 +171,42 @@ class FilaPlantilla(Dato):
     zona_humeda: bool = False
     #: Orden de preferencia para ubicar el tablero; `None` si no lo admite.
     prioridad_tablero: int | None = None
+    #: Se propone aire acondicionado si la zona climática lo pide.
+    aire: bool = False
+    #: Lleva el tomacorriente dedicado de la refrigeradora.
+    refrigeradora: bool = False
+    #: "perimetro": tomas repartidos por las paredes; "extremos": en los
+    #: extremos de las paredes sin puerta (a los lados de cama o mesón).
+    tomas_distribucion: Literal["perimetro", "extremos"] = "perimetro"
+
+
+class FilaEstiloLuz(Dato):
+    """Estilo de iluminación: cuántas luminarias y cómo se reparten."""
+
+    id: str
+    nombre: str
+    #: Si falta, se usa la densidad de la plantilla del ambiente.
+    area_por_luminaria_m2: Decimal | None = Field(default=None, gt=0)
+    luminarias_min: int = Field(default=1, ge=1)
+    #: "eje": en fila a lo largo del lado mayor; "reticula": en cuadrícula.
+    distribucion: Literal["eje", "reticula"] = "eje"
+    descripcion: str = ""
+
+
+class FilaZonaClimatica(Dato):
+    id: str
+    nombre: str
+    #: Si se propone aire acondicionado en los ambientes que lo admiten.
+    aire: bool
+    btu_por_m2: Decimal = Field(gt=0)
+
+
+class FilaAire(Dato):
+    """Capacidad comercial de un equipo de aire acondicionado."""
+
+    btu: int = Field(gt=0)
+    potencia: Decimal = Field(gt=0)
+    conexion: Literal["fase_neutro", "linea"] = "linea"
 
 
 # --- Tablas --------------------------------------------------------------
@@ -263,6 +299,23 @@ class TablaPlantillas(TablaBase):
     filas: tuple[FilaPlantilla, ...]
 
 
+class TablaEstilosLuz(TablaBase):
+    tipo: Literal["estilos_iluminacion"]
+    filas: tuple[FilaEstiloLuz, ...]
+
+
+class TablaZonasClimaticas(TablaBase):
+    tipo: Literal["zonas_climaticas"]
+    filas: tuple[FilaZonaClimatica, ...]
+
+
+class TablaAires(TablaBase):
+    """Capacidades en orden creciente de BTU."""
+
+    tipo: Literal["aires"]
+    filas: tuple[FilaAire, ...]
+
+
 class TablaRedondeo(TablaBase):
     tipo: Literal["redondeo"]
     filas: tuple[FilaRedondeo, ...]
@@ -285,6 +338,9 @@ Tabla = Annotated[
     | TablaTierraEquipos
     | TablaParametros
     | TablaPlantillas
+    | TablaEstilosLuz
+    | TablaZonasClimaticas
+    | TablaAires
     | TablaRedondeo,
     Field(discriminator="tipo"),
 ]

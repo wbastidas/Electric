@@ -24,7 +24,9 @@ from electric_api.esquemas import (
     FilaCuadroOut,
     Fondo,
     LineaFondo,
+    OpcionEstilo,
     OpcionUso,
+    OpcionZona,
     Pendiente,
     PerfilOut,
     ResultadoOut,
@@ -73,8 +75,20 @@ def perfil_a_salida(perfil: Perfil) -> PerfilOut:
             for c in cargas.filas
         ],
         usos=[
-            OpcionUso(uso=p.uso, equipos=list(p.equipos))
+            OpcionUso(
+                uso=p.uso,
+                equipos=list(p.equipos),
+                aire=p.aire,
+                tomas_distribucion=p.tomas_distribucion,
+            )
             for p in (perfil.plantillas()[0] if "plantillas_ambiente" in perfil.tablas else ())
+        ],
+        estilos=[
+            OpcionEstilo(id=e.id, nombre=e.nombre, descripcion=e.descripcion)
+            for e in perfil.estilos_iluminacion()
+        ],
+        zonas=[
+            OpcionZona(id=z.id, nombre=z.nombre, aire=z.aire) for z in perfil.zonas_climaticas()
         ],
         tablas=[
             TablaOut(

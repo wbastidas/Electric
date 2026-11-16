@@ -17,6 +17,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field
 from shapely.geometry import Point, Polygon
 
+from electric.diseno.automatico import EXTERIOR, huella
 from electric.diseno.trazado import Coord, trazar_red
 from electric.errores import DatoInvalido
 from electric.modelo.entidades import Circuito, Proyecto, Punto
@@ -82,12 +83,21 @@ class Editado:
     avisos: tuple[str, ...]
 
 
-def _ambiente_en(plano: Plano, x: Decimal, y: Decimal) -> str:
+#: Hasta dónde fuera de la fachada se admite un punto exterior.
+ALCANCE_EXTERIOR_M = 15
+
+
+def _ambiente_en(plano: Plano, x: Decimal, y: Decimal, perfil: Perfil) -> str:
     punto = Point(float(x), float(y))
     for ambiente in plano.ambientes:
         if Polygon([(float(p.x), float(p.y)) for p in ambiente.poligono]).covers(punto):
             return ambiente.id
-    raise DatoInvalido(f"la posición ({x}; {y}) no está dentro de ningún ambiente del plano")
+    contorno = huella(plano, float(perfil.parametro("muro_exterior_m")[0]))
+    if contorno.covers(punto):
+        raise DatoInvalido(f"la posición ({x}; {y}) cae sobre un muro")
+    if contorno.distance(punto) <= ALCANCE_EXTERIOR_M:
+        return EXTERIOR
+    raise DatoInvalido(f"la posición ({x}; {y}) está fuera del plano")
 
 
 def _siguiente_circuito(circuitos: Sequence[Circuito]) -> str:
@@ -126,7 +136,7 @@ def retrazar(proyecto: Proyecto, perfil: Perfil) -> Proyecto:
         {i: (float(u.x), float(u.y)) for i, u in lugar.items()},
         {i: u.altura_m for i, u in lugar.items()},
         {i: u.ambiente or "" for i, u in lugar.items()},
-        {aid: perfil.plantilla(uso)[0].zona_humeda for aid, uso in usos.items()},
+        {aid: perfil.plantilla(uso)[0].zona_humeda for aid, uso in usos.items()} | {EXTERIOR: True},
         (float(tablero.x), float(tablero.y)),
         tablero.altura_m,
         perfil.parametro("altura_techo_m")[0],
@@ -157,7 +167,7 @@ def editar(proyecto: Proyecto, ediciones: Sequence[Edicion], perfil: Perfil) -> 
 
     for edicion in ediciones:
         if isinstance(edicion, Mover):
-            aid = _ambiente_en(plano, edicion.x, edicion.y)
+            aid = _ambiente_en(plano, edicion.x, edicion.y, perfil)
             x, y = mm(edicion.x), mm(edicion.y)
             if edicion.id in ubicaciones:
                 ubicaciones[edicion.id] = ubicaciones[edicion.id].model_copy(
@@ -205,7 +215,7 @@ def editar(proyecto: Proyecto, ediciones: Sequence[Edicion], perfil: Perfil) -> 
             puntos[edicion.id] = punto.model_copy(update={"circuito": destino, "origen": "fijado"})
         elif isinstance(edicion, Agregar):
             prefijo, tipo_circuito = TIPOS_AGREGABLES[edicion.tipo]
-            aid = _ambiente_en(plano, edicion.x, edicion.y)
+            aid = _ambiente_en(plano, edicion.x, edicion.y, perfil)
             n = 1
             while f"{prefijo}-{aid}-M{n}" in ubicaciones:
                 n += 1
@@ -230,12 +240,18 @@ def editar(proyecto: Proyecto, ediciones: Sequence[Edicion], perfil: Perfil) -> 
                     por_circuito[destino] = nuevo
             elif destino not in por_circuito or por_circuito[destino].tipo != tipo_circuito:
                 raise DatoInvalido(f"{destino} no es un circuito de {tipo_circuito}")
-            plantilla = perfil.plantilla(next(a.uso for a in plano.ambientes if a.id == aid))[0]
-            altura = (
-                perfil.parametro("altura_techo_m")[0]
-                if edicion.tipo == "punto_luz"
-                else plantilla.altura_tomas_m
-            )
+            if aid == EXTERIOR:
+                clave = (
+                    "altura_luz_exterior_m"
+                    if edicion.tipo == "punto_luz"
+                    else ("altura_toma_exterior_m")
+                )
+                altura = perfil.parametro(clave)[0]
+            elif edicion.tipo == "punto_luz":
+                altura = perfil.parametro("altura_techo_m")[0]
+            else:
+                uso = next(a.uso for a in plano.ambientes if a.id == aid)
+                altura = perfil.plantilla(uso)[0].altura_tomas_m
             ubicaciones[pid] = Ubicacion(
                 id=pid, x=mm(edicion.x), y=mm(edicion.y), altura_m=altura, ambiente=aid, fijo=True
             )

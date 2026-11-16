@@ -564,6 +564,98 @@
         }
       }
     },
+    "/api/v1/proyectos/{id}/escenarios": {
+      "get": {
+        "summary": "Listar Escenarios",
+        "description": "Escenarios del mismo proyecto, con sus resultados para compararlos.",
+        "operationId": "listar_escenarios_api_v1_proyectos__id__escenarios_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EscenarioOut"
+                  },
+                  "title": "Response Listar Escenarios Api V1 Proyectos  Id  Escenarios Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear Escenario",
+        "description": "Copia el proyecto, con su plano, como un escenario nuevo para probar otros criterios.",
+        "operationId": "crear_escenario_api_v1_proyectos__id__escenarios_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NuevoEscenario"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProyectoDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/proyectos/{id}/salida.{formato}": {
       "get": {
         "summary": "Descargar Salida",
@@ -869,6 +961,15 @@
                 "type": "null"
               }
             ]
+          },
+          "preferencias": {
+            "$ref": "#/components/schemas/Preferencias",
+            "default": {
+              "iluminacion": "plafon",
+              "refrigeradora": true,
+              "exteriores": true,
+              "ambientes": {}
+            }
           }
         },
         "additionalProperties": false,
@@ -1054,6 +1155,17 @@
             ],
             "title": "Origen",
             "default": "fijado"
+          },
+          "nota": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nota"
           }
         },
         "additionalProperties": false,
@@ -1324,6 +1436,85 @@
           "resumen"
         ],
         "title": "EntradaBitacora"
+      },
+      "EscenarioOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "listo",
+              "incompleto"
+            ],
+            "title": "Estado"
+          },
+          "iluminacion": {
+            "type": "string",
+            "title": "Iluminacion"
+          },
+          "zona_climatica": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zona Climatica"
+          },
+          "luminarias": {
+            "type": "integer",
+            "title": "Luminarias"
+          },
+          "tomacorrientes": {
+            "type": "integer",
+            "title": "Tomacorrientes"
+          },
+          "aires": {
+            "type": "integer",
+            "title": "Aires"
+          },
+          "circuitos": {
+            "type": "integer",
+            "title": "Circuitos"
+          },
+          "resumen": {
+            "items": {
+              "$ref": "#/components/schemas/DatoResumenOut"
+            },
+            "type": "array",
+            "title": "Resumen",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "revision",
+          "estado",
+          "iluminacion",
+          "zona_climatica",
+          "luminarias",
+          "tomacorrientes",
+          "aires",
+          "circuitos"
+        ],
+        "title": "EscenarioOut",
+        "description": "Un escenario del proyecto, resumido para compararlo con los demás."
       },
       "FilaCuadroOut": {
         "properties": {
@@ -1648,6 +1839,46 @@
         "title": "Mover",
         "description": "Lleva un punto, carga especial, interruptor o el tablero a otra posición y lo fija."
       },
+      "NuevoEscenario": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Nombre"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre"
+        ],
+        "title": "NuevoEscenario"
+      },
+      "OpcionEstilo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "descripcion"
+        ],
+        "title": "OpcionEstilo"
+      },
       "OpcionUso": {
         "properties": {
           "uso": {
@@ -1660,6 +1891,16 @@
             },
             "type": "array",
             "title": "Equipos"
+          },
+          "aire": {
+            "type": "boolean",
+            "title": "Aire",
+            "default": false
+          },
+          "tomas_distribucion": {
+            "type": "string",
+            "title": "Tomas Distribucion",
+            "default": "perimetro"
           }
         },
         "additionalProperties": false,
@@ -1669,6 +1910,30 @@
           "equipos"
         ],
         "title": "OpcionUso"
+      },
+      "OpcionZona": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "aire": {
+            "type": "boolean",
+            "title": "Aire"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "aire"
+        ],
+        "title": "OpcionZona"
       },
       "Pendiente": {
         "properties": {
@@ -1743,6 +2008,22 @@
             },
             "type": "array",
             "title": "Usos"
+          },
+          "estilos": {
+            "items": {
+              "$ref": "#/components/schemas/OpcionEstilo"
+            },
+            "type": "array",
+            "title": "Estilos",
+            "default": []
+          },
+          "zonas": {
+            "items": {
+              "$ref": "#/components/schemas/OpcionZona"
+            },
+            "type": "array",
+            "title": "Zonas",
+            "default": []
           },
           "tablas": {
             "items": {
@@ -1893,6 +2174,93 @@
         "title": "Predio",
         "description": "Datos del predio y de su propietario (RF-01)."
       },
+      "PreferenciaAmbiente": {
+        "properties": {
+          "iluminacion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iluminacion"
+          },
+          "tomas": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "perimetro",
+                  "extremos"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tomas"
+          },
+          "aire": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aire"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PreferenciaAmbiente",
+        "description": "Lo que el usuario cambia en un ambiente respecto de lo general del escenario."
+      },
+      "Preferencias": {
+        "properties": {
+          "iluminacion": {
+            "type": "string",
+            "title": "Iluminacion",
+            "default": "plafon"
+          },
+          "zona_climatica": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zona Climatica"
+          },
+          "refrigeradora": {
+            "type": "boolean",
+            "title": "Refrigeradora",
+            "default": true
+          },
+          "exteriores": {
+            "type": "boolean",
+            "title": "Exteriores",
+            "default": true
+          },
+          "ambientes": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PreferenciaAmbiente"
+            },
+            "type": "object",
+            "title": "Ambientes",
+            "default": {}
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Preferencias",
+        "description": "Criterios del diseño automático; cada escenario tiene los suyos."
+      },
       "Proyectista": {
         "properties": {
           "nombre": {
@@ -1952,6 +2320,17 @@
               }
             ],
             "title": "Deshacer"
+          },
+          "escenario": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Escenario"
           }
         },
         "additionalProperties": false,

@@ -52,7 +52,7 @@ def test_cli_json_y_explicar(capsys: pytest.CaptureFixture[str]) -> None:
 
 def test_cli_validar_perfil(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["validar-perfil", str(PERFILES / "cnel-ep")]) == 0
-    assert "válido, 18 tablas" in capsys.readouterr().out
+    assert "válido, 21 tablas" in capsys.readouterr().out
 
 
 def test_cli_error_legible(capsys: pytest.CaptureFixture[str]) -> None:

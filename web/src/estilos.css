@@ -621,3 +621,15 @@ tr.dudoso td {
 .resumen.compacto .valor {
   font-size: 0.95rem;
 }
+.comparacion th[scope="row"] {
+  text-align: left;
+  font-weight: 500;
+  color: var(--tenue);
+}
+.comparacion .actual {
+  background: var(--acento-suave);
+}
+table.ambientes select {
+  min-width: 7rem;
+  max-width: 9.5rem;
+}

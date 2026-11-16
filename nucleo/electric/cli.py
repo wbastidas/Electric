@@ -18,7 +18,7 @@ from pydantic import ValidationError
 from electric.calculo import Calculado, Resultado, calcular, presentar
 from electric.calculo.cuadro import cuadro_de_cargas, resumen, tablas_sin_verificar
 from electric.errores import ErrorElectric
-from electric.modelo import Proyecto, a_json_canonico
+from electric.modelo import Preferencias, Proyecto, a_json_canonico
 from electric.perfiles import Perfil, cargar_perfil
 
 AVISO_BORRADOR = (
@@ -170,6 +170,12 @@ def _disenar(args: argparse.Namespace) -> int:
         id=origen.stem,
         nombre=args.nombre or f"Proyecto de {origen.name}",
         equipos=equipos,
+        preferencias=Preferencias(
+            iluminacion=args.iluminacion,
+            zona_climatica=args.zona,
+            refrigeradora=not args.sin_refrigeradora,
+            exteriores=not args.sin_exteriores,
+        ),
         alimentador_m=Decimal(args.alimentador),
         factor_a_metros=args.escala,
     )
@@ -234,6 +240,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     d.add_argument("--equipos", default="", help="cargas especiales, separadas por coma")
     d.add_argument("--alimentador", required=True, help="longitud del medidor al tablero, en m")
     d.add_argument("--escala", type=float, help="metros por unidad de dibujo, si el DXF no lo dice")
+    d.add_argument("--zona", help="zona climática: costa, sierra, amazonia, galapagos")
+    d.add_argument(
+        "--iluminacion", default="plafon", help="estilo: plafon, foco_central, ojos_de_buey"
+    )
+    d.add_argument("--sin-exteriores", action="store_true", help="sin luces ni tomas de fachada")
+    d.add_argument(
+        "--sin-refrigeradora", action="store_true", help="sin tomacorriente dedicado de refri"
+    )
     d.add_argument(
         "--salida", help="carpeta donde escribir proyecto.json, red.dxf, red.png y red.pdf"
     )

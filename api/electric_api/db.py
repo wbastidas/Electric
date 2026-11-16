@@ -61,6 +61,19 @@ class VersionBD(Base):
     datos: Mapped[str] = mapped_column(Text)
 
 
+class EscenarioBD(Base):
+    """Proyectos que son alternativas de un mismo diseño, para compararlos."""
+
+    __tablename__ = "escenarios"
+
+    proyecto_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("proyectos.id"), primary_key=True
+    )
+    #: Id del proyecto del que salió el primer escenario; agrupa a todos.
+    grupo: Mapped[str] = mapped_column(String(36), index=True)
+    nombre: Mapped[str] = mapped_column(String(80))
+
+
 class ArchivoBD(Base):
     """Plano original del arquitecto. Se guarda tal como llegó y no se modifica."""
 

@@ -9,7 +9,8 @@ fuente:
 estado: por_verificar
 nota: >-
   Reglas de colocación automática por tipo de ambiente: densidad de
-  luminarias, separación de tomacorrientes, alturas y equipos admitidos. Son
+  luminarias, separación de tomacorrientes, alturas, equipos admitidos, si
+  lleva aire acondicionado o refrigeradora y cómo se reparten los tomas. Son
   criterios de partida para que un ingeniero los ajuste. El uso "otro" se
   aplica a los ambientes que no se reconocen.
 unidades: {area_por_luminaria_m2: m2, separacion_tomas_m: m, altura_tomas_m: m}
@@ -30,6 +31,7 @@ filas:
     altura_tomas_m: 1.10
     equipos: [cocina]
     zona_humeda: true
+    refrigeradora: true
   - uso: lavanderia
     patrones: [lavanderia, lavado, laundry]
     area_por_luminaria_m2: 8
@@ -46,6 +48,7 @@ filas:
     tomas_min: 2
     altura_tomas_m: 0.40
     equipos: [aire_acondicionado]
+    aire: true
   - uso: dormitorio
     patrones: [dormitorio, dorm, habitacion, cuarto, recamara]
     area_por_luminaria_m2: 14
@@ -53,12 +56,16 @@ filas:
     tomas_min: 2
     altura_tomas_m: 0.40
     equipos: [aire_acondicionado]
+    aire: true
+    tomas_distribucion: extremos
   - uso: estudio
     patrones: [estudio, oficina, biblioteca]
     area_por_luminaria_m2: 10
     separacion_tomas_m: 4
     tomas_min: 2
     altura_tomas_m: 0.40
+    equipos: [aire_acondicionado]
+    aire: true
   - uso: pasillo
     patrones: [pasillo, hall, corredor, circulacion, vestibulo]
     area_por_luminaria_m2: 10

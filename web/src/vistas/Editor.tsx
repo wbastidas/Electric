@@ -6,9 +6,10 @@ import { Calculos } from "./Calculos";
 import { Circuitos } from "./Circuitos";
 import { Aviso, MensajeError } from "./comunes";
 import { Datos } from "./Datos";
+import { Escenarios } from "./Escenarios";
 import { Plano } from "./Plano";
 
-const PESTANAS = ["Datos", "Plano", "Circuitos", "Cálculos", "Bitácora"] as const;
+const PESTANAS = ["Datos", "Plano", "Escenarios", "Circuitos", "Cálculos", "Bitácora"] as const;
 type Pestana = (typeof PESTANAS)[number];
 
 export function Editor({ id }: { id: string }) {
@@ -46,6 +47,7 @@ export function Editor({ id }: { id: string }) {
     consultas.invalidateQueries({ queryKey: ["calculos", id] });
     consultas.invalidateQueries({ queryKey: ["bitacora", id] });
     consultas.invalidateQueries({ queryKey: ["proyectos"] });
+    consultas.invalidateQueries({ queryKey: ["escenarios"] });
   };
 
   const guardar = useMutation({
@@ -74,6 +76,7 @@ export function Editor({ id }: { id: string }) {
           </a>
           <h1>{datos.nombre}</h1>
           <p className="tenue">
+            {proyecto.data?.escenario ? `Escenario «${proyecto.data.escenario}» · ` : ""}
             {perfil.nombre} · versión {perfil.version} · revisión {revision}
           </p>
         </div>
@@ -130,6 +133,9 @@ export function Editor({ id }: { id: string }) {
           cambiar={cambiar}
           adoptar={adoptar}
         />
+      ) : null}
+      {activa === "Escenarios" ? (
+        <Escenarios id={id} revision={revision} perfil={perfil} sinGuardar={sinGuardar} />
       ) : null}
       {activa === "Circuitos" ? <Circuitos datos={datos} perfil={perfil} cambiar={cambiar} /> : null}
       {activa === "Cálculos" ? (

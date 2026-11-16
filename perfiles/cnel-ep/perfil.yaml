@@ -28,3 +28,6 @@ tablas:
   - tablas/parametros.yaml
   - tablas/redondeo.yaml
   - tablas/plantillas_ambiente.yaml
+  - tablas/estilos_iluminacion.yaml
+  - tablas/zonas_climaticas.yaml
+  - tablas/aires.yaml
