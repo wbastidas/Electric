@@ -13,6 +13,10 @@ export type Punto = S["Punto"];
 export type Resultado = S["ResultadoOut"];
 export type Supuesto = S["Supuesto"];
 export type Estado = Resultado["estado"];
+export type Plano = S["Plano"];
+export type Ambiente = S["Ambiente"];
+export type Fondo = S["Fondo"];
+export type Diseno = S["DisenoOut"];
 
 /** Lo mínimo para crear un proyecto; el servidor completa el resto. */
 export type BorradorNuevo = Partial<Borrador> & Pick<Borrador, "nombre" | "perfil">;
@@ -68,4 +72,18 @@ export const api = {
   borrar: (id: string) => pedir<void>(`/proyectos/${id}`, { method: "DELETE" }),
   calculos: (id: string) => pedir<Calculos>(`/proyectos/${id}/calculos`),
   bitacora: (id: string) => pedir<EntradaBitacora[]>(`/proyectos/${id}/bitacora`),
+  ejemploConPlano: () => pedir<ProyectoDetalle>("/ejemplos/vivienda-plano", { method: "POST" }),
+  subirPlano: (id: string, revision: number, archivo: File, escala?: string) => {
+    const consulta = new URLSearchParams({ revision: String(revision), nombre: archivo.name });
+    if (escala) consulta.set("escala", escala);
+    return pedir<ProyectoDetalle>(`/proyectos/${id}/plano?${consulta}`, {
+      method: "POST",
+      body: archivo,
+      headers: { "Content-Type": "application/octet-stream" },
+    });
+  },
+  fondo: (id: string) => pedir<Fondo>(`/proyectos/${id}/plano/fondo`),
+  disenar: (id: string, revision: number) =>
+    pedir<Diseno>(`/proyectos/${id}/diseno`, { method: "POST", body: JSON.stringify({ revision }) }),
+  urlSalida: (id: string, formato: "dxf" | "png" | "pdf") => `/api/v1/proyectos/${id}/salida.${formato}`,
 };

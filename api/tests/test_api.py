@@ -168,3 +168,102 @@ def test_el_contrato_openapi_guardado_esta_al_dia(cliente: TestClient) -> None:
     """
     guardado = json.loads((RAIZ / "api" / "openapi.json").read_text("utf-8"))
     assert guardado == cliente.app.openapi()  # type: ignore[attr-defined]
+
+
+# --- plano, diseño y salida ------------------------------------------------
+
+PLANTA = RAIZ / "ejemplos" / "vivienda-plano" / "planta.dxf"
+BINARIO = {"Content-Type": "application/octet-stream"}
+
+
+def test_modelo_de_prueba_con_plano_de_punta_a_punta(cliente: TestClient) -> None:
+    creado = cliente.post("/api/v1/ejemplos/vivienda-plano")
+    assert creado.status_code == 201, creado.text
+    proyecto = creado.json()
+    ruta = f"/api/v1/proyectos/{proyecto['id']}"
+    plano = proyecto["datos"]["plano"]
+    assert len(plano["ambientes"]) == 9
+    assert len(plano["recorridos"]) == 7
+    assert len(plano["interruptores"]) == 9
+
+    calculos = cliente.get(f"{ruta}/calculos").json()
+    assert calculos["estado"] == "listo"
+    assert {d["etiqueta"]: d["texto"] for d in calculos["resumen"]}[
+        "Clasificación CNEL"
+    ] == "Tipo I"
+
+    fondo = cliente.get(f"{ruta}/plano/fondo").json()
+    assert fondo["unidad"] == "metros"
+    assert {linea["clase"] for linea in fondo["lineas"]} >= {"muro", "puerta", "ventana"}
+    assert "cota" not in {linea["clase"] for linea in fondo["lineas"]}
+    assert any(t["texto"] == "COCINA" for t in fondo["textos"])
+
+    dxf = cliente.get(f"{ruta}/salida.dxf")
+    assert dxf.status_code == 200 and b"E-CIRC" in dxf.content
+    assert cliente.get(f"{ruta}/salida.png").content.startswith(b"\x89PNG")
+    assert cliente.get(f"{ruta}/salida.pdf").content.startswith(b"%PDF")
+    assert cliente.get(f"{ruta}/salida.svg").status_code == 404
+
+
+def test_subir_plano_corregir_un_uso_y_disenar(cliente: TestClient) -> None:
+    proyecto = _crear(cliente, {"nombre": "Casa con plano", "perfil": PERFIL})
+    ruta = f"/api/v1/proyectos/{proyecto['id']}"
+
+    subido = cliente.post(
+        f"{ruta}/plano",
+        params={"revision": 1, "nombre": "planta.dxf"},
+        content=PLANTA.read_bytes(),
+        headers=BINARIO,
+    )
+    assert subido.status_code == 200, subido.text
+    datos = subido.json()["datos"]
+    assert subido.json()["revision"] == 2
+    assert datos["area_construida_m2"] == "123.32"
+    assert len(datos["plano"]["ambientes"]) == 9
+    assert datos["plano"]["ubicaciones"] == []
+
+    # El usuario declara una ducha, cambia el uso de un dormitorio y fija el alimentador.
+    datos["cargas_especiales"] = [{"id": "d1", "tipo": "ducha", "circuito": "-"}]
+    datos["tablero"] = {"id": "TD-1", "alimentador_longitud_m": "10"}
+    dormitorio = next(a for a in datos["plano"]["ambientes"] if a["nombre"] == "DORMITORIO 3")
+    dormitorio["uso"] = "estudio"
+    guardado = cliente.put(ruta, json={"revision": 2, "datos": datos})
+    assert guardado.status_code == 200, guardado.text
+
+    desactualizado = cliente.post(f"{ruta}/diseno", json={"revision": 2})
+    assert desactualizado.status_code == 409
+
+    diseno = cliente.post(f"{ruta}/diseno", json={"revision": 3})
+    assert diseno.status_code == 200, diseno.text
+    final = diseno.json()["proyecto"]
+    assert final["revision"] == 4
+    nuevos = final["datos"]
+    assert [c["tipo"] for c in nuevos["cargas_especiales"]] == ["ducha"]
+    assert nuevos["cargas_especiales"][0]["circuito"].startswith("C")
+    estudio = next(a for a in nuevos["plano"]["ambientes"] if a["nombre"] == "DORMITORIO 3")
+    luces = [
+        p for p in nuevos["puntos"] if p["ambiente"] == estudio["id"] and p["tipo"] == "punto_luz"
+    ]
+    assert len(luces) == 2  # estudio: 10,97 m² / 10 m² por luminaria → 2; como dormitorio era 1
+
+    assert cliente.get(f"{ruta}/calculos").json()["estado"] == "listo"
+    acciones = [e["accion"] for e in cliente.get(f"{ruta}/bitacora").json()]
+    assert acciones == ["diseñar", "guardar", "cargar plano", "crear"]
+
+
+def test_plano_ilegible_o_sin_plano_se_explica(cliente: TestClient) -> None:
+    proyecto = _crear(cliente, {"nombre": "Casa", "perfil": PERFIL})
+    ruta = f"/api/v1/proyectos/{proyecto['id']}"
+    malo = cliente.post(
+        f"{ruta}/plano", params={"revision": 1}, content=b"no es un plano", headers=BINARIO
+    )
+    assert malo.status_code == 422
+    assert malo.json()["codigo"] == "dato_invalido"
+    assert cliente.post(f"{ruta}/diseno", json={"revision": 1}).json()["codigo"] == "sin_plano"
+    assert cliente.get(f"{ruta}/salida.dxf").json()["codigo"] == "sin_plano"
+    assert cliente.get(f"{ruta}/plano/fondo").status_code == 404
+
+
+def test_borrar_un_proyecto_con_plano(cliente: TestClient) -> None:
+    proyecto = cliente.post("/api/v1/ejemplos/vivienda-plano").json()
+    assert cliente.delete(f"/api/v1/proyectos/{proyecto['id']}").status_code == 204

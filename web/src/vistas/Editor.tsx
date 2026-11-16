@@ -1,13 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { api, type Borrador, ErrorApi } from "../api/cliente";
+import { api, type Borrador, ErrorApi, type ProyectoDetalle } from "../api/cliente";
 import { Bitacora } from "./Bitacora";
 import { Calculos } from "./Calculos";
 import { Circuitos } from "./Circuitos";
 import { Aviso, MensajeError } from "./comunes";
 import { Datos } from "./Datos";
+import { Plano } from "./Plano";
 
-const PESTANAS = ["Datos", "Circuitos", "Cálculos", "Bitácora"] as const;
+const PESTANAS = ["Datos", "Plano", "Circuitos", "Cálculos", "Bitácora"] as const;
 type Pestana = (typeof PESTANAS)[number];
 
 export function Editor({ id }: { id: string }) {
@@ -17,7 +18,7 @@ export function Editor({ id }: { id: string }) {
   const [datos, setDatos] = useState<Borrador | null>(null);
   const [revision, setRevision] = useState(0);
   const [sinGuardar, setSinGuardar] = useState(false);
-  const [pestana, setPestana] = useState<Pestana>("Datos");
+  const [pestana, setPestana] = useState<Pestana | null>(null);
 
   useEffect(() => {
     if (proyecto.data && !sinGuardar) {
@@ -36,17 +37,20 @@ export function Editor({ id }: { id: string }) {
     return () => window.removeEventListener("beforeunload", avisar);
   }, [sinGuardar]);
 
+  /** El servidor devolvió una revisión nueva: pasa a ser la que se edita. */
+  const adoptar = (guardado: ProyectoDetalle) => {
+    setSinGuardar(false);
+    setDatos(guardado.datos);
+    setRevision(guardado.revision);
+    consultas.setQueryData(["proyecto", id], guardado);
+    consultas.invalidateQueries({ queryKey: ["calculos", id] });
+    consultas.invalidateQueries({ queryKey: ["bitacora", id] });
+    consultas.invalidateQueries({ queryKey: ["proyectos"] });
+  };
+
   const guardar = useMutation({
     mutationFn: (nuevo: Borrador) => api.guardar(id, revision, nuevo),
-    onSuccess: (guardado) => {
-      setSinGuardar(false);
-      setDatos(guardado.datos);
-      setRevision(guardado.revision);
-      consultas.setQueryData(["proyecto", id], guardado);
-      consultas.invalidateQueries({ queryKey: ["calculos", id] });
-      consultas.invalidateQueries({ queryKey: ["bitacora", id] });
-      consultas.invalidateQueries({ queryKey: ["proyectos"] });
-    },
+    onSuccess: adoptar,
   });
 
   if (proyecto.isError) return <div className="pagina"><MensajeError error={proyecto.error} /></div>;
@@ -57,6 +61,8 @@ export function Editor({ id }: { id: string }) {
     setDatos(nuevo);
     setSinGuardar(true);
   };
+  // Un proyecto con plano abre en el plano; uno sin plano, en los datos.
+  const activa: Pestana = pestana ?? (datos.plano ? "Plano" : "Datos");
   const conflicto = guardar.error instanceof ErrorApi && guardar.error.estado === 409;
 
   return (
@@ -103,8 +109,8 @@ export function Editor({ id }: { id: string }) {
           <button
             key={p}
             role="tab"
-            aria-selected={p === pestana}
-            className={p === pestana ? "activa" : ""}
+            aria-selected={p === activa}
+            className={p === activa ? "activa" : ""}
             onClick={() => setPestana(p)}
           >
             {p}
@@ -112,9 +118,20 @@ export function Editor({ id }: { id: string }) {
         ))}
       </nav>
 
-      {pestana === "Datos" ? <Datos datos={datos} perfil={perfil} cambiar={cambiar} /> : null}
-      {pestana === "Circuitos" ? <Circuitos datos={datos} perfil={perfil} cambiar={cambiar} /> : null}
-      {pestana === "Cálculos" ? (
+      {activa === "Datos" ? <Datos datos={datos} perfil={perfil} cambiar={cambiar} /> : null}
+      {activa === "Plano" ? (
+        <Plano
+          id={id}
+          revision={revision}
+          datos={datos}
+          perfil={perfil}
+          sinGuardar={sinGuardar}
+          cambiar={cambiar}
+          adoptar={adoptar}
+        />
+      ) : null}
+      {activa === "Circuitos" ? <Circuitos datos={datos} perfil={perfil} cambiar={cambiar} /> : null}
+      {activa === "Cálculos" ? (
         <>
           {sinGuardar ? (
             <Aviso tipo="alerta">
@@ -124,7 +141,7 @@ export function Editor({ id }: { id: string }) {
           <Calculos id={id} revision={revision} />
         </>
       ) : null}
-      {pestana === "Bitácora" ? <Bitacora id={id} /> : null}
+      {activa === "Bitácora" ? <Bitacora id={id} /> : null}
     </div>
   );
 }

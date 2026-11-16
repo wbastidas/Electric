@@ -92,10 +92,131 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/proyectos/{id}/plano": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Subir Plano
+         * @description Carga el plano del arquitecto y detecta sus ambientes.
+         *
+         *     Reemplaza el plano anterior y descarta el diseño que dependía de él.
+         */
+        post: operations["subir_plano_api_v1_proyectos__id__plano_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/proyectos/{id}/plano/fondo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Leer Fondo */
+        get: operations["leer_fondo_api_v1_proyectos__id__plano_fondo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/proyectos/{id}/diseno": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Disenar Instalacion
+         * @description Diseña la instalación sobre los ambientes del plano.
+         *
+         *     Reemplaza puntos y circuitos; conserva las cargas especiales declaradas.
+         */
+        post: operations["disenar_instalacion_api_v1_proyectos__id__diseno_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/proyectos/{id}/salida.{formato}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Descargar Salida
+         * @description Plano con la instalación: DXF con capas E-*, o su imagen PNG o PDF.
+         */
+        get: operations["descargar_salida_api_v1_proyectos__id__salida__formato__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ejemplos/vivienda-plano": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Crear Ejemplo Con Plano
+         * @description Crea el modelo de prueba: la vivienda del repositorio, ya diseñada sobre su plano.
+         */
+        post: operations["crear_ejemplo_con_plano_api_v1_ejemplos_vivienda_plano_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** Ambiente */
+        Ambiente: {
+            /** Id */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Uso */
+            uso: string;
+            /** Poligono */
+            poligono: components["schemas"]["Pt"][];
+            /** Area M2 */
+            area_m2: number | string;
+            /** Perimetro M */
+            perimetro_m: number | string;
+            /**
+             * Banderas
+             * @default []
+             */
+            banderas: string[];
+        };
         /**
          * Borrador
          * @description Proyecto en edición.
@@ -156,6 +277,7 @@ export interface components {
              * @default []
              */
             supuestos: components["schemas"]["Supuesto"][];
+            plano?: components["schemas"]["Plano"] | null;
         };
         /** Calculos */
         Calculos: {
@@ -276,6 +398,12 @@ export interface components {
              */
             estado: "verificado" | "por_verificar" | "defecto_fuente";
         };
+        /** DisenoOut */
+        DisenoOut: {
+            proyecto: components["schemas"]["ProyectoDetalle"];
+            /** Avisos */
+            avisos: string[];
+        };
         /** EntradaBitacora */
         EntradaBitacora: {
             /** Revision */
@@ -316,6 +444,31 @@ export interface components {
             /** Caida */
             caida: string;
         };
+        /**
+         * Fondo
+         * @description Plano del arquitecto como primitivas simples, para dibujarlo de referencia.
+         */
+        Fondo: {
+            /** Archivo */
+            archivo: string;
+            /** Unidad */
+            unidad: string;
+            /** Capas */
+            capas: {
+                [key: string]: string;
+            };
+            /** Lineas */
+            lineas: components["schemas"]["LineaFondo"][];
+            /** Textos */
+            textos: components["schemas"]["TextoFondo"][];
+            /** Limites */
+            limites: [
+                number,
+                number,
+                number,
+                number
+            ];
+        };
         /** Guardar */
         Guardar: {
             /** Revision */
@@ -326,6 +479,38 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** Interruptor */
+        Interruptor: {
+            /** Id */
+            id: string;
+            /** X */
+            x: number | string;
+            /** Y */
+            y: number | string;
+            /** Altura M */
+            altura_m: number | string;
+            /** Ambiente */
+            ambiente: string;
+            /** Circuito */
+            circuito: string;
+        };
+        /** LineaFondo */
+        LineaFondo: {
+            /** Clase */
+            clase: string;
+            /** Puntos */
+            puntos: [
+                number,
+                number
+            ][];
+        };
+        /** OpcionUso */
+        OpcionUso: {
+            /** Uso */
+            uso: string;
+            /** Equipos */
+            equipos: string[];
         };
         /**
          * Pendiente
@@ -355,8 +540,48 @@ export interface components {
             sistemas: components["schemas"]["SistemaOut"][];
             /** Cargas */
             cargas: components["schemas"]["CargaOut"][];
+            /** Usos */
+            usos: components["schemas"]["OpcionUso"][];
             /** Tablas */
             tablas: components["schemas"]["TablaOut"][];
+        };
+        /** Plano */
+        Plano: {
+            /** Archivo */
+            archivo: string;
+            /** Sha256 */
+            sha256: string;
+            /** Factor A Metros */
+            factor_a_metros: number | string;
+            /** Area Construida M2 */
+            area_construida_m2: number | string;
+            /** Ambientes */
+            ambientes: components["schemas"]["Ambiente"][];
+            /**
+             * Puertas
+             * @default []
+             */
+            puertas: components["schemas"]["Puerta"][];
+            /**
+             * Ubicaciones
+             * @default []
+             */
+            ubicaciones: components["schemas"]["Ubicacion"][];
+            /**
+             * Interruptores
+             * @default []
+             */
+            interruptores: components["schemas"]["Interruptor"][];
+            /**
+             * Recorridos
+             * @default []
+             */
+            recorridos: components["schemas"]["Recorrido"][];
+            /**
+             * Banderas
+             * @default []
+             */
+            banderas: string[];
         };
         /**
          * Predio
@@ -442,6 +667,25 @@ export interface components {
             /** Actualizado */
             actualizado: string;
         };
+        /** Pt */
+        Pt: {
+            /** X */
+            x: number | string;
+            /** Y */
+            y: number | string;
+        };
+        /** Puerta */
+        Puerta: {
+            /** Id */
+            id: string;
+            bisagra: components["schemas"]["Pt"];
+            extremo: components["schemas"]["Pt"];
+            /**
+             * Ambientes
+             * @default []
+             */
+            ambientes: string[];
+        };
         /**
          * Punto
          * @description Punto de luz o tomacorriente de uso general.
@@ -463,6 +707,26 @@ export interface components {
              * @enum {string}
              */
             origen: "auto" | "editado" | "fijado";
+        };
+        /**
+         * Recorrido
+         * @description Recorrido ortogonal de un circuito desde el tablero.
+         */
+        Recorrido: {
+            /** Circuito */
+            circuito: string;
+            /** Puntos */
+            puntos: components["schemas"]["Pt"][];
+            /**
+             * Derivaciones
+             * @default []
+             */
+            derivaciones: [
+                components["schemas"]["Pt"],
+                components["schemas"]["Pt"]
+            ][];
+            /** Longitud M */
+            longitud_m: number | string;
         };
         /**
          * RefPerfil
@@ -520,6 +784,11 @@ export interface components {
              * @enum {string}
              */
             estado: "verificado" | "por_verificar" | "defecto_fuente";
+        };
+        /** Revision */
+        Revision: {
+            /** Revision */
+            revision: number;
         };
         /** SistemaOut */
         SistemaOut: {
@@ -581,6 +850,31 @@ export interface components {
             id: string;
             /** Alimentador Longitud M */
             alimentador_longitud_m: number | string;
+        };
+        /** TextoFondo */
+        TextoFondo: {
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+            /** Texto */
+            texto: string;
+        };
+        /**
+         * Ubicacion
+         * @description Posición de un punto, una carga especial o el tablero.
+         */
+        Ubicacion: {
+            /** Id */
+            id: string;
+            /** X */
+            x: number | string;
+            /** Y */
+            y: number | string;
+            /** Altura M */
+            altura_m: number | string;
+            /** Ambiente */
+            ambiente?: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -837,6 +1131,166 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    subir_plano_api_v1_proyectos__id__plano_post: {
+        parameters: {
+            query: {
+                revision: number;
+                nombre?: string;
+                /** @description Metros por unidad de dibujo */
+                escala?: number | null;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProyectoDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    leer_fondo_api_v1_proyectos__id__plano_fondo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Fondo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    disenar_instalacion_api_v1_proyectos__id__diseno_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Revision"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisenoOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descargar_salida_api_v1_proyectos__id__salida__formato__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                formato: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/dxf": unknown;
+                    "image/png": unknown;
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_ejemplo_con_plano_api_v1_ejemplos_vivienda_plano_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProyectoDetalle"];
                 };
             };
         };

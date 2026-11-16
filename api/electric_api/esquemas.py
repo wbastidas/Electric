@@ -15,6 +15,7 @@ from electric.modelo.entidades import (
     Supuesto,
     Tablero,
 )
+from electric.modelo.plano import Plano
 from electric.perfiles.esquema import Estado, RefTabla
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -42,6 +43,8 @@ class Borrador(Esquema):
     circuitos: list[Circuito] = []
     tablero: Tablero | None = None
     supuestos: list[Supuesto] = []
+    #: Ambientes leídos del plano y ubicación de la instalación diseñada.
+    plano: Plano | None = None
 
 
 class ProyectoResumen(Esquema):
@@ -137,6 +140,47 @@ class Calculos(Esquema):
     tablas_sin_verificar: list[TablaPendiente] = []
 
 
+class Revision(Esquema):
+    #: Revisión que el cliente tenía; evita pisar cambios de otra persona.
+    revision: int
+
+
+class DisenoOut(Esquema):
+    proyecto: ProyectoDetalle
+    #: Decisiones del diseño automático que conviene revisar.
+    avisos: list[str]
+
+
+class LineaFondo(Esquema):
+    #: muro, puerta, ventana, mobiliario, cota u otro.
+    clase: str
+    #: Polilínea en metros: [[x, y], …].
+    puntos: list[tuple[float, float]]
+
+
+class TextoFondo(Esquema):
+    x: float
+    y: float
+    texto: str
+
+
+class Fondo(Esquema):
+    """Plano del arquitecto como primitivas simples, para dibujarlo de referencia."""
+
+    archivo: str
+    unidad: str
+    capas: dict[str, str]
+    lineas: list[LineaFondo]
+    textos: list[TextoFondo]
+    #: Límites del dibujo: x mínimo, y mínimo, x máximo, y máximo.
+    limites: tuple[float, float, float, float]
+
+
+class OpcionUso(Esquema):
+    uso: str
+    equipos: list[str]
+
+
 class EntradaBitacora(Esquema):
     revision: int
     accion: str
@@ -175,4 +219,6 @@ class PerfilOut(Esquema):
     sistema_defecto: str
     sistemas: list[SistemaOut]
     cargas: list[CargaOut]
+    #: Usos de ambiente que admite el diseño automático; vacío si el perfil no lo trae.
+    usos: list[OpcionUso]
     tablas: list[TablaOut]

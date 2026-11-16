@@ -22,6 +22,13 @@ export function Lista() {
       abrir(proyecto.id);
     },
   });
+  const ejemplo = useMutation({
+    mutationFn: api.ejemploConPlano,
+    onSuccess: (proyecto) => {
+      consultas.invalidateQueries({ queryKey: ["proyectos"] });
+      abrir(proyecto.id);
+    },
+  });
   const borrar = useMutation({
     mutationFn: api.borrar,
     onSuccess: () => consultas.invalidateQueries({ queryKey: ["proyectos"] }),
@@ -67,16 +74,25 @@ export function Lista() {
             disabled={!perfil || crear.isPending}
             onClick={() => perfil && crear.mutate(viviendaDeEjemplo(perfil))}
           >
-            Crear vivienda de ejemplo
+            Ejemplo por formulario
           </button>
         </form>
+        <div className="acciones izquierda">
+          <button className="primario" disabled={ejemplo.isPending} onClick={() => ejemplo.mutate()}>
+            {ejemplo.isPending ? "Diseñando…" : "Abrir el modelo de prueba con plano"}
+          </button>
+          <span className="tenue">
+            Vivienda de 12 × 10 m: lee el plano, detecta 9 ambientes y dibuja la instalación.
+          </span>
+        </div>
         {crear.isError ? <MensajeError error={crear.error} /> : null}
+        {ejemplo.isError ? <MensajeError error={ejemplo.error} /> : null}
         {perfiles.isError ? <MensajeError error={perfiles.error} /> : null}
       </section>
 
       {proyectos.isError ? <MensajeError error={proyectos.error} /> : null}
       {proyectos.data?.length === 0 ? (
-        <Aviso tipo="nota">Todavía no hay proyectos. Cree uno o empiece con la vivienda de ejemplo.</Aviso>
+        <Aviso tipo="nota">Todavía no hay proyectos. Cree uno o abra el modelo de prueba con plano.</Aviso>
       ) : null}
       {proyectos.data?.length ? (
         <div className="tabla-ancha">

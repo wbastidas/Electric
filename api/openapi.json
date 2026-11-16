@@ -283,10 +283,320 @@
           }
         }
       }
+    },
+    "/api/v1/proyectos/{id}/plano": {
+      "post": {
+        "summary": "Subir Plano",
+        "description": "Carga el plano del arquitecto y detecta sus ambientes.\n\nReemplaza el plano anterior y descarta el diseño que dependía de él.",
+        "operationId": "subir_plano_api_v1_proyectos__id__plano_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "revision",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Revision"
+            }
+          },
+          {
+            "name": "nombre",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "default": "plano.dxf",
+              "title": "Nombre"
+            }
+          },
+          {
+            "name": "escala",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Metros por unidad de dibujo",
+              "title": "Escala"
+            },
+            "description": "Metros por unidad de dibujo"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "contentMediaType": "application/octet-stream",
+                "title": "Contenido"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProyectoDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/proyectos/{id}/plano/fondo": {
+      "get": {
+        "summary": "Leer Fondo",
+        "operationId": "leer_fondo_api_v1_proyectos__id__plano_fondo_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fondo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/proyectos/{id}/diseno": {
+      "post": {
+        "summary": "Disenar Instalacion",
+        "description": "Diseña la instalación sobre los ambientes del plano.\n\nReemplaza puntos y circuitos; conserva las cargas especiales declaradas.",
+        "operationId": "disenar_instalacion_api_v1_proyectos__id__diseno_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Revision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisenoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/proyectos/{id}/salida.{formato}": {
+      "get": {
+        "summary": "Descargar Salida",
+        "description": "Plano con la instalación: DXF con capas E-*, o su imagen PNG o PDF.",
+        "operationId": "descargar_salida_api_v1_proyectos__id__salida__formato__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "formato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Formato"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/dxf": {},
+              "image/png": {},
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ejemplos/vivienda-plano": {
+      "post": {
+        "summary": "Crear Ejemplo Con Plano",
+        "description": "Crea el modelo de prueba: la vivienda del repositorio, ya diseñada sobre su plano.",
+        "operationId": "crear_ejemplo_con_plano_api_v1_ejemplos_vivienda_plano_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProyectoDetalle"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "Ambiente": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "uso": {
+            "type": "string",
+            "title": "Uso"
+          },
+          "poligono": {
+            "items": {
+              "$ref": "#/components/schemas/Pt"
+            },
+            "type": "array",
+            "title": "Poligono"
+          },
+          "area_m2": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Area M2"
+          },
+          "perimetro_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Perimetro M"
+          },
+          "banderas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Banderas",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "uso",
+          "poligono",
+          "area_m2",
+          "perimetro_m"
+        ],
+        "title": "Ambiente"
+      },
       "Borrador": {
         "properties": {
           "nombre": {
@@ -389,6 +699,16 @@
             "type": "array",
             "title": "Supuestos",
             "default": []
+          },
+          "plano": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Plano"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -709,6 +1029,27 @@
         ],
         "title": "DatoResumenOut"
       },
+      "DisenoOut": {
+        "properties": {
+          "proyecto": {
+            "$ref": "#/components/schemas/ProyectoDetalle"
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "proyecto",
+          "avisos"
+        ],
+        "title": "DisenoOut"
+      },
       "EntradaBitacora": {
         "properties": {
           "revision": {
@@ -812,6 +1153,71 @@
         ],
         "title": "FilaCuadroOut"
       },
+      "Fondo": {
+        "properties": {
+          "archivo": {
+            "type": "string",
+            "title": "Archivo"
+          },
+          "unidad": {
+            "type": "string",
+            "title": "Unidad"
+          },
+          "capas": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Capas"
+          },
+          "lineas": {
+            "items": {
+              "$ref": "#/components/schemas/LineaFondo"
+            },
+            "type": "array",
+            "title": "Lineas"
+          },
+          "textos": {
+            "items": {
+              "$ref": "#/components/schemas/TextoFondo"
+            },
+            "type": "array",
+            "title": "Textos"
+          },
+          "limites": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Limites"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "archivo",
+          "unidad",
+          "capas",
+          "lineas",
+          "textos",
+          "limites"
+        ],
+        "title": "Fondo",
+        "description": "Plano del arquitecto como primitivas simples, para dibujarlo de referencia."
+      },
       "Guardar": {
         "properties": {
           "revision": {
@@ -842,6 +1248,120 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "Interruptor": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "X"
+          },
+          "y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Y"
+          },
+          "altura_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Altura M"
+          },
+          "ambiente": {
+            "type": "string",
+            "title": "Ambiente"
+          },
+          "circuito": {
+            "type": "string",
+            "title": "Circuito"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "x",
+          "y",
+          "altura_m",
+          "ambiente",
+          "circuito"
+        ],
+        "title": "Interruptor"
+      },
+      "LineaFondo": {
+        "properties": {
+          "clase": {
+            "type": "string",
+            "title": "Clase"
+          },
+          "puntos": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "title": "Puntos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "clase",
+          "puntos"
+        ],
+        "title": "LineaFondo"
+      },
+      "OpcionUso": {
+        "properties": {
+          "uso": {
+            "type": "string",
+            "title": "Uso"
+          },
+          "equipos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Equipos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "uso",
+          "equipos"
+        ],
+        "title": "OpcionUso"
       },
       "Pendiente": {
         "properties": {
@@ -910,6 +1430,13 @@
             "type": "array",
             "title": "Cargas"
           },
+          "usos": {
+            "items": {
+              "$ref": "#/components/schemas/OpcionUso"
+            },
+            "type": "array",
+            "title": "Usos"
+          },
           "tablas": {
             "items": {
               "$ref": "#/components/schemas/TablaOut"
@@ -929,9 +1456,101 @@
           "sistema_defecto",
           "sistemas",
           "cargas",
+          "usos",
           "tablas"
         ],
         "title": "PerfilOut"
+      },
+      "Plano": {
+        "properties": {
+          "archivo": {
+            "type": "string",
+            "title": "Archivo"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "factor_a_metros": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Factor A Metros"
+          },
+          "area_construida_m2": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Area Construida M2"
+          },
+          "ambientes": {
+            "items": {
+              "$ref": "#/components/schemas/Ambiente"
+            },
+            "type": "array",
+            "title": "Ambientes"
+          },
+          "puertas": {
+            "items": {
+              "$ref": "#/components/schemas/Puerta"
+            },
+            "type": "array",
+            "title": "Puertas",
+            "default": []
+          },
+          "ubicaciones": {
+            "items": {
+              "$ref": "#/components/schemas/Ubicacion"
+            },
+            "type": "array",
+            "title": "Ubicaciones",
+            "default": []
+          },
+          "interruptores": {
+            "items": {
+              "$ref": "#/components/schemas/Interruptor"
+            },
+            "type": "array",
+            "title": "Interruptores",
+            "default": []
+          },
+          "recorridos": {
+            "items": {
+              "$ref": "#/components/schemas/Recorrido"
+            },
+            "type": "array",
+            "title": "Recorridos",
+            "default": []
+          },
+          "banderas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Banderas",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "archivo",
+          "sha256",
+          "factor_a_metros",
+          "area_construida_m2",
+          "ambientes"
+        ],
+        "title": "Plano"
       },
       "Predio": {
         "properties": {
@@ -1067,6 +1686,69 @@
         ],
         "title": "ProyectoResumen"
       },
+      "Pt": {
+        "properties": {
+          "x": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "X"
+          },
+          "y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Y"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "Pt"
+      },
+      "Puerta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "bisagra": {
+            "$ref": "#/components/schemas/Pt"
+          },
+          "extremo": {
+            "$ref": "#/components/schemas/Pt"
+          },
+          "ambientes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Ambientes",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "bisagra",
+          "extremo"
+        ],
+        "title": "Puerta"
+      },
       "Punto": {
         "properties": {
           "id": {
@@ -1127,6 +1809,59 @@
         ],
         "title": "Punto",
         "description": "Punto de luz o tomacorriente de uso general."
+      },
+      "Recorrido": {
+        "properties": {
+          "circuito": {
+            "type": "string",
+            "title": "Circuito"
+          },
+          "puntos": {
+            "items": {
+              "$ref": "#/components/schemas/Pt"
+            },
+            "type": "array",
+            "title": "Puntos"
+          },
+          "derivaciones": {
+            "items": {
+              "prefixItems": [
+                {
+                  "$ref": "#/components/schemas/Pt"
+                },
+                {
+                  "$ref": "#/components/schemas/Pt"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "title": "Derivaciones",
+            "default": []
+          },
+          "longitud_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Longitud M"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "circuito",
+          "puntos",
+          "longitud_m"
+        ],
+        "title": "Recorrido",
+        "description": "Recorrido ortogonal de un circuito desde el tablero."
       },
       "RefPerfil": {
         "properties": {
@@ -1271,6 +2006,20 @@
           "estado"
         ],
         "title": "ResultadoOut"
+      },
+      "Revision": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision"
+        ],
+        "title": "Revision"
       },
       "SistemaOut": {
         "properties": {
@@ -1436,6 +2185,92 @@
           "alimentador_longitud_m"
         ],
         "title": "Tablero"
+      },
+      "TextoFondo": {
+        "properties": {
+          "x": {
+            "type": "number",
+            "title": "X"
+          },
+          "y": {
+            "type": "number",
+            "title": "Y"
+          },
+          "texto": {
+            "type": "string",
+            "title": "Texto"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "x",
+          "y",
+          "texto"
+        ],
+        "title": "TextoFondo"
+      },
+      "Ubicacion": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "X"
+          },
+          "y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Y"
+          },
+          "altura_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Altura M"
+          },
+          "ambiente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ambiente"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "x",
+          "y",
+          "altura_m"
+        ],
+        "title": "Ubicacion",
+        "description": "Posición de un punto, una carga especial o el tablero."
       },
       "ValidationError": {
         "properties": {

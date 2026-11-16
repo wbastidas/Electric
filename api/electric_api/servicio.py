@@ -10,6 +10,7 @@ from electric.calculo import Calculado, Resultado, calcular, presentar
 from electric.calculo.cuadro import cuadro_de_cargas, resumen, tablas_sin_verificar
 from electric.cli import AVISO_BORRADOR
 from electric.errores import ErrorElectric, ErrorPerfil
+from electric.ingesta import leer_dxf
 from electric.modelo import Proyecto
 from electric.perfiles import Perfil, cargar_perfil
 from electric.perfiles.esquema import TablaCargas, TablaSistemas
@@ -21,12 +22,16 @@ from electric_api.esquemas import (
     CargaOut,
     DatoResumenOut,
     FilaCuadroOut,
+    Fondo,
+    LineaFondo,
+    OpcionUso,
     Pendiente,
     PerfilOut,
     ResultadoOut,
     SistemaOut,
     TablaOut,
     TablaPendiente,
+    TextoFondo,
     ValorOut,
 )
 
@@ -66,6 +71,10 @@ def perfil_a_salida(perfil: Perfil) -> PerfilOut:
         cargas=[
             CargaOut(tipo=c.tipo, potencia=c.potencia, especial=c.especial, conexion=c.conexion)
             for c in cargas.filas
+        ],
+        usos=[
+            OpcionUso(uso=p.uso, equipos=list(p.equipos))
+            for p in (perfil.plantillas()[0] if "plantillas_ambiente" in perfil.tablas else ())
         ],
         tablas=[
             TablaOut(
@@ -179,3 +188,41 @@ def calcular_borrador(id: str, revision: int, borrador: Borrador, perfiles: Perf
     except ErrorElectric as error:
         return incompleto([Pendiente(codigo=error.codigo, mensaje=str(error))])
     return _listo(calculado, perfil, revision)
+
+
+def fondo_del_plano(contenido: bytes, nombre: str, factor: float) -> Fondo:
+    """Primitivas del plano original, en metros, para el visor."""
+    leido = leer_dxf(contenido, nombre, factor_a_metros=factor)
+    lineas = [
+        LineaFondo(clase=leido.capas.get(s.capa, "otro"), puntos=[(s.x1, s.y1), (s.x2, s.y2)])
+        for s in leido.segmentos
+    ]
+    lineas += [
+        LineaFondo(clase=leido.capas.get(a.capa, "otro"), puntos=a.polilinea()) for a in leido.arcos
+    ]
+    lineas = [linea for linea in lineas if linea.clase != "cota"]
+    xs = [x for linea in lineas for x, _ in linea.puntos] or [0.0, 1.0]
+    ys = [y for linea in lineas for _, y in linea.puntos] or [0.0, 1.0]
+    return Fondo(
+        archivo=nombre,
+        unidad=leido.unidad,
+        capas=leido.capas,
+        lineas=lineas,
+        textos=[
+            TextoFondo(x=t.x, y=t.y, texto=t.texto)
+            for t in leido.textos
+            if leido.capas.get(t.capa) != "cota"
+        ],
+        limites=(min(xs), min(ys), max(xs), max(ys)),
+    )
+
+
+def proyecto_del_borrador(id: str, borrador: Borrador) -> Proyecto | list[Pendiente]:
+    """El proyecto del núcleo, o lo que falta para poder armarlo."""
+    pendientes = _pendientes_del_borrador(borrador)
+    if pendientes:
+        return pendientes
+    try:
+        return Proyecto.model_validate({"id": id, **borrador.model_dump()})
+    except ValidationError as error:
+        return _mensajes(error)

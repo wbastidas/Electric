@@ -157,10 +157,10 @@ def leer_dxf(
     banderas: list[str] = []
     codigo = int(doc.header.get("$INSUNITS", 0))
     unidad, factor = _UNIDADES.get(codigo, ("sin declarar", 0.0))
-    if factor_a_metros is not None:
+    if factor_a_metros is not None and abs(factor_a_metros - factor) > 1e-12:
         factor = factor_a_metros
         unidad = f"{unidad} (escala fijada por el usuario)"
-    elif not factor:
+    if not factor:
         raise DatoInvalido(
             "el plano no declara sus unidades; indique cuántos metros mide una unidad del dibujo"
         )

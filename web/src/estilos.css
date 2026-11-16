@@ -429,3 +429,160 @@ dd {
   padding: 0.25rem 0;
   font-size: 0.9rem;
 }
+
+/* --- Plano y visor --- */
+.plano {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1rem;
+  align-items: start;
+}
+@media (max-width: 980px) {
+  .plano {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.visor {
+  position: relative;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.visor svg {
+  display: block;
+  width: 100%;
+  height: min(72vh, 720px);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.controles-visor {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: flex;
+  gap: 0.3rem;
+}
+.controles-visor button {
+  padding: 0.25rem 0.6rem;
+}
+.visor polyline,
+.visor line,
+.visor circle,
+.visor rect,
+.visor polygon {
+  vector-effect: non-scaling-stroke;
+  fill: none;
+}
+.fondo {
+  stroke: var(--tenue);
+  stroke-width: 1;
+  opacity: 0.55;
+}
+.fondo.muro {
+  stroke: var(--texto);
+  stroke-width: 1.4;
+  opacity: 0.75;
+}
+.fondo.mobiliario,
+.fondo.otro {
+  opacity: 0.3;
+}
+.visor polygon.ambiente {
+  fill: var(--acento-suave);
+  fill-opacity: 0.25;
+  stroke: none;
+}
+.visor polygon.ambiente:hover {
+  fill-opacity: 0.6;
+}
+.visor polygon.ambiente.dudoso {
+  fill: var(--ambar-fondo);
+  fill-opacity: 0.8;
+}
+.rotulo {
+  font-size: 0.2px;
+  fill: var(--tenue);
+  pointer-events: none;
+  font-weight: 600;
+}
+.rotulo .menor {
+  font-weight: 400;
+  font-size: 0.17px;
+}
+.recorrido polyline,
+.recorrido line {
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+.recorrido .derivacion {
+  stroke-dasharray: 5 4;
+  stroke-width: 1.2;
+}
+.simbolo {
+  cursor: pointer;
+  stroke-width: 1.8;
+}
+.simbolo circle,
+.simbolo rect {
+  fill: var(--superficie);
+}
+.simbolo.elegido circle,
+.simbolo.elegido rect {
+  stroke-width: 4;
+}
+.etiqueta-tablero {
+  font-size: 0.2px;
+  fill: #c62828;
+  stroke: none;
+  font-weight: 700;
+}
+.panel-plano .casilla {
+  padding: 0.15rem 0;
+}
+.circuitos {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.85rem;
+  background: var(--superficie);
+}
+button.chip.activo {
+  border-color: var(--acento);
+  background: var(--acento-suave);
+}
+.muestra {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+a.boton {
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  text-decoration: none;
+  color: var(--texto);
+  background: var(--superficie);
+}
+a.boton:hover {
+  border-color: var(--acento);
+}
+tr.dudoso td {
+  background: var(--ambar-fondo);
+  color: var(--ambar-texto);
+}
+.panel-plano table select {
+  padding: 0.25rem 0.4rem;
+}

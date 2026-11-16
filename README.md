@@ -5,15 +5,42 @@ arquitectónico genera el expediente eléctrico (planos, cuadros de carga,
 unifilar, memoria, materiales y presupuesto) como **borrador trazable que firma
 un ingeniero habilitado**.
 
-Este repositorio contiene por ahora el núcleo de cálculo de vivienda (RC-01 a
-RC-14), la API y una primera interfaz web para crear una vivienda por
-formulario y ver su cuadro de cargas. La lectura de planos, el diseño
-automático, la generación de planos y el inicio de sesión vienen después.
+Hoy el repositorio lee un plano DXF de una vivienda, detecta sus ambientes,
+propone la instalación (luminarias, interruptores, tomacorrientes, tablero,
+circuitos y recorridos), la calcula (RC-01 a RC-14) y la entrega en un visor
+web, en DXF con capas propias y en PDF o imagen. Faltan la verificación
+normativa, la edición de puntos en el visor, las láminas, la memoria técnica
+y el inicio de sesión.
 
 > **Estado de las tablas.** Todas las tablas del perfil `cnel-ep` están
 > `por_verificar`: sus valores vienen del documento de requerimientos o de
 > conocimiento general, no de los documentos oficiales. Nada de lo que produce
 > el motor debe presentarse a CNEL EP hasta que un ingeniero las verifique.
+
+## Modelo de prueba
+
+`ejemplos/vivienda-plano/` es el caso de prueba de punta a punta: una vivienda
+de 12 × 10 m con 9 ambientes.
+
+| Archivo | Qué es |
+| --- | --- |
+| `planta.dxf` | Plano arquitectónico de prueba (lo genera `generar_plano.py`) |
+| `red.dxf` | El mismo plano en gris con la instalación en capas `E-*` |
+| `red.png`, `red.pdf` | Lámina para revisar sin abrir CAD |
+| `proyecto.json` | Proyecto resultante, con ambientes, puntos, circuitos y recorridos |
+
+Para repetirlo desde `nucleo/`:
+
+```bash
+.venv/bin/electric disenar ../ejemplos/vivienda-plano/planta.dxf \
+  --equipos ducha,cocina --alimentador 12 --salida ../ejemplos/vivienda-plano
+```
+
+En la aplicación web, el botón **Abrir el modelo de prueba con plano** hace lo
+mismo y muestra la red en el visor.
+
+El plano es sintético. La detección de ambientes solo se ha probado con él;
+con planos reales de arquitectos habrá casos que todavía no resuelve.
 
 ## Uso
 
@@ -78,6 +105,10 @@ en `api/` y `pnpm gen` en `web/`.
 | --- | --- |
 | `nucleo/electric/modelo` | Entidades del proyecto y serialización canónica |
 | `nucleo/electric/perfiles` | Esquema, carga y consulta de perfiles |
+| `nucleo/electric/ingesta` | Lectura de DXF y clasificación de capas |
+| `nucleo/electric/interpretacion` | Detección de ambientes y de su uso |
+| `nucleo/electric/diseno` | Diseño automático: puntos, tablero, circuitos, recorridos |
+| `nucleo/electric/salida_cad` | DXF de salida, imagen y PDF |
 | `nucleo/electric/calculo` | Motor: registro de cálculos, RC-01 a RC-14, resultados trazables |
 | `api/electric_api` | API FastAPI: proyectos, cálculos, bitácora |
 | `web/src` | Interfaz React: proyectos, datos, circuitos, cálculos, bitácora |
@@ -122,5 +153,12 @@ en `api/` y `pnpm gen` en `web/`.
 - El alimentador admite de caída la diferencia entre el límite total y el del
   ramal (5 % − 3 % = 2 %).
 - El desbalance se mide como (fase mayor − fase menor) / fase mayor.
+
+- Plantillas de diseño por ambiente (luminarias por m², separación de tomas,
+  alturas, equipos admitidos) y alturas de interruptor, tablero y techo.
+- Los recorridos son ortogonales y encadenan los puntos; no esquivan muros ni
+  comparten ducto entre circuitos.
+- La caída de tensión de un circuito diseñado usa la longitud equivalente por
+  momento de carga (promedio de la distancia del tablero a cada punto).
 
 Cada uno está anotado en la tabla correspondiente y marcado `por_verificar`.

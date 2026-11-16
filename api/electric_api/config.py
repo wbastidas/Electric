@@ -16,6 +16,8 @@ class Config:
     perfiles: Path
     #: Carpeta con la interfaz web compilada; si existe, la API la sirve.
     web: Path
+    #: Carpeta con los proyectos de ejemplo del repositorio.
+    ejemplos: Path = _RAIZ / "ejemplos"
 
 
 def leer_config() -> Config:

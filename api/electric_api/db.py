@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from sqlalchemy import ForeignKey, Integer, String, Text, create_engine
+from sqlalchemy import ForeignKey, Integer, LargeBinary, String, Text, create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -45,6 +45,19 @@ class BitacoraBD(Base):
     #: Huella del borrador tras el cambio.
     huella: Mapped[str] = mapped_column(String(64))
     resumen: Mapped[str] = mapped_column(Text)
+
+
+class ArchivoBD(Base):
+    """Plano original del arquitecto. Se guarda tal como llegó y no se modifica."""
+
+    __tablename__ = "archivos"
+
+    proyecto_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("proyectos.id"), primary_key=True
+    )
+    nombre: Mapped[str] = mapped_column(String(200))
+    sha256: Mapped[str] = mapped_column(String(64))
+    contenido: Mapped[bytes] = mapped_column(LargeBinary)
 
 
 def crear_motor(url: str) -> Engine:
