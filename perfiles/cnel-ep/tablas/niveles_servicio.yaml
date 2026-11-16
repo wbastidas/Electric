@@ -17,12 +17,12 @@ nota: >-
 unidades: {demanda_max_kw: kW}
 filas:
   - id: red_existente
-    nombre: Red de baja tensión existente
+    nombre: Bajo voltaje desde la red de CNEL (hasta 12 kW)
     demanda_max_kw: 12
     medicion: bt
     descripcion: Bajo voltaje desde la red de CNEL; la distribuidora provee el transformador.
   - id: transformador_propio
-    nombre: Transformador particular
+    nombre: Punto de entrega según factibilidad de CNEL (más de 12 kW)
     demanda_max_kw: 500
     medicion: bt
     descripcion: >-

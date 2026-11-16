@@ -600,8 +600,23 @@ a.boton {
   color: var(--texto);
   background: var(--superficie);
 }
-a.boton:hover {
+a.boton:hover,
+label.boton:hover {
   border-color: var(--acento);
+}
+label.boton {
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  background: var(--superficie);
+  cursor: pointer;
+}
+a.boton.primario,
+label.boton.primario {
+  background: var(--acento);
+  border-color: var(--acento);
+  color: var(--acento-texto);
+  font-weight: 600;
 }
 tr.dudoso td {
   background: var(--ambar-fondo);
@@ -709,4 +724,53 @@ table.ambientes select {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 0.2rem 1rem;
+}
+
+/* Industrial */
+.casilla {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.rejilla.estratos {
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+}
+.decision.existente {
+  border-left: 4px solid var(--verde-texto);
+}
+.decision.particular {
+  border-left: 4px solid var(--ambar-texto);
+}
+.decision.pendiente {
+  border-left: 4px solid var(--tenue);
+}
+.comprobaciones {
+  list-style: none;
+  padding-left: 0;
+}
+.comprobaciones li {
+  margin: 0.35rem 0;
+}
+.comprobaciones .cumple strong {
+  color: var(--verde-texto);
+}
+.comprobaciones .falla strong {
+  color: var(--rojo-texto);
+}
+.cifra-media {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.lista-resultados {
+  list-style: none;
+  padding-left: 0;
+}
+.lista-resultados li {
+  margin: 0.3rem 0;
+}
+.aviso-linea {
+  font-size: 0.9rem;
+  color: var(--ambar-texto);
+  margin-left: 1rem;
 }

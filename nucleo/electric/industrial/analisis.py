@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Literal
 
-from electric.calculo.resultado import Rastro, Resultado
+from electric.calculo.resultado import Rastro, Resultado, redondear
 from electric.errores import DatoInvalido, FilaNoEncontrada
 from electric.industrial.modelo import KW_POR_HP, Industria, Maquina, TransformadorExistente
 from electric.perfiles.carga import Perfil
@@ -412,11 +412,11 @@ def analizar(industria: Industria, perfil: Perfil) -> AnalisisIndustrial:
     a._agregar(
         "factor_potencia",
         "Factor de potencia",
-        fp_corr,
+        redondear(fp_corr, 3),
         "",
         "Qc = P × (tan φ actual − tan φ objetivo); FP = P ÷ √(P² + (Q − Qc)²)",
         r_fp,
-        entradas={"fp_sin_corregir": fp_actual, "fp_objetivo": objetivo},
+        entradas={"fp_sin_corregir": redondear(fp_actual, 3), "fp_objetivo": objetivo},
         detalle={"banco_kvar": banco, "requerido_kvar": requerido, "kva_corregida": kva_corr},
         previos=(demanda,),
         avisos=(

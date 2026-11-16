@@ -21,6 +21,11 @@ export type Edicion = S["Editar"]["ediciones"][number];
 export type Escenario = S["EscenarioOut"];
 export type Preferencias = S["Preferencias"];
 export type Respuestas = S["Respuestas"];
+export type BorradorIndustria = S["BorradorIndustria"];
+export type IndustriaDetalle = S["IndustriaDetalle"];
+export type IndustriaResumen = S["IndustriaResumen"];
+export type AnalisisIndustrial = S["AnalisisOut"];
+export type OpcionesIndustriales = S["OpcionesIndustriales"];
 
 /** Lo mínimo para crear un proyecto; el servidor completa el resto. */
 export type BorradorNuevo = Partial<Borrador> & Pick<Borrador, "nombre" | "perfil">;
@@ -104,5 +109,20 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ revision, respuestas }),
     }),
+  industrias: () => pedir<IndustriaResumen[]>("/industrias"),
+  industria: (id: string) => pedir<IndustriaDetalle>(`/industrias/${id}`),
+  crearIndustria: (datos: Partial<BorradorIndustria> & { nombre: string }) =>
+    pedir<IndustriaDetalle>("/industrias", { method: "POST", body: JSON.stringify(datos) }),
+  guardarIndustria: (id: string, revision: number, datos: BorradorIndustria) =>
+    pedir<IndustriaDetalle>(`/industrias/${id}`, { method: "PUT", body: JSON.stringify({ revision, datos }) }),
+  borrarIndustria: (id: string) => pedir<void>(`/industrias/${id}`, { method: "DELETE" }),
+  subirCuadro: (id: string, revision: number, archivo: File) =>
+    pedir<IndustriaDetalle>(
+      `/industrias/${id}/cuadro?${new URLSearchParams({ revision: String(revision), nombre: archivo.name })}`,
+      { method: "POST", body: archivo, headers: { "Content-Type": "application/octet-stream" } },
+    ),
+  analisisIndustria: (id: string) => pedir<AnalisisIndustrial>(`/industrias/${id}/analisis`),
+  opcionesIndustriales: () => pedir<OpcionesIndustriales>("/industrial/opciones"),
+  urlPlantillaIndustrial: "/api/v1/industrial/plantilla",
   urlSalida: (id: string, formato: "dxf" | "png" | "pdf") => `/api/v1/proyectos/${id}/salida.${formato}`,
 };

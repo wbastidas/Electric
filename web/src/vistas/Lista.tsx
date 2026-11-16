@@ -8,6 +8,83 @@ const abrir = (id: string) => {
   window.location.hash = `#/proyectos/${id}`;
 };
 
+function Industrias() {
+  const consultas = useQueryClient();
+  const industrias = useQuery({ queryKey: ["industrias"], queryFn: api.industrias });
+  const [nombre, setNombre] = useState("");
+  const crear = useMutation({
+    mutationFn: (n: string) => api.crearIndustria({ nombre: n }),
+    onSuccess: (industria) => {
+      consultas.invalidateQueries({ queryKey: ["industrias"] });
+      window.location.hash = `#/industrias/${industria.id}`;
+    },
+  });
+  const borrar = useMutation({
+    mutationFn: api.borrarIndustria,
+    onSuccess: () => consultas.invalidateQueries({ queryKey: ["industrias"] }),
+  });
+  return (
+    <section className="tarjeta">
+      <h2>Industrias y comercios grandes</h2>
+      <p className="tenue">
+        Cuadro de cargas en Excel, motores, factor de potencia, transformador y si puede usar el transformador
+        existente de CNEL o necesita uno particular.
+      </p>
+      <form
+        className="fila-formulario"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (nombre.trim()) crear.mutate(nombre.trim());
+        }}
+      >
+        <Campo etiqueta="Nombre de la industria">
+          <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Metalmecánica Andina" />
+        </Campo>
+        <button className="primario" type="submit" disabled={!nombre.trim() || crear.isPending}>
+          Nueva industria
+        </button>
+      </form>
+      {crear.isError ? <MensajeError error={crear.error} /> : null}
+      {industrias.isError ? <MensajeError error={industrias.error} /> : null}
+      {industrias.data?.length ? (
+        <div className="tabla-ancha">
+          <table>
+            <thead>
+              <tr>
+                <th>Industria</th>
+                <th>Propietario</th>
+                <th>Máquinas</th>
+                <th>Último cambio</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {industrias.data.map((i) => (
+                <tr key={i.id}>
+                  <td><a href={`#/industrias/${i.id}`}>{i.nombre}</a></td>
+                  <td>{i.propietario || "—"}</td>
+                  <td>{i.maquinas}</td>
+                  <td>{fecha(i.actualizado)}</td>
+                  <td className="derecha">
+                    <button
+                      className="discreto"
+                      onClick={() => {
+                        if (window.confirm(`¿Borrar "${i.nombre}"? No se puede deshacer.`)) borrar.mutate(i.id);
+                      }}
+                    >
+                      Borrar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 export function Lista() {
   const consultas = useQueryClient();
   const proyectos = useQuery({ queryKey: ["proyectos"], queryFn: api.proyectos });
@@ -141,6 +218,7 @@ export function Lista() {
           </table>
         </div>
       ) : null}
+      <Industrias />
     </div>
   );
 }

@@ -130,7 +130,7 @@ def _valores(datos: dict[str, Decimal | str], perfil: Perfil) -> list[ValorOut]:
     return [ValorOut(clave=k, texto=presentar(v, "", perfil)) for k, v in datos.items()]
 
 
-def _resultado(r: Resultado, perfil: Perfil) -> ResultadoOut:
+def resultado_a_salida(r: Resultado, perfil: Perfil) -> ResultadoOut:
     return ResultadoOut(
         id=r.id,
         sujeto=r.sujeto,
@@ -158,7 +158,7 @@ def _listo(calculado: Calculado, perfil: Perfil, revision: int) -> Calculos:
             for d in resumen(calculado, perfil)
         ],
         cuadro=[FilaCuadroOut(**asdict(f)) for f in cuadro_de_cargas(calculado, perfil)],
-        resultados=[_resultado(r, perfil) for r in calculado.resultados],
+        resultados=[resultado_a_salida(r, perfil) for r in calculado.resultados],
         avisos=[f"{r.id} {r.sujeto}: {a}" for r in calculado.resultados for a in r.avisos],
         supuestos=sorted({s for r in calculado.resultados for s in r.supuestos}),
         tablas_sin_verificar=[

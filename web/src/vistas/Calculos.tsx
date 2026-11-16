@@ -29,7 +29,7 @@ function origen(fila: Fila, rc: string): Seleccion {
   return rc === "RC-01" ? { id: "RC-03", sujeto: "proyecto" } : { id: rc, sujeto: "alimentador" };
 }
 
-function Detalle({ resultado, cerrar }: { resultado: Resultado; cerrar: () => void }) {
+export function Detalle({ resultado, cerrar }: { resultado: Resultado; cerrar: () => void }) {
   return (
     <aside className="detalle" aria-label="Detalle del cálculo">
       <div className="titulo-circuito">

@@ -87,6 +87,20 @@ class ArchivoBD(Base):
     contenido: Mapped[bytes] = mapped_column(LargeBinary)
 
 
+class IndustriaBD(Base):
+    """Proyecto industrial: cuadro de cargas, ubicación y transformador existente."""
+
+    __tablename__ = "industrias"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    nombre: Mapped[str] = mapped_column(String(200))
+    revision: Mapped[int] = mapped_column(Integer)
+    #: Borrador de la industria en JSON.
+    datos: Mapped[str] = mapped_column(Text)
+    creado: Mapped[str] = mapped_column(String(32))
+    actualizado: Mapped[str] = mapped_column(String(32))
+
+
 def crear_motor(url: str) -> Engine:
     if url.startswith("sqlite"):
         opciones: dict[str, object] = {"connect_args": {"check_same_thread": False}}

@@ -153,6 +153,12 @@ Base normativa usada (leída de resúmenes, falta contrastar con los PDF):
   demanda máxima diversificada por estrato (A a E) servirá para estimar la carga
   actual de un transformador; la tabla `demanda_estratos` aún es provisional.
 
+En la aplicación web, la sección «Industrias y comercios grandes» de la página
+de inicio crea una industria. En su pantalla se carga el Excel (o se descarga
+la plantilla), se indican la ubicación y el transformador existente (potencia,
+fases, distancia, demanda medida o clientes por estrato) y se ve la decisión
+con cada comprobación, los resultados con su fórmula y tablas, y los tableros.
+
 La lectura automática del transformador más cercano desde el geoportal de CNEL
 (geoportal.cnelep.gob.ec/cnel/) está pendiente: la red de esta sesión no lo
 alcanza. Por ahora sus datos se ingresan a mano.

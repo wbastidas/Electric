@@ -775,6 +775,394 @@
           }
         }
       }
+    },
+    "/api/v1/industrial/opciones": {
+      "get": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Opciones Industriales",
+        "operationId": "opciones_industriales_api_v1_industrial_opciones_get",
+        "parameters": [
+          {
+            "name": "perfil",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "cnel-ep",
+              "title": "Perfil"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpcionesIndustriales"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/industrial/plantilla": {
+      "get": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Descargar Plantilla",
+        "operationId": "descargar_plantilla_api_v1_industrial_plantilla_get",
+        "parameters": [
+          {
+            "name": "perfil",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "cnel-ep",
+              "title": "Perfil"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/vnd.ms-excel": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/industrias": {
+      "get": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Listar Industrias",
+        "operationId": "listar_industrias_api_v1_industrias_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IndustriaResumen"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Industrias Api V1 Industrias Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Crear Industria",
+        "operationId": "crear_industria_api_v1_industrias_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BorradorIndustria"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndustriaDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/industrias/{id}": {
+      "get": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Leer Industria",
+        "operationId": "leer_industria_api_v1_industrias__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndustriaDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Guardar Industria",
+        "operationId": "guardar_industria_api_v1_industrias__id__put",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuardarIndustria"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndustriaDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Borrar Industria",
+        "operationId": "borrar_industria_api_v1_industrias__id__delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/industrias/{id}/cuadro": {
+      "post": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Subir Cuadro",
+        "description": "Reemplaza las máquinas por las del cuadro de cargas (.xlsx o .csv).",
+        "operationId": "subir_cuadro_api_v1_industrias__id__cuadro_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "revision",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Revision"
+            }
+          },
+          {
+            "name": "nombre",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "default": "cuadro.xlsx",
+              "title": "Nombre"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "contentMediaType": "application/octet-stream",
+                "title": "Contenido"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndustriaDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/industrias/{id}/analisis": {
+      "get": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Analizar Industria",
+        "operationId": "analizar_industria_api_v1_industrias__id__analisis_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalisisOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -902,6 +1290,105 @@
           "perimetro_m"
         ],
         "title": "Ambiente"
+      },
+      "AnalisisOut": {
+        "properties": {
+          "estado": {
+            "type": "string",
+            "enum": [
+              "listo",
+              "incompleto"
+            ],
+            "title": "Estado"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "aviso": {
+            "type": "string",
+            "title": "Aviso"
+          },
+          "pendientes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Pendientes",
+            "default": []
+          },
+          "sistema": {
+            "type": "string",
+            "title": "Sistema",
+            "default": ""
+          },
+          "filas": {
+            "items": {
+              "$ref": "#/components/schemas/FilaCuadroIndustrial"
+            },
+            "type": "array",
+            "title": "Filas",
+            "default": []
+          },
+          "tableros": {
+            "items": {
+              "$ref": "#/components/schemas/TableroIndustrial"
+            },
+            "type": "array",
+            "title": "Tableros",
+            "default": []
+          },
+          "resultados": {
+            "items": {
+              "$ref": "#/components/schemas/ResultadoOut"
+            },
+            "type": "array",
+            "title": "Resultados",
+            "default": []
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos",
+            "default": []
+          },
+          "estado_tablas": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "verificado",
+                  "por_verificar",
+                  "defecto_fuente"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estado Tablas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "estado",
+          "revision",
+          "aviso"
+        ],
+        "title": "AnalisisOut"
       },
       "Asistente": {
         "properties": {
@@ -1052,6 +1539,101 @@
         ],
         "title": "Borrador",
         "description": "Proyecto en edición.\n\nTiene los mismos campos que el proyecto del núcleo, pero admite estar\nincompleto: lo que falta se devuelve como lista de pendientes al calcular."
+      },
+      "BorradorIndustria": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "perfil": {
+            "type": "string",
+            "title": "Perfil",
+            "default": "cnel-ep"
+          },
+          "propietario": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Propietario",
+            "default": ""
+          },
+          "direccion": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Direccion",
+            "default": ""
+          },
+          "sistema": {
+            "type": "string",
+            "title": "Sistema",
+            "default": "trifasico_127_220"
+          },
+          "fp_objetivo": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fp Objetivo"
+          },
+          "ubicacion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Coordenadas"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "existente": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TransformadorExistente"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "maquinas": {
+            "items": {
+              "$ref": "#/components/schemas/Maquina"
+            },
+            "type": "array",
+            "maxItems": 2000,
+            "title": "Maquinas",
+            "default": []
+          },
+          "cuadro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cuadro"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre"
+        ],
+        "title": "BorradorIndustria",
+        "description": "Industria en edición; puede no tener máquinas todavía."
       },
       "Calculos": {
         "properties": {
@@ -1360,6 +1942,67 @@
         ],
         "title": "Circuito"
       },
+      "ComprobacionOut": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "cumple": {
+            "type": "boolean",
+            "title": "Cumple"
+          },
+          "detalle": {
+            "type": "string",
+            "title": "Detalle"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre",
+          "cumple",
+          "detalle"
+        ],
+        "title": "ComprobacionOut"
+      },
+      "Coordenadas": {
+        "properties": {
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lon"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "Coordenadas"
+      },
       "DatoResumenOut": {
         "properties": {
           "etiqueta": {
@@ -1398,6 +2041,72 @@
           "estado"
         ],
         "title": "DatoResumenOut"
+      },
+      "DecisionOut": {
+        "properties": {
+          "nivel": {
+            "type": "string",
+            "title": "Nivel"
+          },
+          "nivel_nombre": {
+            "type": "string",
+            "title": "Nivel Nombre"
+          },
+          "medicion": {
+            "type": "string",
+            "title": "Medicion"
+          },
+          "opcion": {
+            "type": "string",
+            "enum": [
+              "existente",
+              "particular",
+              "pendiente"
+            ],
+            "title": "Opcion"
+          },
+          "titulo": {
+            "type": "string",
+            "title": "Titulo"
+          },
+          "motivos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Motivos"
+          },
+          "comprobaciones": {
+            "items": {
+              "$ref": "#/components/schemas/ComprobacionOut"
+            },
+            "type": "array",
+            "title": "Comprobaciones"
+          },
+          "transformador": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TransformadorOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nivel",
+          "nivel_nombre",
+          "medicion",
+          "opcion",
+          "titulo",
+          "motivos",
+          "comprobaciones",
+          "transformador"
+        ],
+        "title": "DecisionOut"
       },
       "DisenoOut": {
         "properties": {
@@ -1588,6 +2297,127 @@
         "title": "EscenarioOut",
         "description": "Un escenario del proyecto, resumido para compararlo con los demás."
       },
+      "FilaCuadroIndustrial": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "tablero": {
+            "type": "string",
+            "title": "Tablero"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "tipo_nombre": {
+            "type": "string",
+            "title": "Tipo Nombre"
+          },
+          "cantidad": {
+            "type": "integer",
+            "title": "Cantidad"
+          },
+          "placa": {
+            "type": "string",
+            "title": "Placa"
+          },
+          "fases": {
+            "type": "integer",
+            "title": "Fases"
+          },
+          "tension_v": {
+            "type": "number",
+            "title": "Tension V"
+          },
+          "fp": {
+            "type": "number",
+            "title": "Fp"
+          },
+          "eficiencia": {
+            "type": "number",
+            "title": "Eficiencia"
+          },
+          "factor_utilizacion": {
+            "type": "number",
+            "title": "Factor Utilizacion"
+          },
+          "factor_simultaneidad": {
+            "type": "number",
+            "title": "Factor Simultaneidad"
+          },
+          "instalada_kw": {
+            "type": "number",
+            "title": "Instalada Kw"
+          },
+          "corriente_a": {
+            "type": "number",
+            "title": "Corriente A"
+          },
+          "demanda_kw": {
+            "type": "number",
+            "title": "Demanda Kw"
+          },
+          "arranque": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arranque"
+          },
+          "corriente_arranque_a": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corriente Arranque A"
+          },
+          "supuestos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supuestos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "descripcion",
+          "tablero",
+          "tipo",
+          "tipo_nombre",
+          "cantidad",
+          "placa",
+          "fases",
+          "tension_v",
+          "fp",
+          "eficiencia",
+          "factor_utilizacion",
+          "factor_simultaneidad",
+          "instalada_kw",
+          "corriente_a",
+          "demanda_kw",
+          "arranque",
+          "corriente_arranque_a",
+          "supuestos"
+        ],
+        "title": "FilaCuadroIndustrial"
+      },
       "FilaCuadroOut": {
         "properties": {
           "circuito": {
@@ -1735,6 +2565,24 @@
         ],
         "title": "Guardar"
       },
+      "GuardarIndustria": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/BorradorIndustria"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "datos"
+        ],
+        "title": "GuardarIndustria"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1747,6 +2595,78 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "IndustriaDetalle": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "creado": {
+            "type": "string",
+            "title": "Creado"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/BorradorIndustria"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "revision",
+          "creado",
+          "actualizado",
+          "datos"
+        ],
+        "title": "IndustriaDetalle"
+      },
+      "IndustriaResumen": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "propietario": {
+            "type": "string",
+            "title": "Propietario"
+          },
+          "maquinas": {
+            "type": "integer",
+            "title": "Maquinas"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "revision",
+          "propietario",
+          "maquinas",
+          "actualizado"
+        ],
+        "title": "IndustriaResumen"
       },
       "Interruptor": {
         "properties": {
@@ -1866,6 +2786,170 @@
         ],
         "title": "LineaFondo"
       },
+      "Maquina": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "descripcion": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Descripcion",
+            "default": ""
+          },
+          "tablero": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Tablero",
+            "default": "TP"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo",
+            "default": "motor"
+          },
+          "cantidad": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Cantidad",
+            "default": 1
+          },
+          "potencia": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Potencia"
+          },
+          "unidad": {
+            "type": "string",
+            "enum": [
+              "kW",
+              "HP",
+              "kVA"
+            ],
+            "title": "Unidad",
+            "default": "kW"
+          },
+          "fases": {
+            "type": "integer",
+            "enum": [
+              1,
+              3
+            ],
+            "title": "Fases",
+            "default": 3
+          },
+          "tension_v": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tension V"
+          },
+          "fp": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fp"
+          },
+          "eficiencia": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eficiencia"
+          },
+          "factor_utilizacion": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Factor Utilizacion"
+          },
+          "factor_simultaneidad": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Factor Simultaneidad"
+          },
+          "arranque": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arranque"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "potencia"
+        ],
+        "title": "Maquina",
+        "description": "Una fila del cuadro de cargas.\n\nLo que se deja vacío se completa con los valores típicos del tipo de carga\ndel perfil, y la memoria lo dice."
+      },
       "Mover": {
         "properties": {
           "op": {
@@ -1951,6 +3035,25 @@
         ],
         "title": "OpcionEstilo"
       },
+      "OpcionTexto": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "OpcionTexto"
+      },
       "OpcionUso": {
         "properties": {
           "uso": {
@@ -2006,6 +3109,55 @@
           "aire"
         ],
         "title": "OpcionZona"
+      },
+      "OpcionesIndustriales": {
+        "properties": {
+          "tipos": {
+            "items": {
+              "$ref": "#/components/schemas/OpcionTexto"
+            },
+            "type": "array",
+            "title": "Tipos"
+          },
+          "arranques": {
+            "items": {
+              "$ref": "#/components/schemas/OpcionTexto"
+            },
+            "type": "array",
+            "title": "Arranques"
+          },
+          "sistemas": {
+            "items": {
+              "$ref": "#/components/schemas/OpcionTexto"
+            },
+            "type": "array",
+            "title": "Sistemas"
+          },
+          "estratos": {
+            "items": {
+              "$ref": "#/components/schemas/OpcionTexto"
+            },
+            "type": "array",
+            "title": "Estratos"
+          },
+          "niveles": {
+            "items": {
+              "$ref": "#/components/schemas/OpcionTexto"
+            },
+            "type": "array",
+            "title": "Niveles"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tipos",
+          "arranques",
+          "sistemas",
+          "estratos",
+          "niveles"
+        ],
+        "title": "OpcionesIndustriales"
       },
       "Pendiente": {
         "properties": {
@@ -3052,6 +4204,62 @@
         ],
         "title": "Tablero"
       },
+      "TableroIndustrial": {
+        "properties": {
+          "tablero": {
+            "type": "string",
+            "title": "Tablero"
+          },
+          "maquinas": {
+            "type": "integer",
+            "title": "Maquinas"
+          },
+          "instalada_kw": {
+            "type": "number",
+            "title": "Instalada Kw"
+          },
+          "demanda_kw": {
+            "type": "number",
+            "title": "Demanda Kw"
+          },
+          "demanda_kva": {
+            "type": "number",
+            "title": "Demanda Kva"
+          },
+          "fp": {
+            "type": "number",
+            "title": "Fp"
+          },
+          "corriente_a": {
+            "type": "number",
+            "title": "Corriente A"
+          },
+          "breaker_a": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breaker A"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tablero",
+          "maquinas",
+          "instalada_kw",
+          "demanda_kw",
+          "demanda_kva",
+          "fp",
+          "corriente_a",
+          "breaker_a"
+        ],
+        "title": "TableroIndustrial"
+      },
       "TextoFondo": {
         "properties": {
           "x": {
@@ -3075,6 +4283,137 @@
           "texto"
         ],
         "title": "TextoFondo"
+      },
+      "TransformadorExistente": {
+        "properties": {
+          "codigo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Codigo"
+          },
+          "kva": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Kva"
+          },
+          "fases": {
+            "type": "integer",
+            "enum": [
+              1,
+              3
+            ],
+            "title": "Fases",
+            "default": 3
+          },
+          "demanda_kva": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demanda Kva"
+          },
+          "clientes": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Clientes"
+          },
+          "distancia_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Distancia M"
+          },
+          "impedancia_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impedancia Pct"
+          },
+          "origen": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "geoportal"
+            ],
+            "title": "Origen",
+            "default": "manual"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kva",
+          "distancia_m"
+        ],
+        "title": "TransformadorExistente",
+        "description": "El transformador de CNEL desde el que se podría atender la industria."
+      },
+      "TransformadorOut": {
+        "properties": {
+          "kva": {
+            "type": "number",
+            "title": "Kva"
+          },
+          "fases": {
+            "type": "integer",
+            "title": "Fases"
+          },
+          "montaje": {
+            "type": "string",
+            "title": "Montaje"
+          },
+          "z_pct": {
+            "type": "number",
+            "title": "Z Pct"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kva",
+          "fases",
+          "montaje",
+          "z_pct"
+        ],
+        "title": "TransformadorOut"
       },
       "Ubicacion": {
         "properties": {

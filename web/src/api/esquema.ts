@@ -284,6 +284,114 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/industrial/opciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Opciones Industriales */
+        get: operations["opciones_industriales_api_v1_industrial_opciones_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/industrial/plantilla": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Descargar Plantilla */
+        get: operations["descargar_plantilla_api_v1_industrial_plantilla_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/industrias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Industrias */
+        get: operations["listar_industrias_api_v1_industrias_get"];
+        put?: never;
+        /** Crear Industria */
+        post: operations["crear_industria_api_v1_industrias_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/industrias/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Leer Industria */
+        get: operations["leer_industria_api_v1_industrias__id__get"];
+        /** Guardar Industria */
+        put: operations["guardar_industria_api_v1_industrias__id__put"];
+        post?: never;
+        /** Borrar Industria */
+        delete: operations["borrar_industria_api_v1_industrias__id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/industrias/{id}/cuadro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Subir Cuadro
+         * @description Reemplaza las máquinas por las del cuadro de cargas (.xlsx o .csv).
+         */
+        post: operations["subir_cuadro_api_v1_industrias__id__cuadro_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/industrias/{id}/analisis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Analizar Industria */
+        get: operations["analizar_industria_api_v1_industrias__id__analisis_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -329,6 +437,51 @@ export interface components {
              * @default []
              */
             banderas: string[];
+        };
+        /** AnalisisOut */
+        AnalisisOut: {
+            /**
+             * Estado
+             * @enum {string}
+             */
+            estado: "listo" | "incompleto";
+            /** Revision */
+            revision: number;
+            /** Aviso */
+            aviso: string;
+            /**
+             * Pendientes
+             * @default []
+             */
+            pendientes: string[];
+            /**
+             * Sistema
+             * @default
+             */
+            sistema: string;
+            /**
+             * Filas
+             * @default []
+             */
+            filas: components["schemas"]["FilaCuadroIndustrial"][];
+            /**
+             * Tableros
+             * @default []
+             */
+            tableros: components["schemas"]["TableroIndustrial"][];
+            /**
+             * Resultados
+             * @default []
+             */
+            resultados: components["schemas"]["ResultadoOut"][];
+            decision?: components["schemas"]["DecisionOut"] | null;
+            /**
+             * Avisos
+             * @default []
+             */
+            avisos: string[];
+            /** Estado Tablas */
+            estado_tablas?: ("verificado" | "por_verificar" | "defecto_fuente") | null;
         };
         /** Asistente */
         Asistente: {
@@ -406,6 +559,45 @@ export interface components {
              *     }
              */
             preferencias: components["schemas"]["Preferencias"];
+        };
+        /**
+         * BorradorIndustria
+         * @description Industria en edición; puede no tener máquinas todavía.
+         */
+        BorradorIndustria: {
+            /** Nombre */
+            nombre: string;
+            /**
+             * Perfil
+             * @default cnel-ep
+             */
+            perfil: string;
+            /**
+             * Propietario
+             * @default
+             */
+            propietario: string;
+            /**
+             * Direccion
+             * @default
+             */
+            direccion: string;
+            /**
+             * Sistema
+             * @default trifasico_127_220
+             */
+            sistema: string;
+            /** Fp Objetivo */
+            fp_objetivo?: number | string | null;
+            ubicacion?: components["schemas"]["Coordenadas"] | null;
+            existente?: components["schemas"]["TransformadorExistente"] | null;
+            /**
+             * Maquinas
+             * @default []
+             */
+            maquinas: components["schemas"]["Maquina"][];
+            /** Cuadro */
+            cuadro?: string | null;
         };
         /** Calculos */
         Calculos: {
@@ -527,6 +719,22 @@ export interface components {
              */
             zona_humeda: boolean;
         };
+        /** ComprobacionOut */
+        ComprobacionOut: {
+            /** Nombre */
+            nombre: string;
+            /** Cumple */
+            cumple: boolean;
+            /** Detalle */
+            detalle: string;
+        };
+        /** Coordenadas */
+        Coordenadas: {
+            /** Lat */
+            lat: number | string;
+            /** Lon */
+            lon: number | string;
+        };
         /** DatoResumenOut */
         DatoResumenOut: {
             /** Etiqueta */
@@ -542,6 +750,27 @@ export interface components {
              * @enum {string}
              */
             estado: "verificado" | "por_verificar" | "defecto_fuente";
+        };
+        /** DecisionOut */
+        DecisionOut: {
+            /** Nivel */
+            nivel: string;
+            /** Nivel Nombre */
+            nivel_nombre: string;
+            /** Medicion */
+            medicion: string;
+            /**
+             * Opcion
+             * @enum {string}
+             */
+            opcion: "existente" | "particular" | "pendiente";
+            /** Titulo */
+            titulo: string;
+            /** Motivos */
+            motivos: string[];
+            /** Comprobaciones */
+            comprobaciones: components["schemas"]["ComprobacionOut"][];
+            transformador: components["schemas"]["TransformadorOut"] | null;
         };
         /** DisenoOut */
         DisenoOut: {
@@ -605,6 +834,47 @@ export interface components {
              */
             resumen: components["schemas"]["DatoResumenOut"][];
         };
+        /** FilaCuadroIndustrial */
+        FilaCuadroIndustrial: {
+            /** Id */
+            id: string;
+            /** Descripcion */
+            descripcion: string;
+            /** Tablero */
+            tablero: string;
+            /** Tipo */
+            tipo: string;
+            /** Tipo Nombre */
+            tipo_nombre: string;
+            /** Cantidad */
+            cantidad: number;
+            /** Placa */
+            placa: string;
+            /** Fases */
+            fases: number;
+            /** Tension V */
+            tension_v: number;
+            /** Fp */
+            fp: number;
+            /** Eficiencia */
+            eficiencia: number;
+            /** Factor Utilizacion */
+            factor_utilizacion: number;
+            /** Factor Simultaneidad */
+            factor_simultaneidad: number;
+            /** Instalada Kw */
+            instalada_kw: number;
+            /** Corriente A */
+            corriente_a: number;
+            /** Demanda Kw */
+            demanda_kw: number;
+            /** Arranque */
+            arranque: string | null;
+            /** Corriente Arranque A */
+            corriente_arranque_a: number | null;
+            /** Supuestos */
+            supuestos: string[];
+        };
         /** FilaCuadroOut */
         FilaCuadroOut: {
             /** Circuito */
@@ -661,10 +931,43 @@ export interface components {
             revision: number;
             datos: components["schemas"]["Borrador"];
         };
+        /** GuardarIndustria */
+        GuardarIndustria: {
+            /** Revision */
+            revision: number;
+            datos: components["schemas"]["BorradorIndustria"];
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** IndustriaDetalle */
+        IndustriaDetalle: {
+            /** Id */
+            id: string;
+            /** Revision */
+            revision: number;
+            /** Creado */
+            creado: string;
+            /** Actualizado */
+            actualizado: string;
+            datos: components["schemas"]["BorradorIndustria"];
+        };
+        /** IndustriaResumen */
+        IndustriaResumen: {
+            /** Id */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Revision */
+            revision: number;
+            /** Propietario */
+            propietario: string;
+            /** Maquinas */
+            maquinas: number;
+            /** Actualizado */
+            actualizado: string;
         };
         /** Interruptor */
         Interruptor: {
@@ -710,6 +1013,63 @@ export interface components {
             ][];
         };
         /**
+         * Maquina
+         * @description Una fila del cuadro de cargas.
+         *
+         *     Lo que se deja vacío se completa con los valores típicos del tipo de carga
+         *     del perfil, y la memoria lo dice.
+         */
+        Maquina: {
+            /** Id */
+            id: string;
+            /**
+             * Descripcion
+             * @default
+             */
+            descripcion: string;
+            /**
+             * Tablero
+             * @default TP
+             */
+            tablero: string;
+            /**
+             * Tipo
+             * @default motor
+             */
+            tipo: string;
+            /**
+             * Cantidad
+             * @default 1
+             */
+            cantidad: number;
+            /** Potencia */
+            potencia: number | string;
+            /**
+             * Unidad
+             * @default kW
+             * @enum {string}
+             */
+            unidad: "kW" | "HP" | "kVA";
+            /**
+             * Fases
+             * @default 3
+             * @enum {integer}
+             */
+            fases: 1 | 3;
+            /** Tension V */
+            tension_v?: number | string | null;
+            /** Fp */
+            fp?: number | string | null;
+            /** Eficiencia */
+            eficiencia?: number | string | null;
+            /** Factor Utilizacion */
+            factor_utilizacion?: number | string | null;
+            /** Factor Simultaneidad */
+            factor_simultaneidad?: number | string | null;
+            /** Arranque */
+            arranque?: string | null;
+        };
+        /**
          * Mover
          * @description Lleva un punto, carga especial, interruptor o el tablero a otra posición y lo fija.
          */
@@ -740,6 +1100,13 @@ export interface components {
             /** Descripcion */
             descripcion: string;
         };
+        /** OpcionTexto */
+        OpcionTexto: {
+            /** Id */
+            id: string;
+            /** Nombre */
+            nombre: string;
+        };
         /** OpcionUso */
         OpcionUso: {
             /** Uso */
@@ -765,6 +1132,19 @@ export interface components {
             nombre: string;
             /** Aire */
             aire: boolean;
+        };
+        /** OpcionesIndustriales */
+        OpcionesIndustriales: {
+            /** Tipos */
+            tipos: components["schemas"]["OpcionTexto"][];
+            /** Arranques */
+            arranques: components["schemas"]["OpcionTexto"][];
+            /** Sistemas */
+            sistemas: components["schemas"]["OpcionTexto"][];
+            /** Estratos */
+            estratos: components["schemas"]["OpcionTexto"][];
+            /** Niveles */
+            niveles: components["schemas"]["OpcionTexto"][];
         };
         /**
          * Pendiente
@@ -1212,6 +1592,25 @@ export interface components {
             /** Alimentador Longitud M */
             alimentador_longitud_m: number | string;
         };
+        /** TableroIndustrial */
+        TableroIndustrial: {
+            /** Tablero */
+            tablero: string;
+            /** Maquinas */
+            maquinas: number;
+            /** Instalada Kw */
+            instalada_kw: number;
+            /** Demanda Kw */
+            demanda_kw: number;
+            /** Demanda Kva */
+            demanda_kva: number;
+            /** Fp */
+            fp: number;
+            /** Corriente A */
+            corriente_a: number;
+            /** Breaker A */
+            breaker_a: number | null;
+        };
         /** TextoFondo */
         TextoFondo: {
             /** X */
@@ -1220,6 +1619,49 @@ export interface components {
             y: number;
             /** Texto */
             texto: string;
+        };
+        /**
+         * TransformadorExistente
+         * @description El transformador de CNEL desde el que se podría atender la industria.
+         */
+        TransformadorExistente: {
+            /** Codigo */
+            codigo?: string | null;
+            /** Kva */
+            kva: number | string;
+            /**
+             * Fases
+             * @default 3
+             * @enum {integer}
+             */
+            fases: 1 | 3;
+            /** Demanda Kva */
+            demanda_kva?: number | string | null;
+            /** Clientes */
+            clientes?: {
+                [key: string]: number;
+            };
+            /** Distancia M */
+            distancia_m: number | string;
+            /** Impedancia Pct */
+            impedancia_pct?: number | string | null;
+            /**
+             * Origen
+             * @default manual
+             * @enum {string}
+             */
+            origen: "manual" | "geoportal";
+        };
+        /** TransformadorOut */
+        TransformadorOut: {
+            /** Kva */
+            kva: number;
+            /** Fases */
+            fases: number;
+            /** Montaje */
+            montaje: string;
+            /** Z Pct */
+            z_pct: number;
         };
         /**
          * Ubicacion
@@ -1828,6 +2270,285 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProyectoDetalle"];
+                };
+            };
+        };
+    };
+    opciones_industriales_api_v1_industrial_opciones_get: {
+        parameters: {
+            query?: {
+                perfil?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpcionesIndustriales"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descargar_plantilla_api_v1_industrial_plantilla_get: {
+        parameters: {
+            query?: {
+                perfil?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.ms-excel": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_industrias_api_v1_industrias_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndustriaResumen"][];
+                };
+            };
+        };
+    };
+    crear_industria_api_v1_industrias_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BorradorIndustria"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndustriaDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    leer_industria_api_v1_industrias__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndustriaDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    guardar_industria_api_v1_industrias__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuardarIndustria"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndustriaDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    borrar_industria_api_v1_industrias__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    subir_cuadro_api_v1_industrias__id__cuadro_post: {
+        parameters: {
+            query: {
+                revision: number;
+                nombre?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndustriaDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    analizar_industria_api_v1_industrias__id__analisis_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalisisOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
