@@ -1,0 +1,44 @@
+[project]
+name = "electric-api"
+version = "0.1.0"
+description = "API de la plataforma de proyectos eléctricos CNEL EP"
+requires-python = ">=3.12"
+dependencies = [
+    "electric",
+    "fastapi>=0.115,<1",
+    "sqlalchemy>=2.0,<3",
+    "uvicorn>=0.30",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "httpx>=0.27",
+    "ruff>=0.5",
+    "mypy>=1.10",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["electric_api"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]
+
+[tool.mypy]
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["electric_api"]

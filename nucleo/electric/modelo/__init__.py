@@ -3,6 +3,8 @@
 from electric.modelo.entidades import (
     CargaEspecial,
     Circuito,
+    Predio,
+    Proyectista,
     Proyecto,
     Punto,
     RefPerfil,
@@ -14,6 +16,8 @@ from electric.modelo.serializacion import a_json_canonico, hash_canonico
 __all__ = [
     "CargaEspecial",
     "Circuito",
+    "Predio",
+    "Proyectista",
     "Proyecto",
     "Punto",
     "RefPerfil",

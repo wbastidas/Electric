@@ -10,11 +10,13 @@ import argparse
 import json
 import sys
 from collections.abc import Sequence
+from dataclasses import astuple
 from pathlib import Path
 
 from pydantic import ValidationError
 
-from electric.calculo import ALIMENTADOR, PROYECTO, Calculado, Resultado, calcular, presentar
+from electric.calculo import Calculado, Resultado, calcular, presentar
+from electric.calculo.cuadro import cuadro_de_cargas, resumen, tablas_sin_verificar
 from electric.errores import ErrorElectric
 from electric.modelo import Proyecto, a_json_canonico
 from electric.perfiles import Perfil, cargar_perfil
@@ -46,18 +48,11 @@ def _texto(resultado: Resultado, perfil: Perfil) -> str:
     return presentar(resultado.valor, resultado.unidad, perfil)
 
 
-def _breaker(calculado: Calculado, sujeto: str) -> str:
-    resultado = calculado.res("RC-09", sujeto)
-    return f"{resultado.det('polos'):f}P {resultado.decimal.normalize():f} A"
-
-
 def informe(calculado: Calculado, perfil: Perfil) -> str:
     """Informe de texto: resumen del proyecto y cuadro de cargas."""
     proyecto = calculado.proyecto
-
-    def v(id: str, sujeto: str) -> str:
-        return _texto(calculado.res(id, sujeto), perfil)
-
+    datos = resumen(calculado, perfil)
+    ancho = max(len(d.etiqueta) for d in datos) + 1
     lineas = [
         AVISO_BORRADOR,
         "",
@@ -65,15 +60,7 @@ def informe(calculado: Calculado, perfil: Perfil) -> str:
         f"Perfil:   {perfil.meta.nombre}, versión {perfil.meta.version}",
         f"Huella:   {calculado.hash[:16]}",
         "",
-        f"Carga instalada:    {v('RC-01', PROYECTO)}",
-        f"Demanda máxima:     {v('RC-03', PROYECTO)}",
-        f"Clasificación CNEL: {v('RC-05', PROYECTO)}",
-        f"Circuitos mínimos:  {v('RC-02', PROYECTO)}",
-        f"Desbalance:         {v('RC-10', PROYECTO)}",
-        f"Tablero:            {proyecto.tablero.id}, {v('RC-11', proyecto.tablero.id)}, "
-        f"principal {_breaker(calculado, ALIMENTADOR)}",
-        f"Medidor:            {v('RC-12', PROYECTO)}",
-        f"Tierra:             resistencia objetivo menor que {v('RC-14', PROYECTO)}",
+        *[f"{(d.etiqueta + ':').ljust(ancho)} {d.texto}" for d in datos],
         "",
         "Cuadro de cargas",
     ]
@@ -90,27 +77,7 @@ def informe(calculado: Calculado, perfil: Perfil) -> str:
         "Longitud",
         "Caída",
     )
-    tipos = {c.id: c.tipo for c in proyecto.circuitos}
-    largos = {c.id: c.longitud_m for c in proyecto.circuitos}
-    filas = []
-    for sujeto in [*tipos, ALIMENTADOR]:
-        es_ramal = sujeto != ALIMENTADOR
-        largo = largos[sujeto] if es_ramal else proyecto.tablero.alimentador_longitud_m
-        filas.append(
-            (
-                sujeto,
-                tipos.get(sujeto, "alimentador"),
-                v("RC-10", sujeto) if es_ramal else "",
-                v("RC-01", sujeto) if es_ramal else v("RC-03", PROYECTO),
-                v("RC-06", sujeto),
-                _breaker(calculado, sujeto),
-                v("RC-07", sujeto),
-                v("RC-14", sujeto),
-                v("RC-13", sujeto),
-                presentar(largo, "m", perfil),
-                v("RC-08", sujeto),
-            )
-        )
+    filas = [astuple(f) for f in cuadro_de_cargas(calculado, perfil)]
     lineas.append(_tabla(encabezado, filas))
 
     avisos = [f"{r.id} {r.sujeto}: {a}" for r in calculado.resultados for a in r.avisos]
@@ -121,14 +88,7 @@ def informe(calculado: Calculado, perfil: Perfil) -> str:
     if supuestos:
         lineas += ["", "Supuestos aplicados", *[f"- {s}" for s in supuestos]]
 
-    pendientes = sorted(
-        {
-            (t.id, t.version, t.estado)
-            for r in calculado.resultados
-            for t in r.tablas
-            if t.estado != "verificado"
-        }
-    )
+    pendientes = tablas_sin_verificar(calculado)
     if pendientes:
         lineas += ["", f"Tablas sin verificar usadas en este cálculo: {len(pendientes)}"]
         lineas += [f"- {i} {ver} ({estado})" for i, ver, estado in pendientes]

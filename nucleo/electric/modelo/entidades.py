@@ -39,6 +39,25 @@ class RefPerfil(Entidad):
     version: str
 
 
+class Predio(Entidad):
+    """Datos del predio y de su propietario (RF-01)."""
+
+    propietario: str = ""
+    direccion: str = ""
+    clave_catastral: str = ""
+    unidad_negocio: str = ""
+    plantas: int = Field(default=1, ge=1)
+
+
+class Proyectista(Entidad):
+    """Profesional que revisa y firma el proyecto (RF-03)."""
+
+    nombre: str = ""
+    titulo: str = ""
+    registro_senescyt: str = ""
+    registro_cnel: str = ""
+
+
 class Punto(Entidad):
     """Punto de luz o tomacorriente de uso general."""
 
@@ -107,6 +126,8 @@ class Proyecto(Entidad):
     uso: str = "vivienda_unifamiliar"
     area_construida_m2: Decimal = Field(gt=0)
     perfil: RefPerfil
+    predio: Predio = Predio()
+    proyectista: Proyectista = Proyectista()
     #: Sistema de tensión del perfil; si falta, se usa el sistema por defecto.
     sistema: str | None = None
     puntos: tuple[Punto, ...] = ()
