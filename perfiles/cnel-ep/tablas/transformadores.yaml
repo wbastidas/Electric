@@ -8,7 +8,8 @@ fuente:
   url: null
 estado: por_verificar
 nota: >-
-  Potencias e impedancias típicas. El límite de montaje en poste y el uso de
+  Potencias e impedancias típicas. Monofásicos hasta 100 kVA según el manual
+  de acometidas de CNEL (MN-COM-AC-001). El límite de montaje en poste y el uso de
   pedestal o cuarto de transformación deben confirmarse con las homologaciones
   de CNEL EP.
 unidades: {kva: kVA, z_pct: '%'}
@@ -20,7 +21,6 @@ filas:
   - {kva: 50, fases: 1, montaje: poste, z_pct: 2.5}
   - {kva: 75, fases: 1, montaje: poste, z_pct: 3.0}
   - {kva: 100, fases: 1, montaje: poste, z_pct: 3.0}
-  - {kva: 167, fases: 1, montaje: poste, z_pct: 3.0}
   - {kva: 30, fases: 3, montaje: poste, z_pct: 3.0}
   - {kva: 45, fases: 3, montaje: poste, z_pct: 3.0}
   - {kva: 50, fases: 3, montaje: poste, z_pct: 3.0}

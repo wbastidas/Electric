@@ -139,8 +139,23 @@ El análisis entrega:
    acometida y caída al arrancar motores. Si algo no cumple, se propone el
    transformador particular y se dice por qué.
 
+Base normativa usada (leída de resúmenes, falta contrastar con los PDF):
+
+- **ARCONEL-008/24** (distribución y comercialización): hasta 12 kW de demanda
+  declarada se atiende en bajo voltaje; sobre 12 kW la distribuidora decide
+  bajo, medio o alto voltaje tras el análisis de factibilidad. Por eso, sobre
+  12 kW un transformador existente que cumple las comprobaciones se propone
+  «sujeto a factibilidad», y si no, transformador particular.
+- **ARCONEL-004/18**: radio de 200 m a un transformador existente.
+- **CNEL MN-COM-AC-001** (acometidas y medición): CNEL provee el transformador
+  hasta 12 kW; transformador monofásico de 100 kVA como máximo.
+- **Normas para Sistemas de Distribución, Parte A** (homologación MEER): la
+  demanda máxima diversificada por estrato (A a E) servirá para estimar la carga
+  actual de un transformador; la tabla `demanda_estratos` aún es provisional.
+
 La lectura automática del transformador más cercano desde el geoportal de CNEL
-está pendiente; por ahora sus datos se ingresan a mano.
+(geoportal.cnelep.gob.ec/cnel/) está pendiente: la red de esta sesión no lo
+alcanza. Por ahora sus datos se ingresan a mano.
 
 ## Uso
 

@@ -115,7 +115,8 @@ def test_nivel_de_servicio_por_norma(perfil_cnel: Perfil, kw: int, nivel: str) -
     assert decision.nivel.id == nivel
     if nivel != "red_existente":
         assert decision.opcion == "particular"
-        assert "supera los 12 kW" in decision.motivos[0]
+    if nivel == "transformador_propio":
+        assert "factibilidad" in decision.motivos[0]
 
 
 def test_demanda_mayor_al_mayor_transformador_avisa(perfil_cnel: Perfil) -> None:
@@ -294,3 +295,15 @@ def test_cli_industrial(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> N
     argumentos = ["industrial", str(csv), "--existente-kva", "75", "--clientes", "C=20"]
     assert main([*argumentos, "--distancia", "60", "--codigo", "T-9"]) == 0
     assert "Usar el transformador existente T-9" in capsys.readouterr().out
+
+
+def test_sobre_12_kw_puede_usar_el_existente_sujeto_a_factibilidad(perfil_cnel: Perfil) -> None:
+    carga = Maquina(
+        id="R", tipo="resistiva", potencia=D(20),
+        factor_utilizacion=D(1), factor_simultaneidad=D(1),
+    )  # fmt: skip
+    existente = TransformadorExistente(kva=D(100), demanda_kva=D(30), distancia_m=D(40))
+    decision = analizar(_industria(carga, existente=existente), perfil_cnel).decision
+    assert decision.nivel.id == "transformador_propio"
+    assert decision.opcion == "existente"
+    assert "factibilidad" in decision.motivos[1]

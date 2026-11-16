@@ -3,26 +3,31 @@ tipo: niveles_servicio
 version: 0.1.0
 vigente_desde: 2026-11-01
 fuente:
-  norma: Propuesta alineada con PR-TEC-CTR-002 v5 (Tipo I hasta 12 kW, Tipo II hasta 500 kW)
-  numeral: por confirmar
-  url: null
+  norma: Regulación ARCONEL-008/24 (distribución y comercialización) y PR-TEC-CTR-002 v5
+  numeral: ARCONEL-008/24 sección 8 (punto de entrega y factibilidad), por confirmar
+  url: https://www.gob.ec/regulaciones/regulacion-nro-arconel-0082024-distribucion-comercializacion-energia-electrica
 estado: por_verificar
 nota: >-
-  Umbrales de la norma para decidir cómo se atiende la carga. Los dos primeros
-  siguen los umbrales Tipo I y Tipo II del perfil; el límite de la subestación
-  propia es una propuesta. Confirmar con CNEL EP antes de usar.
+  ARCONEL-008/24: hasta 12 kW de demanda declarada se atiende en bajo voltaje;
+  sobre 12 kW la distribuidora decide bajo, medio o alto voltaje tras el
+  análisis de factibilidad. El manual de acometidas de CNEL indica que CNEL
+  provee el transformador hasta 12 kW. Los 500 kW siguen el umbral Tipo II de
+  PR-TEC-CTR-002; los 5000 kW de la subestación son una propuesta. Leído de
+  resúmenes de búsqueda, no del PDF oficial.
 unidades: {demanda_max_kw: kW}
 filas:
   - id: red_existente
     nombre: Red de baja tensión existente
     demanda_max_kw: 12
     medicion: bt
-    descripcion: Acometida desde un transformador de CNEL, si tiene capacidad libre.
+    descripcion: Bajo voltaje desde la red de CNEL; la distribuidora provee el transformador.
   - id: transformador_propio
     nombre: Transformador particular
     demanda_max_kw: 500
     medicion: bt
-    descripcion: Transformador del cliente en poste o pedestal, medición en baja tensión.
+    descripcion: >-
+      Sobre 12 kW la distribuidora decide tras la factibilidad: desde un
+      transformador existente con capacidad o con transformador del cliente.
   - id: cuarto_mt
     nombre: Cuarto de transformación en media tensión
     demanda_max_kw: 5000

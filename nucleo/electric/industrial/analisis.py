@@ -562,6 +562,13 @@ def _demanda_existente(
     return total, "estimada por clientes"
 
 
+def _limite_red(a: _Analisis) -> str:
+    for nivel in a.perfil.niveles_servicio():
+        if nivel.id == "red_existente" and nivel.demanda_max_kw is not None:
+            return _t(nivel.demanda_max_kw, 0)
+    return "?"
+
+
 def _decidir(
     a: _Analisis,
     nivel: FilaNivelServicio,
@@ -573,16 +580,10 @@ def _decidir(
     limite_arranque: Decimal,
 ) -> Decision:
     existente = a.industria.existente
-    if nivel.id != "red_existente":
-        maximo = next(
-            (n.demanda_max_kw for n in a.perfil.niveles_servicio() if n.id == "red_existente"),
-            None,
-        )
+    if nivel.id in ("cuarto_mt", "subestacion"):
         motivo = (
-            f"La demanda de {_t(kw, 1)} kW supera los {maximo} kW que la norma admite desde la red "
-            "existente."
-            if maximo is not None
-            else "La norma no admite atender esta demanda desde la red existente."
+            f"Con {_t(kw, 1)} kW de demanda corresponde: {nivel.nombre.lower()} "
+            f"(medición en {nivel.medicion.upper()})."
         )
         return Decision(
             nivel=nivel,
@@ -593,13 +594,26 @@ def _decidir(
             transformador=propuesto,
         )
     if existente is None:
+        if nivel.id == "red_existente":
+            return Decision(
+                nivel=nivel,
+                opcion="pendiente",
+                titulo="Falta el transformador existente",
+                motivos=(
+                    "Hasta este nivel la distribuidora atiende en bajo voltaje desde su red. "
+                    "Indique el transformador de CNEL más cercano para comprobar su capacidad.",
+                ),
+                comprobaciones=(),
+                transformador=propuesto,
+            )
         return Decision(
             nivel=nivel,
-            opcion="pendiente",
-            titulo="Falta el transformador existente",
+            opcion="particular",
+            titulo="Transformador particular",
             motivos=(
-                "La norma admite la red existente para esta demanda. Indique el transformador "
-                "de CNEL más cercano para comprobar su capacidad.",
+                f"Con {_t(kw, 1)} kW la distribuidora decide el punto de entrega tras el "
+                "análisis de factibilidad. Sin un transformador existente indicado se propone "
+                "uno particular.",
             ),
             comprobaciones=(),
             transformador=propuesto,
@@ -710,7 +724,15 @@ def _decidir(
         nivel=nivel,
         opcion="existente",
         titulo=f"Usar el transformador existente{codigo}",
-        motivos=("Cumple fases, capacidad, distancia, caída de tensión y arranque.",),
+        motivos=(
+            ("Cumple fases, capacidad, distancia, caída de tensión y arranque.",)
+            if nivel.id == "red_existente"
+            else (
+                "Cumple fases, capacidad, distancia, caída de tensión y arranque.",
+                f"Con más de {_limite_red(a)} kW la conexión queda sujeta al análisis de "
+                "factibilidad que emite la distribuidora.",
+            )
+        ),
         comprobaciones=tuple(comprobaciones),
         transformador=None,
     )
