@@ -2,6 +2,7 @@
 
 electric calcular ejemplos/vivienda-120m2/proyecto.json
 electric validar-perfil perfiles/cnel-ep
+electric industrial cuadro.xlsx --existente-kva 75 --clientes C=20 --distancia 60
 """
 
 from __future__ import annotations
@@ -11,6 +12,7 @@ import json
 import sys
 from collections.abc import Sequence
 from dataclasses import astuple
+from decimal import Decimal
 from pathlib import Path
 
 from pydantic import ValidationError
@@ -151,7 +153,6 @@ def _calcular(args: argparse.Namespace) -> int:
 
 
 def _disenar(args: argparse.Namespace) -> int:
-    from decimal import Decimal
 
     from electric.flujo import proyecto_desde_plano
     from electric.salida_cad import generar_dxf, renderizar
@@ -215,6 +216,60 @@ def _validar_perfil(args: argparse.Namespace) -> int:
     return 0
 
 
+def _plantilla_industrial(args: argparse.Namespace) -> int:
+    from electric.industrial import plantilla
+
+    perfil = cargar_perfil(_carpeta_perfiles(args.perfiles) / args.perfil)
+    datos = plantilla(
+        [(t.tipo, t.nombre) for t in perfil.tipos_industriales()],
+        [(a.id, a.nombre) for a in perfil.arranques()],
+    )
+    Path(args.salida).write_bytes(datos)
+    print(f"Plantilla escrita en {args.salida}")
+    return 0
+
+
+def _clientes(texto: str) -> dict[str, int]:
+    salida: dict[str, int] = {}
+    for parte in filter(None, texto.split(",")):
+        estrato, _, n = parte.partition("=")
+        if not n:
+            raise ErrorElectric(f"clientes '{parte}': use ESTRATO=N, por ejemplo C=20")
+        salida[estrato.strip()] = int(n)
+    return salida
+
+
+def _industrial(args: argparse.Namespace) -> int:
+    from electric.industrial import Industria, TransformadorExistente, analizar, leer_cuadro
+    from electric.industrial.informe import informe_industrial
+
+    origen = Path(args.cuadro)
+    try:
+        contenido = origen.read_bytes()
+    except OSError as error:
+        raise ErrorElectric(f"no se pudo leer {origen}: {error}") from error
+    perfil = cargar_perfil(_carpeta_perfiles(args.perfiles) / args.perfil)
+    existente = None
+    if args.existente_kva is not None:
+        existente = TransformadorExistente(
+            codigo=args.codigo,
+            kva=Decimal(args.existente_kva),
+            fases=args.existente_fases,
+            demanda_kva=Decimal(args.demanda) if args.demanda is not None else None,
+            clientes=_clientes(args.clientes),
+            distancia_m=Decimal(args.distancia),
+        )
+    industria = Industria(
+        nombre=args.nombre or origen.stem,
+        sistema=args.sistema,
+        maquinas=leer_cuadro(contenido, origen.name),
+        fp_objetivo=Decimal(args.fp_objetivo) if args.fp_objetivo else None,
+        existente=existente,
+    )
+    print(informe_industrial(analizar(industria, perfil), perfil))
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     analizador = argparse.ArgumentParser(prog="electric", description=__doc__)
     comandos = analizador.add_subparsers(dest="comando", required=True)
@@ -252,6 +307,29 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--salida", help="carpeta donde escribir proyecto.json, red.dxf, red.png y red.pdf"
     )
     d.set_defaults(funcion=_disenar)
+
+    i = comandos.add_parser(
+        "industrial", help="analiza un cuadro de cargas industrial y la factibilidad del servicio"
+    )
+    i.add_argument("cuadro", help="cuadro de cargas en .xlsx o .csv")
+    i.add_argument("--perfil", default="cnel-ep", help="perfil normativo (por defecto cnel-ep)")
+    i.add_argument("--perfiles", help="carpeta que contiene los perfiles")
+    i.add_argument("--nombre", help="nombre de la industria")
+    i.add_argument("--sistema", default="trifasico_127_220", help="sistema de tensión")
+    i.add_argument("--fp-objetivo", help="factor de potencia objetivo")
+    i.add_argument("--existente-kva", help="kVA del transformador de CNEL más cercano")
+    i.add_argument("--existente-fases", type=int, choices=(1, 3), default=3)
+    i.add_argument("--codigo", help="código del transformador existente")
+    i.add_argument("--demanda", help="demanda actual medida del transformador, en kVA")
+    i.add_argument("--clientes", default="", help="clientes por estrato: C=20,comercial=2")
+    i.add_argument("--distancia", default="0", help="metros de acometida hasta la industria")
+    i.set_defaults(funcion=_industrial)
+
+    t = comandos.add_parser("plantilla-industrial", help="escribe la plantilla Excel del cuadro")
+    t.add_argument("salida", help="archivo .xlsx de salida")
+    t.add_argument("--perfil", default="cnel-ep")
+    t.add_argument("--perfiles", help="carpeta que contiene los perfiles")
+    t.set_defaults(funcion=_plantilla_industrial)
 
     p = comandos.add_parser("validar-perfil", help="valida un perfil y lista sus tablas")
     p.add_argument("carpeta", help="carpeta del perfil")

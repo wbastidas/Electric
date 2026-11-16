@@ -18,40 +18,50 @@ from pydantic import TypeAdapter, ValidationError
 from electric.errores import ErrorPerfil, FilaNoEncontrada
 from electric.perfiles.esquema import (
     FilaAire,
+    FilaArranque,
     FilaCarga,
     FilaConductor,
     FilaDucto,
     FilaEstiloLuz,
+    FilaEstrato,
     FilaFactorDemanda,
     FilaMedidor,
     FilaMinimoCalibre,
+    FilaNivelServicio,
     FilaPlantilla,
     FilaSistema,
+    FilaTipoIndustrial,
     FilaTramoDemanda,
+    FilaTransformador,
     FilaZonaClimatica,
     MetaPerfil,
     RefTabla,
     Tabla,
     TablaAires,
+    TablaArranques,
     TablaBase,
     TablaCargas,
     TablaCircuitosMinimos,
     TablaConductores,
     TablaDuctos,
     TablaEstilosLuz,
+    TablaEstratos,
     TablaFactoresAgrupamiento,
     TablaFactoresDemanda,
     TablaFactoresEspeciales,
     TablaFactoresTemperatura,
     TablaMedidores,
     TablaMinimosCalibre,
+    TablaNivelesServicio,
     TablaParametros,
     TablaPlantillas,
     TablaRedondeo,
     TablaSerie,
     TablaSistemas,
     TablaTierraEquipos,
+    TablaTiposIndustriales,
     TablaTramosDemanda,
+    TablaTransformadores,
     TablaZonasClimaticas,
 )
 
@@ -233,6 +243,77 @@ class Perfil:
             if fila.btu >= btu:
                 return fila, self._ref(tabla, f"{fila.btu} BTU")
         raise FilaNoEncontrada(tabla.id, f"una capacidad de {btu} BTU")
+
+    # -- industrial (tablas opcionales) ------------------------------------
+
+    def es_industrial(self) -> bool:
+        return all(
+            c in self.tablas
+            for c in ("tipos_industriales", "arranques", "transformadores", "niveles_servicio")
+        )
+
+    def tipos_industriales(self) -> tuple[FilaTipoIndustrial, ...]:
+        if "tipos_industriales" not in self.tablas:
+            return ()
+        return self._tabla("tipos_industriales", TablaTiposIndustriales).filas
+
+    def tipo_industrial(self, tipo: str) -> tuple[FilaTipoIndustrial, RefTabla]:
+        tabla = self._tabla("tipos_industriales", TablaTiposIndustriales)
+        for fila in tabla.filas:
+            if fila.tipo == tipo:
+                return fila, self._ref(tabla, tipo)
+        raise FilaNoEncontrada(tabla.id, f"el tipo de carga industrial '{tipo}'")
+
+    def arranques(self) -> tuple[FilaArranque, ...]:
+        if "arranques" not in self.tablas:
+            return ()
+        return self._tabla("arranques", TablaArranques).filas
+
+    def arranque(self, id: str) -> tuple[FilaArranque, RefTabla]:
+        tabla = self._tabla("arranques", TablaArranques)
+        for fila in tabla.filas:
+            if fila.id == id:
+                return fila, self._ref(tabla, id)
+        raise FilaNoEncontrada(tabla.id, f"el arranque '{id}'")
+
+    def transformador_para(self, kva: Decimal, fases: int) -> tuple[FilaTransformador, RefTabla]:
+        """Menor transformador normalizado de esas fases que cubre la potencia."""
+        tabla = self._tabla("transformadores", TablaTransformadores)
+        for fila in sorted(tabla.filas, key=lambda f: f.kva):
+            if fila.fases == fases and fila.kva >= kva:
+                return fila, self._ref(tabla, f"{fila.kva} kVA {fila.fases}F")
+        raise FilaNoEncontrada(tabla.id, f"un transformador de {fases} fases de {kva} kVA o más")
+
+    def impedancia_transformador(self, kva: Decimal, fases: int) -> tuple[Decimal, RefTabla]:
+        """Impedancia del normalizado más cercano, para un transformador existente."""
+        tabla = self._tabla("transformadores", TablaTransformadores)
+        candidatos = [f for f in tabla.filas if f.fases == fases] or list(tabla.filas)
+        fila = min(candidatos, key=lambda f: abs(f.kva - kva))
+        return fila.z_pct, self._ref(tabla, f"impedancia típica de {fila.kva} kVA")
+
+    def nivel_servicio(self, demanda_kw: Decimal) -> tuple[FilaNivelServicio, RefTabla]:
+        tabla = self._tabla("niveles_servicio", TablaNivelesServicio)
+        for fila in tabla.filas:
+            if fila.demanda_max_kw is None or demanda_kw <= fila.demanda_max_kw:
+                return fila, self._ref(tabla, fila.id)
+        raise FilaNoEncontrada(tabla.id, f"una demanda de {demanda_kw} kW")
+
+    def niveles_servicio(self) -> tuple[FilaNivelServicio, ...]:
+        if "niveles_servicio" not in self.tablas:
+            return ()
+        return self._tabla("niveles_servicio", TablaNivelesServicio).filas
+
+    def estrato(self, estrato: str) -> tuple[FilaEstrato, RefTabla]:
+        tabla = self._tabla("demanda_estratos", TablaEstratos)
+        for fila in tabla.filas:
+            if fila.estrato == estrato:
+                return fila, self._ref(tabla, estrato)
+        raise FilaNoEncontrada(tabla.id, f"el estrato '{estrato}'")
+
+    def estratos(self) -> tuple[FilaEstrato, ...]:
+        if "demanda_estratos" not in self.tablas:
+            return ()
+        return self._tabla("demanda_estratos", TablaEstratos).filas
 
     # -- sistema de tensión ------------------------------------------------
 

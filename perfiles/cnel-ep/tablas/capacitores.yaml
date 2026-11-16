@@ -1,0 +1,13 @@
+id: general/capacitores-kvar
+tipo: serie
+serie: capacitores_kvar
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: Potencias habituales de bancos de capacitores en baja tensión
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: Potencias comerciales de bancos fijos o automáticos.
+unidades: {valor: kVAr}
+filas: [5, 7.5, 10, 12.5, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 500, 600, 800, 1000]

@@ -212,6 +212,56 @@ class FilaAire(Dato):
     conexion: Literal["fase_neutro", "linea"] = "linea"
 
 
+# --- Industrial -----------------------------------------------------------
+
+
+class FilaTipoIndustrial(Dato):
+    """Valores por defecto de un tipo de carga industrial cuando el cuadro no los trae."""
+
+    tipo: str
+    nombre: str
+    fp: Decimal = Field(gt=0, le=1)
+    eficiencia: Decimal = Field(gt=0, le=1)
+    factor_utilizacion: Decimal = Field(gt=0, le=1)
+    factor_simultaneidad: Decimal = Field(gt=0, le=1)
+
+
+class FilaArranque(Dato):
+    """Método de arranque de motores: corriente de arranque en veces la nominal."""
+
+    id: str
+    nombre: str
+    multiplicador: Decimal = Field(gt=0)
+
+
+class FilaTransformador(Dato):
+    """Transformador de distribución normalizado."""
+
+    kva: Decimal = Field(gt=0)
+    fases: Literal[1, 3]
+    montaje: Literal["poste", "pedestal", "cuarto"]
+    z_pct: Decimal = Field(gt=0)
+
+
+class FilaNivelServicio(Dato):
+    """Cómo se atiende una carga según su demanda, de menor a mayor."""
+
+    id: Literal["red_existente", "transformador_propio", "cuarto_mt", "subestacion"]
+    nombre: str
+    #: Demanda máxima del nivel; vacío en el último.
+    demanda_max_kw: Decimal | None = Field(default=None, gt=0)
+    medicion: Literal["bt", "mt", "at"]
+    descripcion: str = ""
+
+
+class FilaEstrato(Dato):
+    """Demanda diversificada por cliente, para estimar la carga de un transformador."""
+
+    estrato: str
+    kva: Decimal = Field(gt=0)
+    descripcion: str = ""
+
+
 # --- Tablas --------------------------------------------------------------
 
 
@@ -271,7 +321,7 @@ class TablaSerie(TablaBase):
     """Serie de valores normalizados, de menor a mayor."""
 
     tipo: Literal["serie"]
-    serie: Literal["breakers", "espacios_tablero", "barras"]
+    serie: Literal["breakers", "espacios_tablero", "barras", "capacitores_kvar"]
     filas: tuple[Decimal, ...]
 
 
@@ -319,6 +369,31 @@ class TablaAires(TablaBase):
     filas: tuple[FilaAire, ...]
 
 
+class TablaTiposIndustriales(TablaBase):
+    tipo: Literal["tipos_industriales"]
+    filas: tuple[FilaTipoIndustrial, ...]
+
+
+class TablaArranques(TablaBase):
+    tipo: Literal["arranques"]
+    filas: tuple[FilaArranque, ...]
+
+
+class TablaTransformadores(TablaBase):
+    tipo: Literal["transformadores"]
+    filas: tuple[FilaTransformador, ...]
+
+
+class TablaNivelesServicio(TablaBase):
+    tipo: Literal["niveles_servicio"]
+    filas: tuple[FilaNivelServicio, ...]
+
+
+class TablaEstratos(TablaBase):
+    tipo: Literal["demanda_estratos"]
+    filas: tuple[FilaEstrato, ...]
+
+
 class TablaRedondeo(TablaBase):
     tipo: Literal["redondeo"]
     filas: tuple[FilaRedondeo, ...]
@@ -344,6 +419,11 @@ Tabla = Annotated[
     | TablaEstilosLuz
     | TablaZonasClimaticas
     | TablaAires
+    | TablaTiposIndustriales
+    | TablaArranques
+    | TablaTransformadores
+    | TablaNivelesServicio
+    | TablaEstratos
     | TablaRedondeo,
     Field(discriminator="tipo"),
 ]

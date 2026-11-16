@@ -1,0 +1,16 @@
+id: cnel-ep/arranques
+tipo: arranques
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: Conocimiento general (IEEE 141, catálogos de fabricantes)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: Corriente de arranque típica en veces la corriente nominal del motor.
+filas:
+  - {id: directo, nombre: Arranque directo, multiplicador: 6.0}
+  - {id: estrella_triangulo, nombre: Estrella-triángulo, multiplicador: 2.0}
+  - {id: autotransformador, nombre: Autotransformador (65 %), multiplicador: 2.6}
+  - {id: arrancador_suave, nombre: Arrancador suave, multiplicador: 3.0}
+  - {id: variador, nombre: Variador de frecuencia, multiplicador: 1.2}

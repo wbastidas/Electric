@@ -1,0 +1,34 @@
+id: cnel-ep/niveles-servicio
+tipo: niveles_servicio
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: Propuesta alineada con PR-TEC-CTR-002 v5 (Tipo I hasta 12 kW, Tipo II hasta 500 kW)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Umbrales de la norma para decidir cómo se atiende la carga. Los dos primeros
+  siguen los umbrales Tipo I y Tipo II del perfil; el límite de la subestación
+  propia es una propuesta. Confirmar con CNEL EP antes de usar.
+unidades: {demanda_max_kw: kW}
+filas:
+  - id: red_existente
+    nombre: Red de baja tensión existente
+    demanda_max_kw: 12
+    medicion: bt
+    descripcion: Acometida desde un transformador de CNEL, si tiene capacidad libre.
+  - id: transformador_propio
+    nombre: Transformador particular
+    demanda_max_kw: 500
+    medicion: bt
+    descripcion: Transformador del cliente en poste o pedestal, medición en baja tensión.
+  - id: cuarto_mt
+    nombre: Cuarto de transformación en media tensión
+    demanda_max_kw: 5000
+    medicion: mt
+    descripcion: Medición en 13,8 kV, celdas de media tensión y cuarto de transformación.
+  - id: subestacion
+    nombre: Subestación propia
+    medicion: at
+    descripcion: Alimentación en 69 kV o más con subestación del cliente.

@@ -112,6 +112,36 @@ bitácora con lo que se hizo.
 El plano es sintético. La detección de ambientes solo se ha probado con él;
 con planos reales de arquitectos habrá casos que todavía no resuelve.
 
+### Industrias: cuadro de cargas y transformador
+
+Para una industria se parte del cuadro de cargas en Excel o CSV: una fila por
+máquina o grupo de máquinas iguales. Solo la potencia es obligatoria; lo que
+falte (factor de potencia, eficiencia, factores de utilización y simultaneidad,
+arranque) toma los valores típicos del perfil y la memoria lo indica.
+`electric plantilla-industrial cuadro.xlsx` escribe una plantilla con ejemplos,
+listas desplegables y una hoja de instrucciones.
+
+El análisis entrega:
+
+1. Por máquina: potencia de entrada (los HP pasan a kW y se dividen por la
+   eficiencia), corriente, demanda y, en motores, corriente de arranque según
+   el método (directo, estrella-triángulo, autotransformador, arrancador suave
+   o variador).
+2. Por tablero y total: demanda en kW, kVAr y kVA, factor de potencia y breaker.
+3. Banco de capacitores normalizado para llegar al factor de potencia objetivo.
+4. Transformador particular normalizado con reserva, su montaje (poste,
+   pedestal o cuarto) y la caída momentánea al arrancar el motor mayor.
+5. Nivel de servicio según la norma: red existente, transformador particular,
+   cuarto de transformación en media tensión o subestación propia.
+6. Si la norma admite la red existente, se comprueba el transformador de CNEL
+   más cercano: fases, capacidad libre (kVA × cargabilidad − demanda actual
+   medida o estimada por clientes y estrato), distancia, caída de tensión de la
+   acometida y caída al arrancar motores. Si algo no cumple, se propone el
+   transformador particular y se dice por qué.
+
+La lectura automática del transformador más cercano desde el geoportal de CNEL
+está pendiente; por ahora sus datos se ingresan a mano.
+
 ## Uso
 
 ### Aplicación web
@@ -152,6 +182,11 @@ uv venv && uv pip install -e ".[dev]"
 
 # Validar un perfil
 .venv/bin/electric validar-perfil ../perfiles/cnel-ep
+
+# Industria: plantilla del cuadro de cargas y análisis
+.venv/bin/electric plantilla-industrial cuadro.xlsx
+.venv/bin/electric industrial cuadro.xlsx
+.venv/bin/electric industrial cuadro.xlsx --existente-kva 75 --clientes C=20 --distancia 60
 ```
 
 ### Pruebas y comprobaciones
@@ -234,5 +269,13 @@ en `api/` y `pnpm gen` en `web/`.
   Galápagos), capacidades y potencias de los aires, refrigeradora de 400 W,
   alturas de exteriores y aire, separación de luces de fachada (6 m) y muro
   exterior de 20 cm para ubicarlas.
+- Industrial: valores típicos por tipo de carga, corrientes de arranque,
+  potencias, impedancias y montaje de transformadores, bancos de capacitores,
+  sistemas de 440/254 V y 480/277 V, conductores hasta 750 kcmil y breakers
+  hasta 4000 A. También el FP objetivo de 0,92, la reserva del 20 %, la
+  cargabilidad máxima del 80 % de un transformador existente, la caída de
+  arranque del 15 %, la acometida de 200 m como máximo, la demanda por estrato
+  y los umbrales de nivel de servicio (12 kW y 500 kW siguen Tipo I y II; los
+  5000 kW de subestación son una propuesta).
 
 Cada uno está anotado en la tabla correspondiente y marcado `por_verificar`.

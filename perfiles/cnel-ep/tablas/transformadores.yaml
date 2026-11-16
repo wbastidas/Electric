@@ -1,0 +1,45 @@
+id: cnel-ep/transformadores
+tipo: transformadores
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: Potencias normalizadas habituales (INEN, catálogos); montaje por confirmar con CNEL
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Potencias e impedancias típicas. El límite de montaje en poste y el uso de
+  pedestal o cuarto de transformación deben confirmarse con las homologaciones
+  de CNEL EP.
+unidades: {kva: kVA, z_pct: '%'}
+filas:
+  - {kva: 10, fases: 1, montaje: poste, z_pct: 2.5}
+  - {kva: 15, fases: 1, montaje: poste, z_pct: 2.5}
+  - {kva: 25, fases: 1, montaje: poste, z_pct: 2.5}
+  - {kva: 37.5, fases: 1, montaje: poste, z_pct: 2.5}
+  - {kva: 50, fases: 1, montaje: poste, z_pct: 2.5}
+  - {kva: 75, fases: 1, montaje: poste, z_pct: 3.0}
+  - {kva: 100, fases: 1, montaje: poste, z_pct: 3.0}
+  - {kva: 167, fases: 1, montaje: poste, z_pct: 3.0}
+  - {kva: 30, fases: 3, montaje: poste, z_pct: 3.0}
+  - {kva: 45, fases: 3, montaje: poste, z_pct: 3.0}
+  - {kva: 50, fases: 3, montaje: poste, z_pct: 3.0}
+  - {kva: 60, fases: 3, montaje: poste, z_pct: 3.0}
+  - {kva: 75, fases: 3, montaje: poste, z_pct: 3.5}
+  - {kva: 100, fases: 3, montaje: poste, z_pct: 3.5}
+  - {kva: 112.5, fases: 3, montaje: poste, z_pct: 3.5}
+  - {kva: 125, fases: 3, montaje: pedestal, z_pct: 4.0}
+  - {kva: 150, fases: 3, montaje: pedestal, z_pct: 4.0}
+  - {kva: 200, fases: 3, montaje: pedestal, z_pct: 4.0}
+  - {kva: 250, fases: 3, montaje: pedestal, z_pct: 4.0}
+  - {kva: 300, fases: 3, montaje: pedestal, z_pct: 4.5}
+  - {kva: 400, fases: 3, montaje: pedestal, z_pct: 4.5}
+  - {kva: 500, fases: 3, montaje: pedestal, z_pct: 5.0}
+  - {kva: 630, fases: 3, montaje: cuarto, z_pct: 5.0}
+  - {kva: 750, fases: 3, montaje: cuarto, z_pct: 5.5}
+  - {kva: 1000, fases: 3, montaje: cuarto, z_pct: 5.5}
+  - {kva: 1250, fases: 3, montaje: cuarto, z_pct: 5.75}
+  - {kva: 1500, fases: 3, montaje: cuarto, z_pct: 5.75}
+  - {kva: 2000, fases: 3, montaje: cuarto, z_pct: 6.0}
+  - {kva: 2500, fases: 3, montaje: cuarto, z_pct: 6.0}
+  - {kva: 3000, fases: 3, montaje: cuarto, z_pct: 6.5}

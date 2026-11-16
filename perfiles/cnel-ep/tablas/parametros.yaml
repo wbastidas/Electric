@@ -38,3 +38,9 @@ filas:
   - {clave: altura_toma_exterior_m, valor: 0.40, unidad: m, nota: Propuesta de diseño - toma de intemperie con diferencial.}
   - {clave: separacion_luces_exteriores_m, valor: 6, unidad: m, nota: 'Propuesta de diseño - una luz de fachada cada tantos metros, además de una por puerta exterior.'}
   - {clave: muro_exterior_m, valor: 0.20, unidad: m, nota: Supuesto - espesor para ubicar luces y tomas en la cara exterior de la fachada.}
+  - {clave: fp_objetivo, valor: 0.92, nota: 'Factor de potencia mínimo sin penalización; por confirmar con la regulación vigente de ARCERNNR.'}
+  - {clave: reserva_transformador_pct, valor: 20, unidad: '%', nota: Propuesta de diseño - reserva para crecimiento sobre la demanda corregida.}
+  - {clave: cargabilidad_max_existente_pct, valor: 80, unidad: '%', nota: Propuesta - carga máxima admisible en un transformador existente de CNEL.}
+  - {clave: caida_arranque_max_pct, valor: 15, unidad: '%', nota: Propuesta - caída momentánea máxima en barras del transformador al arrancar el motor mayor.}
+  - {clave: distancia_max_secundaria_m, valor: 200, unidad: m, nota: Propuesta - longitud máxima de la acometida en baja tensión desde un transformador existente.}
+  - {clave: conductores_paralelo_max, valor: 4, nota: Propuesta - conductores por fase en paralelo como máximo para un alimentador.}

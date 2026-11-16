@@ -31,3 +31,9 @@ tablas:
   - tablas/estilos_iluminacion.yaml
   - tablas/zonas_climaticas.yaml
   - tablas/aires.yaml
+  - tablas/tipos_industriales.yaml
+  - tablas/arranques.yaml
+  - tablas/transformadores.yaml
+  - tablas/niveles_servicio.yaml
+  - tablas/demanda_estratos.yaml
+  - tablas/capacitores.yaml

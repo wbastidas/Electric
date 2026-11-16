@@ -27,3 +27,13 @@ filas:
     fases: 3
     v_fase_neutro: 127
     v_linea: 220
+  - id: trifasico_254_440
+    descripcion: Trifásico 440/254 V
+    fases: 3
+    v_fase_neutro: 254
+    v_linea: 440
+  - id: trifasico_277_480
+    descripcion: Trifásico 480/277 V
+    fases: 3
+    v_fase_neutro: 277
+    v_linea: 480

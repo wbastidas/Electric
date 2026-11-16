@@ -1,0 +1,21 @@
+id: cnel-ep/tipos-industriales
+tipo: tipos_industriales
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: Conocimiento general de diseño industrial (IEEE 141, NEC-SB-IE)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Valores típicos que se usan cuando el cuadro de cargas deja la celda vacía.
+  El proyectista debe reemplazarlos por los datos de placa y de operación de
+  cada máquina.
+filas:
+  - {tipo: motor, nombre: Motor, fp: 0.85, eficiencia: 0.90, factor_utilizacion: 0.80, factor_simultaneidad: 0.80}
+  - {tipo: resistiva, nombre: 'Carga resistiva (hornos y calentadores)', fp: 1.00, eficiencia: 1.00, factor_utilizacion: 1.00, factor_simultaneidad: 0.90}
+  - {tipo: iluminacion, nombre: Iluminación, fp: 0.95, eficiencia: 1.00, factor_utilizacion: 1.00, factor_simultaneidad: 1.00}
+  - {tipo: tomacorrientes, nombre: Tomacorrientes, fp: 0.90, eficiencia: 1.00, factor_utilizacion: 0.50, factor_simultaneidad: 0.50}
+  - {tipo: soldadora, nombre: Soldadora, fp: 0.60, eficiencia: 1.00, factor_utilizacion: 0.50, factor_simultaneidad: 0.50}
+  - {tipo: aire, nombre: Climatización, fp: 0.85, eficiencia: 1.00, factor_utilizacion: 0.90, factor_simultaneidad: 0.90}
+  - {tipo: otro, nombre: Otra carga, fp: 0.90, eficiencia: 1.00, factor_utilizacion: 0.80, factor_simultaneidad: 0.80}

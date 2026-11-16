@@ -1,0 +1,20 @@
+id: cnel-ep/demanda-estratos
+tipo: demanda_estratos
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: Propuesta; reemplazar por la tabla de demanda de diseño por estrato de CNEL EP
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Demanda diversificada por cliente para estimar la carga actual de un
+  transformador a partir de los clientes conectados que reporta el geoportal.
+unidades: {kva: kVA}
+filas:
+  - {estrato: A, kva: 4.0, descripcion: Residencial de consumo alto}
+  - {estrato: B, kva: 2.5, descripcion: Residencial de consumo medio alto}
+  - {estrato: C, kva: 1.6, descripcion: Residencial de consumo medio}
+  - {estrato: D, kva: 1.2, descripcion: Residencial de consumo bajo}
+  - {estrato: E, kva: 0.8, descripcion: Residencial popular}
+  - {estrato: comercial, kva: 3.0, descripcion: Cliente comercial pequeño}

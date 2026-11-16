@@ -150,7 +150,7 @@ def test_fuera_de_tabla_es_un_error_y_no_una_extrapolacion(perfil_cnel: Perfil) 
     with pytest.raises(FilaNoEncontrada):
         perfil_cnel.factor_temperatura(D(60))
     with pytest.raises(FilaNoEncontrada):
-        perfil_cnel.normalizado("breakers", D(1000))
+        perfil_cnel.normalizado("breakers", D(5000))
     with pytest.raises(FilaNoEncontrada):
         perfil_cnel.carga("horno_industrial")
 
