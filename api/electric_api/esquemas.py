@@ -5,6 +5,7 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import Literal
 
+from electric.diseno.edicion import Edicion
 from electric.modelo.entidades import (
     CargaEspecial,
     Circuito,
@@ -62,6 +63,8 @@ class ProyectoDetalle(Esquema):
     creado: str
     actualizado: str
     datos: Borrador
+    #: Acción que se desharía con «Deshacer»; nada si no hay a qué volver.
+    deshacer: str | None = None
 
 
 class Guardar(Esquema):
@@ -143,6 +146,11 @@ class Calculos(Esquema):
 class Revision(Esquema):
     #: Revisión que el cliente tenía; evita pisar cambios de otra persona.
     revision: int
+
+
+class Editar(Esquema):
+    revision: int
+    ediciones: list[Edicion] = Field(min_length=1, max_length=200)
 
 
 class DisenoOut(Esquema):

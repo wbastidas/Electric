@@ -126,6 +126,7 @@ export function Editor({ id }: { id: string }) {
           datos={datos}
           perfil={perfil}
           sinGuardar={sinGuardar}
+          deshacer={proyecto.data?.revision === revision ? proyecto.data.deshacer ?? null : null}
           cambiar={cambiar}
           adoptar={adoptar}
         />

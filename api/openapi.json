@@ -464,6 +464,106 @@
         }
       }
     },
+    "/api/v1/proyectos/{id}/ediciones": {
+      "post": {
+        "summary": "Editar Instalacion",
+        "description": "Mueve, fija, agrega o quita elementos en el plano y vuelve a trazar los recorridos.\n\nLas ediciones se aplican en orden y todas o ninguna. Lo movido o agregado\nqueda fijado: «Volver a diseñar» no lo mueve.",
+        "operationId": "editar_instalacion_api_v1_proyectos__id__ediciones_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Editar"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisenoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/proyectos/{id}/deshacer": {
+      "post": {
+        "summary": "Deshacer",
+        "description": "Vuelve al estado anterior al último cambio. Repetirlo retrocede un paso más.",
+        "operationId": "deshacer_api_v1_proyectos__id__deshacer_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Revision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProyectoDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/proyectos/{id}/salida.{formato}": {
       "get": {
         "summary": "Descargar Salida",
@@ -533,6 +633,66 @@
   },
   "components": {
     "schemas": {
+      "Agregar": {
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "agregar",
+            "title": "Op",
+            "default": "agregar"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "punto_luz",
+              "tomacorriente"
+            ],
+            "title": "Tipo"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "X"
+          },
+          "y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Y"
+          },
+          "circuito": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Circuito"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tipo",
+          "x",
+          "y"
+        ],
+        "title": "Agregar",
+        "description": "Agrega una luminaria o un tomacorriente en una posición del plano."
+      },
       "Ambiente": {
         "properties": {
           "id": {
@@ -815,6 +975,32 @@
         ],
         "title": "Calculos"
       },
+      "CambiarCircuito": {
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "circuito",
+            "title": "Op",
+            "default": "circuito"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "circuito": {
+            "type": "string",
+            "title": "Circuito"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "circuito"
+        ],
+        "title": "CambiarCircuito",
+        "description": "Pasa un punto a otro circuito del mismo tipo, o a uno nuevo con `circuito=\"nuevo\"`."
+      },
       "CargaEspecial": {
         "properties": {
           "id": {
@@ -1049,6 +1235,56 @@
           "avisos"
         ],
         "title": "DisenoOut"
+      },
+      "Editar": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "ediciones": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Mover"
+                },
+                {
+                  "$ref": "#/components/schemas/Liberar"
+                },
+                {
+                  "$ref": "#/components/schemas/CambiarCircuito"
+                },
+                {
+                  "$ref": "#/components/schemas/Agregar"
+                },
+                {
+                  "$ref": "#/components/schemas/Quitar"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "op",
+                "mapping": {
+                  "agregar": "#/components/schemas/Agregar",
+                  "circuito": "#/components/schemas/CambiarCircuito",
+                  "liberar": "#/components/schemas/Liberar",
+                  "mover": "#/components/schemas/Mover",
+                  "quitar": "#/components/schemas/Quitar"
+                }
+              }
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Ediciones"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "ediciones"
+        ],
+        "title": "Editar"
       },
       "EntradaBitacora": {
         "properties": {
@@ -1295,6 +1531,11 @@
           "circuito": {
             "type": "string",
             "title": "Circuito"
+          },
+          "fijo": {
+            "type": "boolean",
+            "title": "Fijo",
+            "default": false
           }
         },
         "additionalProperties": false,
@@ -1308,6 +1549,27 @@
           "circuito"
         ],
         "title": "Interruptor"
+      },
+      "Liberar": {
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "liberar",
+            "title": "Op",
+            "default": "liberar"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "Liberar",
+        "description": "Quita la fijación: el próximo diseño automático puede volver a ubicarlo."
       },
       "LineaFondo": {
         "properties": {
@@ -1340,6 +1602,51 @@
           "puntos"
         ],
         "title": "LineaFondo"
+      },
+      "Mover": {
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "mover",
+            "title": "Op",
+            "default": "mover"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "X"
+          },
+          "y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Y"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "x",
+          "y"
+        ],
+        "title": "Mover",
+        "description": "Lleva un punto, carga especial, interruptor o el tablero a otra posición y lo fija."
       },
       "OpcionUso": {
         "properties": {
@@ -1634,6 +1941,17 @@
           },
           "datos": {
             "$ref": "#/components/schemas/Borrador"
+          },
+          "deshacer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deshacer"
           }
         },
         "additionalProperties": false,
@@ -1809,6 +2127,27 @@
         ],
         "title": "Punto",
         "description": "Punto de luz o tomacorriente de uso general."
+      },
+      "Quitar": {
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "quitar",
+            "title": "Op",
+            "default": "quitar"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "Quitar",
+        "description": "Quita un punto (luminaria o tomacorriente) de la instalación."
       },
       "Recorrido": {
         "properties": {
@@ -2259,6 +2598,11 @@
               }
             ],
             "title": "Ambiente"
+          },
+          "fijo": {
+            "type": "boolean",
+            "title": "Fijo",
+            "default": false
           }
         },
         "additionalProperties": false,

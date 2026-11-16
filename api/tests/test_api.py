@@ -267,3 +267,81 @@ def test_plano_ilegible_o_sin_plano_se_explica(cliente: TestClient) -> None:
 def test_borrar_un_proyecto_con_plano(cliente: TestClient) -> None:
     proyecto = cliente.post("/api/v1/ejemplos/vivienda-plano").json()
     assert cliente.delete(f"/api/v1/proyectos/{proyecto['id']}").status_code == 204
+
+
+def _ubicacion(datos: dict[str, Any], id: str) -> dict[str, Any]:
+    return next(u for u in datos["plano"]["ubicaciones"] if u["id"] == id)
+
+
+def test_mover_un_punto_recalcula_y_se_puede_deshacer(cliente: TestClient) -> None:
+    proyecto = cliente.post("/api/v1/ejemplos/vivienda-plano").json()
+    ruta = f"/api/v1/proyectos/{proyecto['id']}"
+    assert proyecto["deshacer"] is None
+    datos = proyecto["datos"]
+    luz = next(p for p in datos["puntos"] if p["tipo"] == "punto_luz")
+    antes = _ubicacion(datos, luz["id"])
+    caida_antes = cliente.get(f"{ruta}/calculos").json()
+
+    x, y = str(round(float(antes["x"]) + 0.5, 3)), antes["y"]
+    movido = cliente.post(
+        f"{ruta}/ediciones",
+        json={"revision": 1, "ediciones": [{"op": "mover", "id": luz["id"], "x": x, "y": y}]},
+    )
+    assert movido.status_code == 200, movido.text
+    nuevo = movido.json()["proyecto"]
+    assert nuevo["revision"] == 2 and nuevo["deshacer"] == "editar en el plano"
+    ubicado = _ubicacion(nuevo["datos"], luz["id"])
+    assert ubicado["fijo"] is True and ubicado["x"] == x
+    assert cliente.get(f"{ruta}/calculos").json() != caida_antes
+
+    # Volver a diseñar respeta lo fijado.
+    rediseno = cliente.post(f"{ruta}/diseno", json={"revision": 2}).json()["proyecto"]
+    assert _ubicacion(rediseno["datos"], luz["id"])["x"] == x
+
+    # Deshacer dos veces vuelve al diseño original, paso a paso.
+    uno = cliente.post(f"{ruta}/deshacer", json={"revision": 3})
+    assert uno.status_code == 200, uno.text
+    assert uno.json()["deshacer"] == "editar en el plano"
+    dos = cliente.post(f"{ruta}/deshacer", json={"revision": 4}).json()
+    assert dos["datos"] == datos and dos["deshacer"] is None
+    nada = cliente.post(f"{ruta}/deshacer", json={"revision": 5})
+    assert nada.status_code == 409 and nada.json()["codigo"] == "nada_que_deshacer"
+
+    acciones = [e["accion"] for e in cliente.get(f"{ruta}/bitacora").json()]
+    assert acciones == ["deshacer", "deshacer", "diseñar", "editar en el plano", "crear"]
+    resumen = cliente.get(f"{ruta}/bitacora").json()[3]["resumen"]
+    assert resumen == f"movió {luz['id']}"
+
+
+def test_ediciones_invalidas_se_explican_y_no_cambian_nada(cliente: TestClient) -> None:
+    proyecto = cliente.post("/api/v1/ejemplos/vivienda-plano").json()
+    ruta = f"/api/v1/proyectos/{proyecto['id']}"
+    fuera = cliente.post(
+        f"{ruta}/ediciones",
+        json={
+            "revision": 1,
+            "ediciones": [
+                {"op": "agregar", "tipo": "tomacorriente", "x": "3", "y": "3"},
+                {"op": "mover", "id": "TD-1", "x": "-20", "y": "-20"},
+            ],
+        },
+    )
+    assert fuera.status_code == 422
+    assert "ningún ambiente" in fuera.json()["detail"]
+    assert cliente.get(ruta).json()["revision"] == 1
+    desconocida = cliente.post(
+        f"{ruta}/ediciones", json={"revision": 1, "ediciones": [{"op": "girar", "id": "TD-1"}]}
+    )
+    assert desconocida.status_code == 422
+
+
+def test_no_se_deshace_mas_alla_de_un_cambio_de_plano(cliente: TestClient) -> None:
+    proyecto = cliente.post("/api/v1/ejemplos/vivienda-plano").json()
+    ruta = f"/api/v1/proyectos/{proyecto['id']}"
+    otro = PLANTA.read_bytes().replace(b"COCINA", b"COCINA ")
+    cambiado = cliente.post(f"{ruta}/plano", params={"revision": 1}, content=otro, headers=BINARIO)
+    assert cambiado.status_code == 200, cambiado.text
+    assert cambiado.json()["deshacer"] == "cargar plano"
+    bloqueado = cliente.post(f"{ruta}/deshacer", json={"revision": 2})
+    assert bloqueado.status_code == 409
+    assert bloqueado.json()["codigo"] == "plano_reemplazado"

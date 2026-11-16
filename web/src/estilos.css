@@ -532,6 +532,30 @@ dd {
 .simbolo.elegido rect {
   stroke-width: 4;
 }
+.visor svg.editable .simbolo {
+  cursor: move;
+}
+.visor svg.agregando {
+  cursor: crosshair;
+}
+.simbolo.arrastrado {
+  opacity: 0.6;
+}
+.visor .simbolo circle.pin {
+  fill: var(--texto);
+  stroke: none;
+}
+.barra-edicion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+.barra-edicion button[aria-pressed="true"] {
+  background: var(--acento);
+  color: var(--acento-texto);
+  border-color: var(--acento);
+}
 .etiqueta-tablero {
   font-size: 0.2px;
   fill: #c62828;
@@ -585,4 +609,15 @@ tr.dudoso td {
 }
 .panel-plano table select {
   padding: 0.25rem 0.4rem;
+}
+.resumen.compacto {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.3rem;
+}
+.resumen.compacto .dato {
+  padding: 0.35rem 0.5rem;
+  background: var(--acento-suave);
+}
+.resumen.compacto .valor {
+  font-size: 0.95rem;
 }

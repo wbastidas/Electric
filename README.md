@@ -39,6 +39,28 @@ Para repetirlo desde `nucleo/`:
 En la aplicación web, el botón **Abrir el modelo de prueba con plano** hace lo
 mismo y muestra la red en el visor.
 
+### Corregir la red a mano
+
+En la pestaña **Plano**, con la instalación diseñada:
+
+- **Mover:** arrastre cualquier símbolo (luminaria, tomacorriente, carga
+  especial, interruptor o tablero). Queda fijado (●) y el servidor rehace los
+  recorridos, las longitudes y el cálculo completo.
+- **Agregar:** elija *Luminaria* o *Tomacorriente* y toque el plano. El punto
+  va al circuito de ese tipo que ya pasa por el ambiente o, si no hay, al
+  menos cargado. Esc termina.
+- **Cambiar de circuito, quitar o liberar:** toque el símbolo y use su ficha.
+  Si un circuito queda vacío se elimina; si supera el máximo de puntos del
+  perfil, aparece un aviso.
+- **Deshacer:** vuelve un paso atrás por cada pulsación, incluido un rediseño.
+  No pasa de un cambio de plano.
+- **Volver a diseñar** respeta lo fijado. Descarta los puntos agregados a mano
+  y los cambios de circuito, y lo avisa.
+
+Un interruptor movido sigue mandando las luces de su ambiente aunque quede en
+otro (por ejemplo, en el pasillo junto a la puerta). Cada cambio queda en la
+bitácora con lo que se hizo.
+
 El plano es sintético. La detección de ambientes solo se ha probado con él;
 con planos reales de arquitectos habrá casos que todavía no resuelve.
 

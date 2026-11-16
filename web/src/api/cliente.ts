@@ -17,6 +17,7 @@ export type Plano = S["Plano"];
 export type Ambiente = S["Ambiente"];
 export type Fondo = S["Fondo"];
 export type Diseno = S["DisenoOut"];
+export type Edicion = S["Editar"]["ediciones"][number];
 
 /** Lo mínimo para crear un proyecto; el servidor completa el resto. */
 export type BorradorNuevo = Partial<Borrador> & Pick<Borrador, "nombre" | "perfil">;
@@ -85,5 +86,12 @@ export const api = {
   fondo: (id: string) => pedir<Fondo>(`/proyectos/${id}/plano/fondo`),
   disenar: (id: string, revision: number) =>
     pedir<Diseno>(`/proyectos/${id}/diseno`, { method: "POST", body: JSON.stringify({ revision }) }),
+  editar: (id: string, revision: number, ediciones: Edicion[]) =>
+    pedir<Diseno>(`/proyectos/${id}/ediciones`, {
+      method: "POST",
+      body: JSON.stringify({ revision, ediciones }),
+    }),
+  deshacer: (id: string, revision: number) =>
+    pedir<ProyectoDetalle>(`/proyectos/${id}/deshacer`, { method: "POST", body: JSON.stringify({ revision }) }),
   urlSalida: (id: string, formato: "dxf" | "png" | "pdf") => `/api/v1/proyectos/${id}/salida.${formato}`,
 };

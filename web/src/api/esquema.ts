@@ -153,6 +153,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/proyectos/{id}/ediciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Editar Instalacion
+         * @description Mueve, fija, agrega o quita elementos en el plano y vuelve a trazar los recorridos.
+         *
+         *     Las ediciones se aplican en orden y todas o ninguna. Lo movido o agregado
+         *     queda fijado: «Volver a diseñar» no lo mueve.
+         */
+        post: operations["editar_instalacion_api_v1_proyectos__id__ediciones_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/proyectos/{id}/deshacer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Deshacer
+         * @description Vuelve al estado anterior al último cambio. Repetirlo retrocede un paso más.
+         */
+        post: operations["deshacer_api_v1_proyectos__id__deshacer_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/proyectos/{id}/salida.{formato}": {
         parameters: {
             query?: never;
@@ -197,6 +240,28 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * Agregar
+         * @description Agrega una luminaria o un tomacorriente en una posición del plano.
+         */
+        Agregar: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            op: "agregar";
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "punto_luz" | "tomacorriente";
+            /** X */
+            x: number | string;
+            /** Y */
+            y: number | string;
+            /** Circuito */
+            circuito?: string | null;
+        };
         /** Ambiente */
         Ambiente: {
             /** Id */
@@ -329,6 +394,21 @@ export interface components {
             tablas_sin_verificar: components["schemas"]["TablaPendiente"][];
         };
         /**
+         * CambiarCircuito
+         * @description Pasa un punto a otro circuito del mismo tipo, o a uno nuevo con `circuito="nuevo"`.
+         */
+        CambiarCircuito: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            op: "circuito";
+            /** Id */
+            id: string;
+            /** Circuito */
+            circuito: string;
+        };
+        /**
          * CargaEspecial
          * @description Equipo declarado con circuito propio (ducha, cocina, A/C…).
          */
@@ -403,6 +483,13 @@ export interface components {
             proyecto: components["schemas"]["ProyectoDetalle"];
             /** Avisos */
             avisos: string[];
+        };
+        /** Editar */
+        Editar: {
+            /** Revision */
+            revision: number;
+            /** Ediciones */
+            ediciones: (components["schemas"]["Mover"] | components["schemas"]["Liberar"] | components["schemas"]["CambiarCircuito"] | components["schemas"]["Agregar"] | components["schemas"]["Quitar"])[];
         };
         /** EntradaBitacora */
         EntradaBitacora: {
@@ -494,6 +581,24 @@ export interface components {
             ambiente: string;
             /** Circuito */
             circuito: string;
+            /**
+             * Fijo
+             * @default false
+             */
+            fijo: boolean;
+        };
+        /**
+         * Liberar
+         * @description Quita la fijación: el próximo diseño automático puede volver a ubicarlo.
+         */
+        Liberar: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            op: "liberar";
+            /** Id */
+            id: string;
         };
         /** LineaFondo */
         LineaFondo: {
@@ -504,6 +609,23 @@ export interface components {
                 number,
                 number
             ][];
+        };
+        /**
+         * Mover
+         * @description Lleva un punto, carga especial, interruptor o el tablero a otra posición y lo fija.
+         */
+        Mover: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            op: "mover";
+            /** Id */
+            id: string;
+            /** X */
+            x: number | string;
+            /** Y */
+            y: number | string;
         };
         /** OpcionUso */
         OpcionUso: {
@@ -651,6 +773,8 @@ export interface components {
             /** Actualizado */
             actualizado: string;
             datos: components["schemas"]["Borrador"];
+            /** Deshacer */
+            deshacer?: string | null;
         };
         /** ProyectoResumen */
         ProyectoResumen: {
@@ -707,6 +831,19 @@ export interface components {
              * @enum {string}
              */
             origen: "auto" | "editado" | "fijado";
+        };
+        /**
+         * Quitar
+         * @description Quita un punto (luminaria o tomacorriente) de la instalación.
+         */
+        Quitar: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            op: "quitar";
+            /** Id */
+            id: string;
         };
         /**
          * Recorrido
@@ -875,6 +1012,11 @@ export interface components {
             altura_m: number | string;
             /** Ambiente */
             ambiente?: string | null;
+            /**
+             * Fijo
+             * @default false
+             */
+            fijo: boolean;
         };
         /** ValidationError */
         ValidationError: {
@@ -1228,6 +1370,76 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DisenoOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_instalacion_api_v1_proyectos__id__ediciones_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Editar"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisenoOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deshacer_api_v1_proyectos__id__deshacer_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Revision"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProyectoDetalle"];
                 };
             };
             /** @description Validation Error */

@@ -8,7 +8,7 @@ from decimal import Decimal
 from typing import Annotated
 
 from electric.calculo import calcular
-from electric.diseno import disenar
+from electric.diseno import disenar, editar
 from electric.errores import ErrorElectric
 from electric.flujo import proyecto_desde_plano
 from electric.ingesta import leer_dxf
@@ -19,15 +19,24 @@ from electric.salida_cad import generar_dxf, renderizar
 from fastapi import APIRouter, Body, Depends, FastAPI, Query, Request, Response
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, object_session
 
 from electric_api import problemas
 from electric_api.config import Config, leer_config
-from electric_api.db import ArchivoBD, BitacoraBD, ProyectoBD, ahora, crear_motor, crear_sesiones
+from electric_api.db import (
+    ArchivoBD,
+    BitacoraBD,
+    ProyectoBD,
+    VersionBD,
+    ahora,
+    crear_motor,
+    crear_sesiones,
+)
 from electric_api.esquemas import (
     Borrador,
     Calculos,
     DisenoOut,
+    Editar,
     EntradaBitacora,
     Fondo,
     Guardar,
@@ -72,13 +81,38 @@ def _buscar(sesion: Session, id: str) -> ProyectoBD:
     return proyecto
 
 
+def _version(sesion: Session, id: str, revision: int) -> VersionBD | None:
+    return sesion.scalars(
+        select(VersionBD).where(VersionBD.proyecto_id == id, VersionBD.revision == revision)
+    ).first()
+
+
+def _a_deshacer(sesion: Session, fila: ProyectoBD) -> tuple[VersionBD, BitacoraBD] | None:
+    """Versión a la que volvería «Deshacer» y el cambio que se deshace."""
+    actual = _version(sesion, fila.id, fila.revision)
+    if actual is None or actual.base <= 1:
+        return None
+    destino = _version(sesion, fila.id, actual.base - 1)
+    cambio = sesion.scalars(
+        select(BitacoraBD).where(
+            BitacoraBD.proyecto_id == fila.id, BitacoraBD.revision == actual.base
+        )
+    ).first()
+    if destino is None or cambio is None:
+        return None
+    return destino, cambio
+
+
 def _detalle(fila: ProyectoBD) -> ProyectoDetalle:
+    sesion = object_session(fila)
+    previo = _a_deshacer(sesion, fila) if sesion is not None else None
     return ProyectoDetalle(
         id=fila.id,
         revision=fila.revision,
         creado=fila.creado,
         actualizado=fila.actualizado,
         datos=Borrador.model_validate_json(fila.datos),
+        deshacer=previo[1].accion if previo else None,
     )
 
 
@@ -89,7 +123,23 @@ def _resumen_cambio(datos: Borrador) -> str:
     )
 
 
-def _anotar(sesion: Session, fila: ProyectoBD, accion: str, datos: Borrador) -> None:
+def _anotar(
+    sesion: Session,
+    fila: ProyectoBD,
+    accion: str,
+    datos: Borrador,
+    *,
+    base: int | None = None,
+    resumen: str | None = None,
+) -> None:
+    sesion.add(
+        VersionBD(
+            proyecto_id=fila.id,
+            revision=fila.revision,
+            base=fila.revision if base is None else base,
+            datos=fila.datos,
+        )
+    )
     sesion.add(
         BitacoraBD(
             proyecto_id=fila.id,
@@ -98,7 +148,7 @@ def _anotar(sesion: Session, fila: ProyectoBD, accion: str, datos: Borrador) -> 
             autor=AUTOR,
             fecha=ahora(),
             huella=hash_canonico(datos),
-            resumen=_resumen_cambio(datos),
+            resumen=resumen or _resumen_cambio(datos),
         )
     )
 
@@ -171,13 +221,7 @@ def guardar_proyecto(
             "Recargue el proyecto y repita el cambio.",
         )
     _exigir_perfil(cuerpo.datos, perfiles)
-    fila.nombre = cuerpo.datos.nombre
-    fila.datos = a_json_canonico(cuerpo.datos)
-    fila.revision += 1
-    fila.actualizado = ahora()
-    _anotar(sesion, fila, "guardar", cuerpo.datos)
-    sesion.commit()
-    return _detalle(fila)
+    return _actualizar(sesion, fila, cuerpo.datos, "guardar")
 
 
 @rutas.delete("/proyectos/{id}", status_code=204)
@@ -185,6 +229,8 @@ def borrar_proyecto(id: str, sesion: SesionDep) -> Response:
     fila = _buscar(sesion, id)
     for entrada in sesion.scalars(select(BitacoraBD).where(BitacoraBD.proyecto_id == id)):
         sesion.delete(entrada)
+    for version in sesion.scalars(select(VersionBD).where(VersionBD.proyecto_id == id)):
+        sesion.delete(version)
     archivo = sesion.get(ArchivoBD, id)
     if archivo is not None:
         sesion.delete(archivo)
@@ -241,12 +287,20 @@ def _exigir_revision(fila: ProyectoBD, revision: int) -> None:
         )
 
 
-def _actualizar(sesion: Session, fila: ProyectoBD, datos: Borrador, accion: str) -> ProyectoDetalle:
+def _actualizar(
+    sesion: Session,
+    fila: ProyectoBD,
+    datos: Borrador,
+    accion: str,
+    *,
+    base: int | None = None,
+    resumen: str | None = None,
+) -> ProyectoDetalle:
     fila.nombre = datos.nombre
     fila.datos = a_json_canonico(datos)
     fila.revision += 1
     fila.actualizado = ahora()
-    _anotar(sesion, fila, accion, datos)
+    _anotar(sesion, fila, accion, datos, base=base, resumen=resumen)
     sesion.commit()
     return _detalle(fila)
 
@@ -315,8 +369,13 @@ def disenar_instalacion(
     if datos.plano is None:
         raise Problema(409, "sin_plano", "Cargue un plano antes de diseñar")
     perfil = _perfil_de(datos, perfiles)
+    # Lo que el usuario fijó en el plano se conserva; el resto se vuelve a colocar.
     limpio = datos.plano.model_copy(
-        update={"ubicaciones": (), "interruptores": (), "recorridos": ()}
+        update={
+            "ubicaciones": tuple(u for u in datos.plano.ubicaciones if u.fijo),
+            "interruptores": tuple(s for s in datos.plano.interruptores if s.fijo),
+            "recorridos": (),
+        }
     )
     try:
         diseno = disenar(limpio, tuple(datos.cargas_especiales), perfil)
@@ -334,6 +393,80 @@ def disenar_instalacion(
     )
     return DisenoOut(
         proyecto=_actualizar(sesion, fila, datos, "diseñar"), avisos=list(diseno.avisos)
+    )
+
+
+def _describir(cuerpo: Editar) -> str:
+    textos = {
+        "mover": "movió",
+        "liberar": "liberó",
+        "circuito": "cambió de circuito",
+        "agregar": "agregó",
+        "quitar": "quitó",
+    }
+    partes = []
+    for e in cuerpo.ediciones:
+        sujeto = getattr(e, "id", None) or getattr(e, "tipo", "")
+        destino = f" a {e.circuito}" if e.op == "circuito" else ""
+        partes.append(f"{textos[e.op]} {sujeto}{destino}")
+    return "; ".join(partes)
+
+
+@rutas.post("/proyectos/{id}/ediciones")
+def editar_instalacion(
+    id: str, cuerpo: Editar, sesion: SesionDep, perfiles: PerfilesDep
+) -> DisenoOut:
+    """Mueve, fija, agrega o quita elementos en el plano y vuelve a trazar los recorridos.
+
+    Las ediciones se aplican en orden y todas o ninguna. Lo movido o agregado
+    queda fijado: «Volver a diseñar» no lo mueve.
+    """
+    fila = _buscar(sesion, id)
+    _exigir_revision(fila, cuerpo.revision)
+    datos = Borrador.model_validate_json(fila.datos)
+    perfil = _perfil_de(datos, perfiles)
+    proyecto = proyecto_del_borrador(id, datos)
+    if not isinstance(proyecto, Proyecto):
+        faltan = "; ".join(p.mensaje for p in proyecto)
+        raise Problema(409, "proyecto_incompleto", "Complete el proyecto antes de editar", faltan)
+    try:
+        editado = editar(proyecto, cuerpo.ediciones, perfil)
+    except ErrorElectric as error:
+        raise Problema(422, error.codigo, "No se pudo aplicar el cambio", str(error)) from error
+    nuevos = Borrador.model_validate(editado.proyecto.model_dump(exclude={"id"}))
+    return DisenoOut(
+        proyecto=_actualizar(
+            sesion, fila, nuevos, "editar en el plano", resumen=_describir(cuerpo)
+        ),
+        avisos=list(editado.avisos),
+    )
+
+
+@rutas.post("/proyectos/{id}/deshacer")
+def deshacer(id: str, cuerpo: Revision, sesion: SesionDep) -> ProyectoDetalle:
+    """Vuelve al estado anterior al último cambio. Repetirlo retrocede un paso más."""
+    fila = _buscar(sesion, id)
+    _exigir_revision(fila, cuerpo.revision)
+    previo = _a_deshacer(sesion, fila)
+    if previo is None:
+        raise Problema(409, "nada_que_deshacer", "No hay un cambio anterior al que volver")
+    destino, cambio = previo
+    datos = Borrador.model_validate_json(destino.datos)
+    archivo = sesion.get(ArchivoBD, id)
+    if datos.plano is not None and (archivo is None or archivo.sha256 != datos.plano.sha256):
+        raise Problema(
+            409,
+            "plano_reemplazado",
+            "No se puede deshacer más allá del cambio de plano",
+            "Para volver al plano anterior, cárguelo de nuevo.",
+        )
+    return _actualizar(
+        sesion,
+        fila,
+        datos,
+        "deshacer",
+        base=destino.base,
+        resumen=f"deshizo «{cambio.accion}» (revisión {cambio.revision}): {cambio.resumen}",
     )
 
 

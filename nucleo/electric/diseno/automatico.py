@@ -22,22 +22,12 @@ from decimal import ROUND_CEILING, Decimal
 
 from shapely.geometry import LineString, Point, Polygon
 
+from electric.diseno.trazado import Coord, trazar_red
 from electric.errores import DatoInvalido
 from electric.modelo.entidades import CargaEspecial, Circuito, Punto, TipoCircuito
-from electric.modelo.plano import (
-    Ambiente,
-    Interruptor,
-    Plano,
-    Pt,
-    Recorrido,
-    Ubicacion,
-    cm,
-    mm,
-)
+from electric.modelo.plano import Ambiente, Interruptor, Plano, Ubicacion, mm
 from electric.perfiles.carga import Perfil
 from electric.perfiles.esquema import FilaPlantilla
-
-Coord = tuple[float, float]
 
 #: Separación del punto respecto de la cara del muro, hacia el ambiente.
 DESDE_MURO_M = 0.05
@@ -180,30 +170,6 @@ def _interruptor(recinto: _Recinto, distancia: float) -> Coord | None:
     return None
 
 
-def _ortogonal(a: Coord, b: Coord) -> list[Coord]:
-    """Tramo en L: primero horizontal, luego vertical."""
-    if abs(a[0] - b[0]) < 1e-9 or abs(a[1] - b[1]) < 1e-9:
-        return [a, b]
-    return [a, (b[0], a[1]), b]
-
-
-def _manhattan(a: Coord, b: Coord) -> float:
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
-
-
-def _cadena(origen: Coord, puntos: list[tuple[str, Coord]]) -> list[tuple[str, Coord]]:
-    """Orden de visita: siempre el punto más cercano al último visitado."""
-    pendientes = list(puntos)
-    orden: list[tuple[str, Coord]] = []
-    actual = origen
-    while pendientes:
-        siguiente = min(pendientes, key=lambda p: (round(_manhattan(actual, p[1]), 6), p[0]))
-        pendientes.remove(siguiente)
-        orden.append(siguiente)
-        actual = siguiente[1]
-    return orden
-
-
 def _repartir(grupos: list[list[str]], minimo: int, maximo: int) -> list[list[str]]:
     """Reparte los puntos, ambiente por ambiente, en circuitos de tamaño parecido.
 
@@ -242,10 +208,17 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
 
     `cargas` son los equipos especiales que declaró el usuario; se conservan su
     tipo, potencia y conexión, y se les asigna ambiente y circuito.
+
+    Si el plano ya trae ubicaciones o interruptores fijados por el usuario, el
+    diseño los deja donde están; el resto se vuelve a colocar. Lo que no vuelve
+    a generarse (un punto agregado a mano) se descarta con un aviso.
     """
     if not plano.ambientes:
         raise DatoInvalido("el plano no tiene ambientes; no hay dónde diseñar")
     avisos: list[str] = []
+    fijas: dict[str, Ubicacion] = {u.id: u for u in plano.ubicaciones if u.fijo}
+    fijos_s: dict[str, Interruptor] = {s.id: s for s in plano.interruptores if s.fijo}
+    fijados: set[str] = set()
     par = perfil.parametro
     alt_interruptor = par("altura_interruptor_m")[0]
     alt_tablero = par("altura_tablero_m")[0]
@@ -330,6 +303,18 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
         posicion[cid], altura[cid], de_ambiente[cid] = p, destino.plantilla.altura_tomas_m, aid
         nuevas_cargas.append((carga, cid))
 
+    # Lo que el usuario fijó se queda donde lo dejó.
+    for pid, u in fijas.items():
+        if pid in posicion and u.ambiente:
+            posicion[pid] = (float(u.x), float(u.y))
+            altura[pid], de_ambiente[pid] = u.altura_m, u.ambiente
+            fijados.add(pid)
+    for aid in list(interruptores):
+        s = fijos_s.get(f"S-{aid}")
+        if s is not None:
+            interruptores[aid] = (float(s.x), float(s.y))
+            fijados.add(s.id)
+
     # Tablero: en el ambiente de mayor preferencia, en la pared más cercana a las cargas.
     con_tablero = sorted(
         (r for r in recintos if r.plantilla.prioridad_tablero is not None),
@@ -348,6 +333,17 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
         if all(math.dist(p, q) >= ENTRE_PUNTOS_M for q in ocupados[casa.ambiente.id])
     ]
     tablero: Coord = min(paredes)[2] if paredes else _interior(casa.poligono)
+    tablero_ambiente = casa.ambiente.id
+    if "TD-1" in fijas and fijas["TD-1"].ambiente:
+        tablero = (float(fijas["TD-1"].x), float(fijas["TD-1"].y))
+        tablero_ambiente = fijas["TD-1"].ambiente
+        alt_tablero = fijas["TD-1"].altura_m
+        fijados.add("TD-1")
+    perdidos = sorted((set(fijas) | set(fijos_s)) - fijados)
+    if perdidos:
+        avisos.append(
+            "se descartaron elementos fijados que el nuevo diseño no genera: " + ", ".join(perdidos)
+        )
 
     # Circuitos: los ambientes se recorren en orden angular alrededor del tablero.
     def angulo(r: _Recinto) -> tuple[float, str]:
@@ -356,69 +352,14 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
 
     en_orden = sorted(recintos, key=angulo)
     circuitos: list[Circuito] = []
+    miembros: dict[str, list[str]] = {}
     puntos: list[Punto] = []
-    recorridos: list[Recorrido] = []
-    salida_interruptores: list[Interruptor] = []
-    humedo = {r.ambiente.id: r.plantilla.zona_humeda for r in recintos}
-    bajada_tablero = float(alt_techo - alt_tablero)
-
-    def trazar(ids: list[str]) -> tuple[list[Coord], float, float]:
-        """Traza, longitud física y longitud equivalente por momento de carga."""
-        orden = _cadena(tablero, [(i, posicion[i]) for i in ids])
-        traza: list[Coord] = [tablero]
-        acumulado = 0.0
-        distancias = []
-        for i, p in orden:
-            acumulado += _manhattan(traza[-1], p)
-            traza.extend(_ortogonal(traza[-1], p)[1:])
-            distancias.append(bajada_tablero + acumulado + float(alt_techo - altura[i]))
-        bajadas = sum(float(alt_techo - altura[i]) for i, _ in orden)
-        return traza, bajada_tablero + acumulado + bajadas, sum(distancias) / len(distancias)
 
     def agregar(tipo: TipoCircuito, ids: list[str], tipo_punto: str | None) -> str:
         cid = f"C{len(circuitos) + 1}"
-        traza, largo, equivalente = trazar(ids)
-        derivaciones = []
-        if tipo == "iluminacion":
-            for aid in dict.fromkeys(de_ambiente[i] for i in ids):
-                if aid not in interruptores:
-                    continue
-                propias = [i for i in ids if de_ambiente[i] == aid]
-                cercana = min(
-                    propias, key=lambda i: (_manhattan(posicion[i], interruptores[aid]), i)
-                )
-                derivaciones.append((posicion[cercana], interruptores[aid]))
-                if not any(s.ambiente == aid for s in salida_interruptores):
-                    x, y = interruptores[aid]
-                    salida_interruptores.append(
-                        Interruptor(
-                            id=f"S-{aid}",
-                            x=mm(x),
-                            y=mm(y),
-                            altura_m=alt_interruptor,
-                            ambiente=aid,
-                            circuito=cid,
-                        )
-                    )
-        circuitos.append(
-            Circuito(
-                id=cid,
-                tipo=tipo,
-                longitud_m=cm(max(equivalente, 0.01)),
-                zona_humeda=tipo != "iluminacion" and any(humedo[de_ambiente[i]] for i in ids),
-            )
-        )
-        recorridos.append(
-            Recorrido(
-                circuito=cid,
-                puntos=tuple(Pt(x=mm(x), y=mm(y)) for x, y in traza),
-                derivaciones=tuple(
-                    (Pt(x=mm(a[0]), y=mm(a[1])), Pt(x=mm(b[0]), y=mm(b[1])))
-                    for a, b in derivaciones
-                ),
-                longitud_m=cm(largo),
-            )
-        )
+        # La longitud y la zona húmeda las pone el trazado.
+        circuitos.append(Circuito(id=cid, tipo=tipo, longitud_m=Decimal("0.01")))
+        miembros[cid] = ids
         if tipo_punto:
             puntos.extend(
                 Punto(id=i, tipo=tipo_punto, circuito=cid, ambiente=de_ambiente[i], origen="auto")
@@ -444,8 +385,39 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
             )
         )
 
+    red = trazar_red(
+        circuitos,
+        miembros,
+        posicion,
+        altura,
+        de_ambiente,
+        {r.ambiente.id: r.plantilla.zona_humeda for r in recintos},
+        tablero,
+        alt_tablero,
+        alt_techo,
+        {
+            aid: Interruptor(
+                id=f"S-{aid}",
+                x=mm(x),
+                y=mm(y),
+                altura_m=alt_interruptor,
+                ambiente=aid,
+                circuito="",
+                fijo=f"S-{aid}" in fijados,
+            )
+            for aid, (x, y) in interruptores.items()
+        },
+    )
+
     ubicaciones = [
-        Ubicacion(id=i, x=mm(p[0]), y=mm(p[1]), altura_m=altura[i], ambiente=de_ambiente[i])
+        Ubicacion(
+            id=i,
+            x=mm(p[0]),
+            y=mm(p[1]),
+            altura_m=altura[i],
+            ambiente=de_ambiente[i],
+            fijo=i in fijados,
+        )
         for i, p in posicion.items()
     ]
     ubicaciones.append(
@@ -454,18 +426,19 @@ def disenar(plano: Plano, cargas: tuple[CargaEspecial, ...], perfil: Perfil) -> 
             x=mm(tablero[0]),
             y=mm(tablero[1]),
             altura_m=alt_tablero,
-            ambiente=casa.ambiente.id,
+            ambiente=tablero_ambiente,
+            fijo="TD-1" in fijados,
         )
     )
     return Diseno(
         puntos=tuple(puntos),
         cargas_especiales=tuple(cargas_finales),
-        circuitos=tuple(circuitos),
+        circuitos=red.circuitos,
         plano=plano.model_copy(
             update={
                 "ubicaciones": tuple(ubicaciones),
-                "interruptores": tuple(salida_interruptores),
-                "recorridos": tuple(recorridos),
+                "interruptores": red.interruptores,
+                "recorridos": red.recorridos,
             }
         ),
         avisos=tuple(avisos),

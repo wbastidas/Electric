@@ -15,14 +15,6 @@ export interface Capas {
   recorridos: boolean;
 }
 
-export interface Elegido {
-  id: string;
-  tipo: string;
-  circuito: string;
-  altura: string;
-  ambiente: string;
-}
-
 interface Props {
   fondo: Fondo | undefined;
   plano: Plano;
@@ -31,14 +23,26 @@ interface Props {
   /** Circuito resaltado; los demás se atenúan. */
   resaltado: string | null;
   elegido: string | null;
-  elegir: (elemento: Elegido | null) => void;
+  elegir: (id: string | null) => void;
+  /** Si se puede arrastrar símbolos; `mover` recibe la posición en metros. */
+  editable?: boolean;
+  mover?: (id: string, x: number, y: number) => Promise<unknown>;
+  /** Con un tipo de punto elegido, tocar el plano lo agrega ahí. */
+  agregando?: string | null;
+  agregarEn?: (x: number, y: number) => void;
 }
+
+type Arrastre =
+  | { modo: "vista"; x: number; y: number; caja: Caja; movido: boolean }
+  | { modo: "simbolo"; id: string; x: number; y: number; movido: boolean };
 
 type Caja = [number, number, number, number];
 const R = 0.12; // radio de símbolo, en metros
 const n = (v: number | string) => Number(v);
 
-export function Visor({ fondo, plano, datos, capas, resaltado, elegido, elegir }: Props) {
+export function Visor({
+  fondo, plano, datos, capas, resaltado, elegido, elegir, editable = false, mover, agregando = null, agregarEn,
+}: Props) {
   // El plano tiene el eje Y hacia arriba; SVG, hacia abajo: todo se dibuja con y negada.
   const inicial = useMemo<Caja>(() => {
     const xs = plano.ambientes.flatMap((a) => a.poligono.map((p) => n(p.x)));
@@ -50,7 +54,18 @@ export function Visor({ fondo, plano, datos, capas, resaltado, elegido, elegir }
   }, [plano.ambientes]);
   const [caja, setCaja] = useState<Caja>(inicial);
   const svg = useRef<SVGSVGElement>(null);
-  const arrastre = useRef<{ x: number; y: number; caja: Caja; movido: boolean } | null>(null);
+  const arrastre = useRef<Arrastre | null>(null);
+  // Posición provisional del símbolo que se arrastra, hasta que el servidor responde.
+  const [fantasma, setFantasma] = useState<{ id: string; x: number; y: number } | null>(null);
+
+  /** Del puntero a metros del plano, redondeado al centímetro. */
+  const aMundo = (clientX: number, clientY: number): [number, number] | null => {
+    const s = svg.current;
+    const m = s?.getScreenCTM();
+    if (!s || !m) return null;
+    const p = new DOMPoint(clientX, clientY).matrixTransform(m.inverse());
+    return [Math.round(p.x * 100) / 100, Math.round(-p.y * 100) / 100];
+  };
 
   const acercar = (factor: number, cx = caja[0] + caja[2] / 2, cy = caja[1] + caja[3] / 2) =>
     setCaja(([x, y, w, h]) => {
@@ -68,7 +83,12 @@ export function Visor({ fondo, plano, datos, capas, resaltado, elegido, elegir }
     acercar(e.deltaY > 0 ? 1.15 : 1 / 1.15, cx, cy);
   };
   const alBajar = (e: PointerEvent<SVGSVGElement>) => {
-    arrastre.current = { x: e.clientX, y: e.clientY, caja, movido: false };
+    arrastre.current = { modo: "vista", x: e.clientX, y: e.clientY, caja, movido: false };
+  };
+  const tomarSimbolo = (id: string) => (e: PointerEvent<SVGGElement>) => {
+    e.stopPropagation();
+    arrastre.current = { modo: "simbolo", id, x: e.clientX, y: e.clientY, movido: false };
+    if (editable) svg.current?.setPointerCapture?.(e.pointerId);
   };
   const alMover = (e: PointerEvent<SVGSVGElement>) => {
     const a = arrastre.current;
@@ -76,14 +96,44 @@ export function Visor({ fondo, plano, datos, capas, resaltado, elegido, elegir }
     if (!a || !r) return;
     const [dx, dy] = [e.clientX - a.x, e.clientY - a.y];
     if (Math.abs(dx) + Math.abs(dy) < 4 && !a.movido) return;
+    if (a.modo === "simbolo") {
+      if (!editable) return;
+      a.movido = true;
+      const p = aMundo(e.clientX, e.clientY);
+      if (p) setFantasma({ id: a.id, x: p[0], y: p[1] });
+      return;
+    }
     a.movido = true;
     const escala = Math.max(a.caja[2] / r.width, a.caja[3] / r.height);
     setCaja([a.caja[0] - dx * escala, a.caja[1] - dy * escala, a.caja[2], a.caja[3]]);
   };
-  const alSoltar = () => {
-    if (arrastre.current && !arrastre.current.movido) elegir(null);
+  const alSoltar = (e: PointerEvent<SVGSVGElement>) => {
+    const a = arrastre.current;
     arrastre.current = null;
+    if (!a) return;
+    if (a.modo === "simbolo") {
+      if (!a.movido) {
+        elegir(a.id);
+        return;
+      }
+      const p = aMundo(e.clientX, e.clientY);
+      if (p && mover) {
+        elegir(a.id);
+        void mover(a.id, p[0], p[1]).finally(() => setFantasma(null));
+      } else setFantasma(null);
+      return;
+    }
+    if (a.movido) return;
+    const p = aMundo(e.clientX, e.clientY);
+    if (agregando && agregarEn && p) agregarEn(p[0], p[1]);
+    else elegir(null);
   };
+  const donde = (id: string, x: number | string, y: number | string): [number, number] =>
+    fantasma?.id === id ? [fantasma.x, -fantasma.y] : [n(x), -n(y)];
+  const fijos = new Set([
+    ...(plano.ubicaciones ?? []).filter((u) => u.fijo).map((u) => u.id),
+    ...(plano.interruptores ?? []).filter((s) => s.fijo).map((s) => s.id),
+  ]);
 
   const orden = new Map(datos.circuitos.map((c, i) => [c.id, i]));
   const color = (circuito: string) => COLORES[(orden.get(circuito) ?? 0) % COLORES.length];
@@ -96,7 +146,6 @@ export function Visor({ fondo, plano, datos, capas, resaltado, elegido, elegir }
     ...datos.cargas_especiales.map((c) => [c.id, c.tipo] as const),
   ]);
   const especiales = new Set(datos.cargas_especiales.map((c) => c.id));
-  const nombreAmbiente = new Map(plano.ambientes.map((a) => [a.id, a.nombre || a.id]));
   const tenue = (circuito: string) => (resaltado && resaltado !== circuito ? 0.15 : 1);
   const puntos = (lista: { x: number | string; y: number | string }[]) =>
     lista.map((p) => `${n(p.x)},${-n(p.y)}`).join(" ");
@@ -115,7 +164,11 @@ export function Visor({ fondo, plano, datos, capas, resaltado, elegido, elegir }
         onPointerDown={alBajar}
         onPointerMove={alMover}
         onPointerUp={alSoltar}
-        onPointerLeave={() => (arrastre.current = null)}
+        onPointerCancel={() => {
+          arrastre.current = null;
+          setFantasma(null);
+        }}
+        className={agregando ? "agregando" : editable ? "editable" : ""}
         role="img"
         aria-label="Plano con la instalación eléctrica"
       >
@@ -162,7 +215,7 @@ export function Visor({ fondo, plano, datos, capas, resaltado, elegido, elegir }
           : null}
 
         {plano.ubicaciones?.map((u) => {
-          const [x, y] = [n(u.x), -n(u.y)];
+          const [x, y] = donde(u.id, u.x, u.y);
           const circuito = circuitoDe.get(u.id) ?? "";
           const esTablero = u.id === (datos.tablero?.id ?? "TD-1");
           const esEspecial = especiales.has(u.id);
@@ -172,27 +225,18 @@ export function Visor({ fondo, plano, datos, capas, resaltado, elegido, elegir }
           const visible = esTablero || (esEspecial ? capas.especiales : esLuz ? capas.iluminacion : capas.tomas);
           if (!visible) return null;
           const trazo = esTablero ? "#c62828" : color(circuito);
-          const info: Elegido = {
-            id: u.id,
-            tipo: esTablero ? "Tablero de distribución" : esEspecial ? `Carga especial: ${tipo}` : esLuz ? "Luminaria" : "Tomacorriente",
-            circuito,
-            altura: String(u.altura_m),
-            ambiente: nombreAmbiente.get(u.ambiente ?? "") ?? "",
-          };
+          const nombre = esTablero ? "Tablero" : esEspecial ? tipo : esLuz ? "Luminaria" : "Tomacorriente";
           return (
             <g
               key={u.id}
-              className={`simbolo ${elegido === u.id ? "elegido" : ""}`}
+              className={`simbolo ${elegido === u.id ? "elegido" : ""} ${fantasma?.id === u.id ? "arrastrado" : ""}`}
               stroke={trazo}
               opacity={esTablero ? 1 : tenue(circuito)}
-              onPointerUp={(e) => {
-                if (arrastre.current?.movido) return;
-                e.stopPropagation();
-                arrastre.current = null;
-                elegir(info);
-              }}
+              onPointerDown={tomarSimbolo(u.id)}
+              data-id={u.id}
             >
-              <title>{`${u.id} · ${info.tipo}${circuito ? ` · ${circuito}` : ""}`}</title>
+              <title>{`${u.id} · ${nombre}${circuito ? ` · ${circuito}` : ""}${fijos.has(u.id) ? " · fijado" : ""}`}</title>
+              {fijos.has(u.id) ? <circle className="pin" cx={x + R * 1.1} cy={y - R * 1.1} r={R * 0.32} /> : null}
               {esTablero ? (
                 <>
                   <rect x={x - R * 2} y={y - R} width={R * 4} height={R * 2} style={{ fill: "#c62828" }} />
@@ -222,10 +266,18 @@ export function Visor({ fondo, plano, datos, capas, resaltado, elegido, elegir }
 
         {capas.iluminacion
           ? plano.interruptores?.map((s) => {
-              const [x, y] = [n(s.x), -n(s.y)];
+              const [x, y] = donde(s.id, s.x, s.y);
               return (
-                <g key={s.id} className="simbolo" stroke={color(s.circuito)} opacity={tenue(s.circuito)}>
-                  <title>{`${s.id} · Interruptor · ${s.circuito}`}</title>
+                <g
+                  key={s.id}
+                  className={`simbolo ${elegido === s.id ? "elegido" : ""} ${fantasma?.id === s.id ? "arrastrado" : ""}`}
+                  stroke={color(s.circuito)}
+                  opacity={tenue(s.circuito)}
+                  onPointerDown={tomarSimbolo(s.id)}
+                  data-id={s.id}
+                >
+                  <title>{`${s.id} · Interruptor · ${s.circuito}${fijos.has(s.id) ? " · fijado" : ""}`}</title>
+                  {fijos.has(s.id) ? <circle className="pin" cx={x + R} cy={y + R} r={R * 0.32} /> : null}
                   <circle cx={x} cy={y} r={R * 0.55} />
                   <polyline points={`${x + R * 0.4},${y - R * 0.4} ${x + R * 1.3},${y - R * 1.3} ${x + R * 1.7},${y - R * 0.9}`} />
                 </g>

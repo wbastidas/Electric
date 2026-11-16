@@ -47,6 +47,20 @@ class BitacoraBD(Base):
     resumen: Mapped[str] = mapped_column(Text)
 
 
+class VersionBD(Base):
+    """Borrador completo de cada revisión, para poder deshacer."""
+
+    __tablename__ = "versiones"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    proyecto_id: Mapped[str] = mapped_column(String(36), ForeignKey("proyectos.id"), index=True)
+    revision: Mapped[int] = mapped_column(Integer)
+    #: Revisión cuyo contenido tiene esta. Es la propia, salvo al deshacer, que
+    #: repite una anterior; así deshacer dos veces retrocede dos pasos.
+    base: Mapped[int] = mapped_column(Integer)
+    datos: Mapped[str] = mapped_column(Text)
+
+
 class ArchivoBD(Base):
     """Plano original del arquitecto. Se guarda tal como llegó y no se modifica."""
 

@@ -61,6 +61,8 @@ class Ubicacion(Geo):
     y: Decimal
     altura_m: Decimal
     ambiente: str | None = None
+    #: Posición fijada por el usuario: volver a diseñar la conserva.
+    fijo: bool = False
 
 
 class Interruptor(Geo):
@@ -70,6 +72,7 @@ class Interruptor(Geo):
     altura_m: Decimal
     ambiente: str
     circuito: str
+    fijo: bool = False
 
 
 class Recorrido(Geo):
