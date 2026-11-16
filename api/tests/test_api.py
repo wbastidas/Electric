@@ -159,3 +159,12 @@ def test_borrar(cliente: TestClient) -> None:
     assert cliente.delete(ruta).status_code == 204
     assert cliente.get(ruta).status_code == 404
     assert cliente.get("/api/v1/proyectos").json() == []
+
+
+def test_el_contrato_openapi_guardado_esta_al_dia(cliente: TestClient) -> None:
+    """La interfaz genera sus tipos de api/openapi.json.
+
+    Si falla, regenere: `python exportar_openapi.py` en api/ y `pnpm gen` en web/.
+    """
+    guardado = json.loads((RAIZ / "api" / "openapi.json").read_text("utf-8"))
+    assert guardado == cliente.app.openapi()  # type: ignore[attr-defined]

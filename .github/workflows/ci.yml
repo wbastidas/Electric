@@ -29,3 +29,44 @@ jobs:
         run: |
           electric validar-perfil ../perfiles/cnel-ep
           electric validar-perfil ../perfiles/control-nfpa70
+
+  api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar dependencias
+        run: python -m pip install -e ../nucleo -e ".[dev]"
+      - name: Estilo
+        run: |
+          ruff format --check .
+          ruff check .
+      - name: Tipos
+        run: mypy
+      - name: Pruebas
+        run: pytest -q
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+      - name: Tipos generados al día
+        run: pnpm gen && git diff --exit-code src/api/esquema.ts
+      - name: Compilar
+        run: pnpm build

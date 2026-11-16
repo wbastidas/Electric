@@ -1,0 +1,1501 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Electric",
+    "description": "API de la plataforma de proyectos eléctricos CNEL EP.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/perfiles": {
+      "get": {
+        "summary": "Listar Perfiles",
+        "operationId": "listar_perfiles_api_v1_perfiles_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PerfilOut"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Perfiles Api V1 Perfiles Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/proyectos": {
+      "get": {
+        "summary": "Listar Proyectos",
+        "operationId": "listar_proyectos_api_v1_proyectos_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ProyectoResumen"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Proyectos Api V1 Proyectos Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear Proyecto",
+        "operationId": "crear_proyecto_api_v1_proyectos_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Borrador"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProyectoDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/proyectos/{id}": {
+      "get": {
+        "summary": "Leer Proyecto",
+        "operationId": "leer_proyecto_api_v1_proyectos__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProyectoDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Guardar Proyecto",
+        "operationId": "guardar_proyecto_api_v1_proyectos__id__put",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Guardar"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProyectoDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Borrar Proyecto",
+        "operationId": "borrar_proyecto_api_v1_proyectos__id__delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/proyectos/{id}/calculos": {
+      "get": {
+        "summary": "Leer Calculos",
+        "operationId": "leer_calculos_api_v1_proyectos__id__calculos_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Calculos"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/proyectos/{id}/bitacora": {
+      "get": {
+        "summary": "Leer Bitacora",
+        "operationId": "leer_bitacora_api_v1_proyectos__id__bitacora_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EntradaBitacora"
+                  },
+                  "title": "Response Leer Bitacora Api V1 Proyectos  Id  Bitacora Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Borrador": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "uso": {
+            "type": "string",
+            "title": "Uso",
+            "default": "vivienda_unifamiliar"
+          },
+          "area_construida_m2": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area Construida M2"
+          },
+          "perfil": {
+            "$ref": "#/components/schemas/RefPerfil"
+          },
+          "predio": {
+            "$ref": "#/components/schemas/Predio",
+            "default": {
+              "propietario": "",
+              "direccion": "",
+              "clave_catastral": "",
+              "unidad_negocio": "",
+              "plantas": 1
+            }
+          },
+          "proyectista": {
+            "$ref": "#/components/schemas/Proyectista",
+            "default": {
+              "nombre": "",
+              "titulo": "",
+              "registro_senescyt": "",
+              "registro_cnel": ""
+            }
+          },
+          "sistema": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sistema"
+          },
+          "puntos": {
+            "items": {
+              "$ref": "#/components/schemas/Punto"
+            },
+            "type": "array",
+            "title": "Puntos",
+            "default": []
+          },
+          "cargas_especiales": {
+            "items": {
+              "$ref": "#/components/schemas/CargaEspecial"
+            },
+            "type": "array",
+            "title": "Cargas Especiales",
+            "default": []
+          },
+          "circuitos": {
+            "items": {
+              "$ref": "#/components/schemas/Circuito"
+            },
+            "type": "array",
+            "title": "Circuitos",
+            "default": []
+          },
+          "tablero": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Tablero"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "supuestos": {
+            "items": {
+              "$ref": "#/components/schemas/Supuesto"
+            },
+            "type": "array",
+            "title": "Supuestos",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre",
+          "perfil"
+        ],
+        "title": "Borrador",
+        "description": "Proyecto en edición.\n\nTiene los mismos campos que el proyecto del núcleo, pero admite estar\nincompleto: lo que falta se devuelve como lista de pendientes al calcular."
+      },
+      "Calculos": {
+        "properties": {
+          "estado": {
+            "type": "string",
+            "enum": [
+              "listo",
+              "incompleto"
+            ],
+            "title": "Estado"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "aviso": {
+            "type": "string",
+            "title": "Aviso"
+          },
+          "pendientes": {
+            "items": {
+              "$ref": "#/components/schemas/Pendiente"
+            },
+            "type": "array",
+            "title": "Pendientes",
+            "default": []
+          },
+          "huella": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Huella"
+          },
+          "resumen": {
+            "items": {
+              "$ref": "#/components/schemas/DatoResumenOut"
+            },
+            "type": "array",
+            "title": "Resumen",
+            "default": []
+          },
+          "cuadro": {
+            "items": {
+              "$ref": "#/components/schemas/FilaCuadroOut"
+            },
+            "type": "array",
+            "title": "Cuadro",
+            "default": []
+          },
+          "resultados": {
+            "items": {
+              "$ref": "#/components/schemas/ResultadoOut"
+            },
+            "type": "array",
+            "title": "Resultados",
+            "default": []
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos",
+            "default": []
+          },
+          "supuestos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supuestos",
+            "default": []
+          },
+          "tablas_sin_verificar": {
+            "items": {
+              "$ref": "#/components/schemas/TablaPendiente"
+            },
+            "type": "array",
+            "title": "Tablas Sin Verificar",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "estado",
+          "revision",
+          "aviso"
+        ],
+        "title": "Calculos"
+      },
+      "CargaEspecial": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "circuito": {
+            "type": "string",
+            "title": "Circuito"
+          },
+          "potencia_w": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Potencia W"
+          },
+          "conexion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "fase_neutro",
+                  "linea"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conexion"
+          },
+          "origen": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "editado",
+              "fijado"
+            ],
+            "title": "Origen",
+            "default": "fijado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "tipo",
+          "circuito"
+        ],
+        "title": "CargaEspecial",
+        "description": "Equipo declarado con circuito propio (ducha, cocina, A/C…)."
+      },
+      "CargaOut": {
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "potencia": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Potencia"
+          },
+          "especial": {
+            "type": "boolean",
+            "title": "Especial"
+          },
+          "conexion": {
+            "type": "string",
+            "title": "Conexion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tipo",
+          "potencia",
+          "especial",
+          "conexion"
+        ],
+        "title": "CargaOut"
+      },
+      "Circuito": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "iluminacion",
+              "tomacorrientes",
+              "especial"
+            ],
+            "title": "Tipo"
+          },
+          "longitud_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Longitud M"
+          },
+          "fase": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "A",
+                  "B",
+                  "C",
+                  "AB",
+                  "BC",
+                  "AC",
+                  "ABC"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fase"
+          },
+          "portadores_en_ducto": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Portadores En Ducto"
+          },
+          "zona_humeda": {
+            "type": "boolean",
+            "title": "Zona Humeda",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "tipo",
+          "longitud_m"
+        ],
+        "title": "Circuito"
+      },
+      "DatoResumenOut": {
+        "properties": {
+          "etiqueta": {
+            "type": "string",
+            "title": "Etiqueta"
+          },
+          "texto": {
+            "type": "string",
+            "title": "Texto"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "sujeto": {
+            "type": "string",
+            "title": "Sujeto"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "verificado",
+              "por_verificar",
+              "defecto_fuente"
+            ],
+            "title": "Estado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "etiqueta",
+          "texto",
+          "id",
+          "sujeto",
+          "estado"
+        ],
+        "title": "DatoResumenOut"
+      },
+      "EntradaBitacora": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "accion": {
+            "type": "string",
+            "title": "Accion"
+          },
+          "autor": {
+            "type": "string",
+            "title": "Autor"
+          },
+          "fecha": {
+            "type": "string",
+            "title": "Fecha"
+          },
+          "huella": {
+            "type": "string",
+            "title": "Huella"
+          },
+          "resumen": {
+            "type": "string",
+            "title": "Resumen"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "accion",
+          "autor",
+          "fecha",
+          "huella",
+          "resumen"
+        ],
+        "title": "EntradaBitacora"
+      },
+      "FilaCuadroOut": {
+        "properties": {
+          "circuito": {
+            "type": "string",
+            "title": "Circuito"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "fase": {
+            "type": "string",
+            "title": "Fase"
+          },
+          "carga": {
+            "type": "string",
+            "title": "Carga"
+          },
+          "corriente": {
+            "type": "string",
+            "title": "Corriente"
+          },
+          "breaker": {
+            "type": "string",
+            "title": "Breaker"
+          },
+          "conductor": {
+            "type": "string",
+            "title": "Conductor"
+          },
+          "tierra": {
+            "type": "string",
+            "title": "Tierra"
+          },
+          "ducto": {
+            "type": "string",
+            "title": "Ducto"
+          },
+          "longitud": {
+            "type": "string",
+            "title": "Longitud"
+          },
+          "caida": {
+            "type": "string",
+            "title": "Caida"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "circuito",
+          "tipo",
+          "fase",
+          "carga",
+          "corriente",
+          "breaker",
+          "conductor",
+          "tierra",
+          "ducto",
+          "longitud",
+          "caida"
+        ],
+        "title": "FilaCuadroOut"
+      },
+      "Guardar": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/Borrador"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "datos"
+        ],
+        "title": "Guardar"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Pendiente": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "mensaje": {
+            "type": "string",
+            "title": "Mensaje"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "codigo",
+          "mensaje"
+        ],
+        "title": "Pendiente",
+        "description": "Algo que el usuario debe resolver antes de poder calcular."
+      },
+      "PerfilOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "distribuidora": {
+            "type": "string",
+            "title": "Distribuidora"
+          },
+          "nota": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nota"
+          },
+          "sistema_defecto": {
+            "type": "string",
+            "title": "Sistema Defecto"
+          },
+          "sistemas": {
+            "items": {
+              "$ref": "#/components/schemas/SistemaOut"
+            },
+            "type": "array",
+            "title": "Sistemas"
+          },
+          "cargas": {
+            "items": {
+              "$ref": "#/components/schemas/CargaOut"
+            },
+            "type": "array",
+            "title": "Cargas"
+          },
+          "tablas": {
+            "items": {
+              "$ref": "#/components/schemas/TablaOut"
+            },
+            "type": "array",
+            "title": "Tablas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "nombre",
+          "distribuidora",
+          "nota",
+          "sistema_defecto",
+          "sistemas",
+          "cargas",
+          "tablas"
+        ],
+        "title": "PerfilOut"
+      },
+      "Predio": {
+        "properties": {
+          "propietario": {
+            "type": "string",
+            "title": "Propietario",
+            "default": ""
+          },
+          "direccion": {
+            "type": "string",
+            "title": "Direccion",
+            "default": ""
+          },
+          "clave_catastral": {
+            "type": "string",
+            "title": "Clave Catastral",
+            "default": ""
+          },
+          "unidad_negocio": {
+            "type": "string",
+            "title": "Unidad Negocio",
+            "default": ""
+          },
+          "plantas": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Plantas",
+            "default": 1
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Predio",
+        "description": "Datos del predio y de su propietario (RF-01)."
+      },
+      "Proyectista": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "title": "Nombre",
+            "default": ""
+          },
+          "titulo": {
+            "type": "string",
+            "title": "Titulo",
+            "default": ""
+          },
+          "registro_senescyt": {
+            "type": "string",
+            "title": "Registro Senescyt",
+            "default": ""
+          },
+          "registro_cnel": {
+            "type": "string",
+            "title": "Registro Cnel",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Proyectista",
+        "description": "Profesional que revisa y firma el proyecto (RF-03)."
+      },
+      "ProyectoDetalle": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "creado": {
+            "type": "string",
+            "title": "Creado"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/Borrador"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "revision",
+          "creado",
+          "actualizado",
+          "datos"
+        ],
+        "title": "ProyectoDetalle"
+      },
+      "ProyectoResumen": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "propietario": {
+            "type": "string",
+            "title": "Propietario"
+          },
+          "creado": {
+            "type": "string",
+            "title": "Creado"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "revision",
+          "propietario",
+          "creado",
+          "actualizado"
+        ],
+        "title": "ProyectoResumen"
+      },
+      "Punto": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "circuito": {
+            "type": "string",
+            "title": "Circuito"
+          },
+          "potencia_w": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Potencia W"
+          },
+          "ambiente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ambiente"
+          },
+          "origen": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "editado",
+              "fijado"
+            ],
+            "title": "Origen",
+            "default": "fijado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "tipo",
+          "circuito"
+        ],
+        "title": "Punto",
+        "description": "Punto de luz o tomacorriente de uso general."
+      },
+      "RefPerfil": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "version"
+        ],
+        "title": "RefPerfil",
+        "description": "Perfil normativo y versión con la que se calcula el proyecto."
+      },
+      "RefTabla": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "fila": {
+            "type": "string",
+            "title": "Fila"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "verificado",
+              "por_verificar",
+              "defecto_fuente"
+            ],
+            "title": "Estado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "fila",
+          "estado"
+        ],
+        "title": "RefTabla",
+        "description": "Rastro de una consulta a una tabla: qué fila se usó y en qué estado está."
+      },
+      "ResultadoOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "sujeto": {
+            "type": "string",
+            "title": "Sujeto"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "texto": {
+            "type": "string",
+            "title": "Texto"
+          },
+          "unidad": {
+            "type": "string",
+            "title": "Unidad"
+          },
+          "formula": {
+            "type": "string",
+            "title": "Formula"
+          },
+          "entradas": {
+            "items": {
+              "$ref": "#/components/schemas/ValorOut"
+            },
+            "type": "array",
+            "title": "Entradas"
+          },
+          "detalle": {
+            "items": {
+              "$ref": "#/components/schemas/ValorOut"
+            },
+            "type": "array",
+            "title": "Detalle"
+          },
+          "tablas": {
+            "items": {
+              "$ref": "#/components/schemas/RefTabla"
+            },
+            "type": "array",
+            "title": "Tablas"
+          },
+          "supuestos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supuestos"
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "verificado",
+              "por_verificar",
+              "defecto_fuente"
+            ],
+            "title": "Estado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "sujeto",
+          "nombre",
+          "texto",
+          "unidad",
+          "formula",
+          "entradas",
+          "detalle",
+          "tablas",
+          "supuestos",
+          "avisos",
+          "estado"
+        ],
+        "title": "ResultadoOut"
+      },
+      "SistemaOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "descripcion"
+        ],
+        "title": "SistemaOut"
+      },
+      "Supuesto": {
+        "properties": {
+          "parametro": {
+            "type": "string",
+            "title": "Parametro"
+          },
+          "valor": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Valor"
+          },
+          "justificacion": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Justificacion"
+          },
+          "autor": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Autor"
+          },
+          "fecha": {
+            "type": "string",
+            "title": "Fecha"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "parametro",
+          "valor",
+          "justificacion",
+          "autor",
+          "fecha"
+        ],
+        "title": "Supuesto",
+        "description": "Sobrescritura de un parámetro del perfil, con su justificación (RF-25)."
+      },
+      "TablaOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "verificado",
+              "por_verificar",
+              "defecto_fuente"
+            ],
+            "title": "Estado"
+          },
+          "fuente": {
+            "type": "string",
+            "title": "Fuente"
+          },
+          "nota": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nota"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "estado",
+          "fuente",
+          "nota"
+        ],
+        "title": "TablaOut"
+      },
+      "TablaPendiente": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "verificado",
+              "por_verificar",
+              "defecto_fuente"
+            ],
+            "title": "Estado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "estado"
+        ],
+        "title": "TablaPendiente"
+      },
+      "Tablero": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "default": "TD-1"
+          },
+          "alimentador_longitud_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Alimentador Longitud M"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "alimentador_longitud_m"
+        ],
+        "title": "Tablero"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "ValorOut": {
+        "properties": {
+          "clave": {
+            "type": "string",
+            "title": "Clave"
+          },
+          "texto": {
+            "type": "string",
+            "title": "Texto"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "clave",
+          "texto"
+        ],
+        "title": "ValorOut"
+      }
+    }
+  }
+}

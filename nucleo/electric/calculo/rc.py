@@ -135,9 +135,9 @@ def circuitos_minimos(ctx: Contexto) -> list[Resultado]:
     hay_to = sum(1 for c in ctx.proyecto.circuitos if c.tipo == "tomacorrientes")
     avisos = []
     if hay_il < min_il:
-        avisos.append(f"hay {hay_il} circuitos de iluminación y el mínimo es {min_il}")
+        avisos.append(f"circuitos de iluminación: hay {hay_il} y el mínimo es {min_il}")
     if hay_to < min_to:
-        avisos.append(f"hay {hay_to} circuitos de tomacorrientes y el mínimo es {min_to}")
+        avisos.append(f"circuitos de tomacorrientes: hay {hay_to} y el mínimo es {min_to}")
     return [
         _resultado(
             "RC-02",

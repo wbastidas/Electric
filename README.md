@@ -5,9 +5,10 @@ arquitectónico genera el expediente eléctrico (planos, cuadros de carga,
 unifilar, memoria, materiales y presupuesto) como **borrador trazable que firma
 un ingeniero habilitado**.
 
-Este repositorio contiene por ahora el núcleo de cálculo: el modelo del
-proyecto, los perfiles normativos como datos y el motor de cálculo de vivienda
-(RC-01 a RC-14). La ingesta de planos, la API y la interfaz web vienen después.
+Este repositorio contiene por ahora el núcleo de cálculo de vivienda (RC-01 a
+RC-14), la API y una primera interfaz web para crear una vivienda por
+formulario y ver su cuadro de cargas. La lectura de planos, el diseño
+automático, la generación de planos y el inicio de sesión vienen después.
 
 > **Estado de las tablas.** Todas las tablas del perfil `cnel-ep` están
 > `por_verificar`: sus valores vienen del documento de requerimientos o de
@@ -15,6 +16,29 @@ proyecto, los perfiles normativos como datos y el motor de cálculo de vivienda
 > el motor debe presentarse a CNEL EP hasta que un ingeniero las verifique.
 
 ## Uso
+
+### Aplicación web
+
+```bash
+# 1. API (también sirve la interfaz compilada si existe web/dist)
+cd api
+uv venv && uv pip install -e ../nucleo -e ".[dev]"
+.venv/bin/python -m electric_api          # http://127.0.0.1:8000
+
+# 2. Interfaz
+cd web
+pnpm install
+pnpm build                                # la sirve la API en el puerto 8000
+pnpm dev                                  # o en desarrollo: http://localhost:5173
+```
+
+En la pantalla de proyectos, **Crear vivienda de ejemplo** deja un proyecto
+listo para calcular. Los proyectos se guardan en `api/electric.db` (SQLite);
+`ELECTRIC_BD` acepta cualquier URL de SQLAlchemy, por ejemplo PostgreSQL.
+
+Todavía no hay inicio de sesión ni roles: no exponga la API fuera de su equipo.
+
+### Línea de comandos
 
 ```bash
 cd nucleo
@@ -33,13 +57,20 @@ uv venv && uv pip install -e ".[dev]"
 .venv/bin/electric validar-perfil ../perfiles/cnel-ep
 ```
 
-Pruebas y comprobaciones:
+### Pruebas y comprobaciones
 
 ```bash
+# en nucleo/ y en api/
 .venv/bin/pytest -q
 .venv/bin/ruff check . && .venv/bin/ruff format --check .
 .venv/bin/mypy
+
+# en web/
+pnpm build
 ```
+
+Si cambia la API, regenere los tipos de la interfaz: `python exportar_openapi.py`
+en `api/` y `pnpm gen` en `web/`.
 
 ## Estructura
 
@@ -48,6 +79,8 @@ Pruebas y comprobaciones:
 | `nucleo/electric/modelo` | Entidades del proyecto y serialización canónica |
 | `nucleo/electric/perfiles` | Esquema, carga y consulta de perfiles |
 | `nucleo/electric/calculo` | Motor: registro de cálculos, RC-01 a RC-14, resultados trazables |
+| `api/electric_api` | API FastAPI: proyectos, cálculos, bitácora |
+| `web/src` | Interfaz React: proyectos, datos, circuitos, cálculos, bitácora |
 | `perfiles/cnel-ep` | Perfil CNEL EP + NEC-SB-IE (tablas `por_verificar`) |
 | `perfiles/control-nfpa70` | Perfil de prueba para el caso de control; no usar en proyectos |
 | `ejemplos/` | Proyectos de ejemplo y su salida guardada para regresión |
