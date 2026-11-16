@@ -150,6 +150,57 @@ def _calcular(args: argparse.Namespace) -> int:
     return 0
 
 
+def _disenar(args: argparse.Namespace) -> int:
+    from decimal import Decimal
+
+    from electric.flujo import proyecto_desde_plano
+    from electric.salida_cad import generar_dxf, renderizar
+
+    origen = Path(args.plano)
+    try:
+        contenido = origen.read_bytes()
+    except OSError as error:
+        raise ErrorElectric(f"no se pudo leer {origen}: {error}") from error
+    perfil = cargar_perfil(_carpeta_perfiles(args.perfiles) / args.perfil)
+    equipos = tuple(e for e in args.equipos.split(",") if e)
+    resultado = proyecto_desde_plano(
+        contenido,
+        origen.name,
+        perfil,
+        id=origen.stem,
+        nombre=args.nombre or f"Proyecto de {origen.name}",
+        equipos=equipos,
+        alimentador_m=Decimal(args.alimentador),
+        factor_a_metros=args.escala,
+    )
+    plano = resultado.proyecto.plano
+    assert plano is not None
+    print(
+        f"Plano: {origen.name} · {len(plano.ambientes)} ambientes · {plano.area_construida_m2} m²"
+    )
+    filas = [(a.id, a.nombre or "(sin nombre)", a.uso, f"{a.area_m2} m²") for a in plano.ambientes]
+    print(_tabla(("Ambiente", "Nombre", "Uso", "Área"), filas))
+    if resultado.avisos:
+        print("\nPor revisar")
+        for aviso in resultado.avisos:
+            print(f"- {aviso}")
+    print()
+    print(informe(resultado.calculado, perfil))
+
+    if args.salida:
+        carpeta = Path(args.salida)
+        carpeta.mkdir(parents=True, exist_ok=True)
+        dxf = generar_dxf(contenido, resultado.proyecto, resultado.calculado, perfil)
+        (carpeta / "proyecto.json").write_text(
+            resultado.proyecto.model_dump_json(indent=2) + "\n", encoding="utf-8"
+        )
+        (carpeta / "red.dxf").write_bytes(dxf)
+        (carpeta / "red.png").write_bytes(renderizar(dxf, "png"))
+        (carpeta / "red.pdf").write_bytes(renderizar(dxf, "pdf"))
+        print(f"\nEscritos en {carpeta}: proyecto.json, red.dxf, red.png, red.pdf")
+    return 0
+
+
 def _validar_perfil(args: argparse.Namespace) -> int:
     perfil = cargar_perfil(Path(args.carpeta))
     print(f"Perfil {perfil.meta.id} {perfil.meta.version}: válido, {len(perfil.tablas)} tablas")
@@ -174,6 +225,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="muestra fórmula, entradas y tablas de cada resultado, o solo del indicado",
     )
     c.set_defaults(funcion=_calcular)
+
+    d = comandos.add_parser("disenar", help="lee un plano DXF, diseña la instalación y la calcula")
+    d.add_argument("plano", help="plano arquitectónico en DXF")
+    d.add_argument("--perfil", default="cnel-ep", help="perfil normativo (por defecto cnel-ep)")
+    d.add_argument("--perfiles", help="carpeta que contiene los perfiles")
+    d.add_argument("--nombre", help="nombre del proyecto")
+    d.add_argument("--equipos", default="", help="cargas especiales, separadas por coma")
+    d.add_argument("--alimentador", required=True, help="longitud del medidor al tablero, en m")
+    d.add_argument("--escala", type=float, help="metros por unidad de dibujo, si el DXF no lo dice")
+    d.add_argument(
+        "--salida", help="carpeta donde escribir proyecto.json, red.dxf, red.png y red.pdf"
+    )
+    d.set_defaults(funcion=_disenar)
 
     p = comandos.add_parser("validar-perfil", help="valida un perfil y lista sus tablas")
     p.add_argument("carpeta", help="carpeta del perfil")

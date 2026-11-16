@@ -1,0 +1,1676 @@
+{
+  "id": "planta",
+  "nombre": "Vivienda de prueba con plano",
+  "uso": "vivienda_unifamiliar",
+  "area_construida_m2": "123.32",
+  "perfil": {
+    "id": "cnel-ep",
+    "version": "0.1.0"
+  },
+  "predio": {
+    "propietario": "",
+    "direccion": "",
+    "clave_catastral": "",
+    "unidad_negocio": "",
+    "plantas": 1
+  },
+  "proyectista": {
+    "nombre": "",
+    "titulo": "",
+    "registro_senescyt": "",
+    "registro_cnel": ""
+  },
+  "sistema": null,
+  "puntos": [
+    {
+      "id": "L-A7-1",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A7-2",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A7-3",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A8-1",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "potencia_w": null,
+      "ambiente": "A8",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A8-2",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "potencia_w": null,
+      "ambiente": "A8",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A9-1",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "potencia_w": null,
+      "ambiente": "A9",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A6-1",
+      "tipo": "punto_luz",
+      "circuito": "C1",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A5-1",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A3-1",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "potencia_w": null,
+      "ambiente": "A3",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A2-1",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A1-1",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "potencia_w": null,
+      "ambiente": "A1",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A1-2",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "potencia_w": null,
+      "ambiente": "A1",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A4-1",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "potencia_w": null,
+      "ambiente": "A4",
+      "origen": "auto"
+    },
+    {
+      "id": "L-A4-2",
+      "tipo": "punto_luz",
+      "circuito": "C2",
+      "potencia_w": null,
+      "ambiente": "A4",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A7-1",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A7-2",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A7-3",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A7-4",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A7-5",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A7-6",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A8-1",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "potencia_w": null,
+      "ambiente": "A8",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A8-2",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "potencia_w": null,
+      "ambiente": "A8",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A8-3",
+      "tipo": "tomacorriente",
+      "circuito": "C3",
+      "potencia_w": null,
+      "ambiente": "A8",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A8-4",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "potencia_w": null,
+      "ambiente": "A8",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A8-5",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "potencia_w": null,
+      "ambiente": "A8",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A8-6",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "potencia_w": null,
+      "ambiente": "A8",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A9-1",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "potencia_w": null,
+      "ambiente": "A9",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A9-2",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "potencia_w": null,
+      "ambiente": "A9",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A6-1",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A5-1",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A5-2",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A3-1",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "potencia_w": null,
+      "ambiente": "A3",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A3-2",
+      "tipo": "tomacorriente",
+      "circuito": "C4",
+      "potencia_w": null,
+      "ambiente": "A3",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A3-3",
+      "tipo": "tomacorriente",
+      "circuito": "C5",
+      "potencia_w": null,
+      "ambiente": "A3",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A2-1",
+      "tipo": "tomacorriente",
+      "circuito": "C5",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A2-2",
+      "tipo": "tomacorriente",
+      "circuito": "C5",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A2-3",
+      "tipo": "tomacorriente",
+      "circuito": "C5",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A1-1",
+      "tipo": "tomacorriente",
+      "circuito": "C5",
+      "potencia_w": null,
+      "ambiente": "A1",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A4-1",
+      "tipo": "tomacorriente",
+      "circuito": "C5",
+      "potencia_w": null,
+      "ambiente": "A4",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A4-2",
+      "tipo": "tomacorriente",
+      "circuito": "C5",
+      "potencia_w": null,
+      "ambiente": "A4",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A4-3",
+      "tipo": "tomacorriente",
+      "circuito": "C5",
+      "potencia_w": null,
+      "ambiente": "A4",
+      "origen": "auto"
+    },
+    {
+      "id": "T-A4-4",
+      "tipo": "tomacorriente",
+      "circuito": "C5",
+      "potencia_w": null,
+      "ambiente": "A4",
+      "origen": "auto"
+    }
+  ],
+  "cargas_especiales": [
+    {
+      "id": "E-A1-1",
+      "tipo": "ducha",
+      "circuito": "C6",
+      "potencia_w": null,
+      "conexion": null,
+      "origen": "fijado"
+    },
+    {
+      "id": "E-A8-2",
+      "tipo": "cocina",
+      "circuito": "C7",
+      "potencia_w": null,
+      "conexion": null,
+      "origen": "fijado"
+    }
+  ],
+  "circuitos": [
+    {
+      "id": "C1",
+      "tipo": "iluminacion",
+      "longitud_m": "13.04",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": false
+    },
+    {
+      "id": "C2",
+      "tipo": "iluminacion",
+      "longitud_m": "13.26",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": false
+    },
+    {
+      "id": "C3",
+      "tipo": "tomacorrientes",
+      "longitud_m": "18.12",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "C4",
+      "tipo": "tomacorrientes",
+      "longitud_m": "14.68",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "C5",
+      "tipo": "tomacorrientes",
+      "longitud_m": "18.80",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "C6",
+      "tipo": "especial",
+      "longitud_m": "5.10",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "C7",
+      "tipo": "especial",
+      "longitud_m": "7.75",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    }
+  ],
+  "tablero": {
+    "id": "TD-1",
+    "alimentador_longitud_m": "12"
+  },
+  "supuestos": [],
+  "plano": {
+    "archivo": "planta.dxf",
+    "sha256": "3717e626f16d23f506ebc31ae1a342463e8b9b2103c3a03c7af4f890a56d4afc",
+    "factor_a_metros": "1.0",
+    "area_construida_m2": "123.32",
+    "ambientes": [
+      {
+        "id": "A1",
+        "nombre": "BAÑO",
+        "uso": "bano",
+        "poligono": [
+          {
+            "x": "4.075",
+            "y": "9.925"
+          },
+          {
+            "x": "5.925",
+            "y": "9.925"
+          },
+          {
+            "x": "5.925",
+            "y": "6.075"
+          },
+          {
+            "x": "4.075",
+            "y": "6.075"
+          }
+        ],
+        "area_m2": "7.12",
+        "perimetro_m": "11.40",
+        "banderas": []
+      },
+      {
+        "id": "A2",
+        "nombre": "DORMITORIO 2",
+        "uso": "dormitorio",
+        "poligono": [
+          {
+            "x": "6.075",
+            "y": "9.925"
+          },
+          {
+            "x": "8.925",
+            "y": "9.925"
+          },
+          {
+            "x": "8.925",
+            "y": "6.075"
+          },
+          {
+            "x": "6.075",
+            "y": "6.075"
+          }
+        ],
+        "area_m2": "10.97",
+        "perimetro_m": "13.40",
+        "banderas": []
+      },
+      {
+        "id": "A3",
+        "nombre": "DORMITORIO 3",
+        "uso": "dormitorio",
+        "poligono": [
+          {
+            "x": "9.075",
+            "y": "9.925"
+          },
+          {
+            "x": "11.925",
+            "y": "9.925"
+          },
+          {
+            "x": "11.925",
+            "y": "6.075"
+          },
+          {
+            "x": "9.075",
+            "y": "6.075"
+          }
+        ],
+        "area_m2": "10.97",
+        "perimetro_m": "13.40",
+        "banderas": []
+      },
+      {
+        "id": "A4",
+        "nombre": "DORMITORIO MASTER",
+        "uso": "dormitorio",
+        "poligono": [
+          {
+            "x": "0.075",
+            "y": "5.075"
+          },
+          {
+            "x": "0.075",
+            "y": "9.925"
+          },
+          {
+            "x": "3.925",
+            "y": "9.925"
+          },
+          {
+            "x": "3.925",
+            "y": "5.075"
+          }
+        ],
+        "area_m2": "18.67",
+        "perimetro_m": "17.40",
+        "banderas": []
+      },
+      {
+        "id": "A5",
+        "nombre": "PASILLO",
+        "uso": "pasillo",
+        "poligono": [
+          {
+            "x": "11.925",
+            "y": "5.075"
+          },
+          {
+            "x": "4.075",
+            "y": "5.075"
+          },
+          {
+            "x": "4.075",
+            "y": "5.925"
+          },
+          {
+            "x": "11.925",
+            "y": "5.925"
+          }
+        ],
+        "area_m2": "6.67",
+        "perimetro_m": "17.40",
+        "banderas": []
+      },
+      {
+        "id": "A6",
+        "nombre": "BAÑO SOCIAL",
+        "uso": "bano",
+        "poligono": [
+          {
+            "x": "9.575",
+            "y": "4.925"
+          },
+          {
+            "x": "11.925",
+            "y": "4.925"
+          },
+          {
+            "x": "11.925",
+            "y": "2.575"
+          },
+          {
+            "x": "9.575",
+            "y": "2.575"
+          }
+        ],
+        "area_m2": "5.52",
+        "perimetro_m": "9.40",
+        "banderas": []
+      },
+      {
+        "id": "A7",
+        "nombre": "SALA - COMEDOR",
+        "uso": "sala_comedor",
+        "poligono": [
+          {
+            "x": "6.425",
+            "y": "4.925"
+          },
+          {
+            "x": "6.425",
+            "y": "0.075"
+          },
+          {
+            "x": "0.075",
+            "y": "0.075"
+          },
+          {
+            "x": "0.075",
+            "y": "4.925"
+          }
+        ],
+        "area_m2": "30.80",
+        "perimetro_m": "22.40",
+        "banderas": []
+      },
+      {
+        "id": "A8",
+        "nombre": "COCINA",
+        "uso": "cocina",
+        "poligono": [
+          {
+            "x": "9.425",
+            "y": "4.925"
+          },
+          {
+            "x": "9.425",
+            "y": "0.075"
+          },
+          {
+            "x": "6.575",
+            "y": "0.075"
+          },
+          {
+            "x": "6.575",
+            "y": "4.925"
+          }
+        ],
+        "area_m2": "13.82",
+        "perimetro_m": "15.40",
+        "banderas": []
+      },
+      {
+        "id": "A9",
+        "nombre": "LAVANDERÍA",
+        "uso": "lavanderia",
+        "poligono": [
+          {
+            "x": "11.925",
+            "y": "0.075"
+          },
+          {
+            "x": "9.575",
+            "y": "0.075"
+          },
+          {
+            "x": "9.575",
+            "y": "2.425"
+          },
+          {
+            "x": "11.925",
+            "y": "2.425"
+          }
+        ],
+        "area_m2": "5.52",
+        "perimetro_m": "9.40",
+        "banderas": []
+      }
+    ],
+    "puertas": [
+      {
+        "id": "P1",
+        "bisagra": {
+          "x": "1.000",
+          "y": "0.075"
+        },
+        "extremo": {
+          "x": "2.000",
+          "y": "0.075"
+        },
+        "ambientes": [
+          "A7"
+        ]
+      },
+      {
+        "id": "P2",
+        "bisagra": {
+          "x": "3.925",
+          "y": "5.100"
+        },
+        "extremo": {
+          "x": "3.925",
+          "y": "5.900"
+        },
+        "ambientes": [
+          "A4",
+          "A5"
+        ]
+      },
+      {
+        "id": "P3",
+        "bisagra": {
+          "x": "4.600",
+          "y": "6.075"
+        },
+        "extremo": {
+          "x": "5.300",
+          "y": "6.075"
+        },
+        "ambientes": [
+          "A1",
+          "A5"
+        ]
+      },
+      {
+        "id": "P4",
+        "bisagra": {
+          "x": "5.000",
+          "y": "4.925"
+        },
+        "extremo": {
+          "x": "5.900",
+          "y": "4.925"
+        },
+        "ambientes": [
+          "A5",
+          "A7"
+        ]
+      },
+      {
+        "id": "P5",
+        "bisagra": {
+          "x": "6.575",
+          "y": "1.500"
+        },
+        "extremo": {
+          "x": "6.575",
+          "y": "2.400"
+        },
+        "ambientes": [
+          "A7",
+          "A8"
+        ]
+      },
+      {
+        "id": "P6",
+        "bisagra": {
+          "x": "6.600",
+          "y": "6.075"
+        },
+        "extremo": {
+          "x": "7.400",
+          "y": "6.075"
+        },
+        "ambientes": [
+          "A2",
+          "A5"
+        ]
+      },
+      {
+        "id": "P7",
+        "bisagra": {
+          "x": "9.575",
+          "y": "0.800"
+        },
+        "extremo": {
+          "x": "9.575",
+          "y": "1.600"
+        },
+        "ambientes": [
+          "A8",
+          "A9"
+        ]
+      },
+      {
+        "id": "P8",
+        "bisagra": {
+          "x": "9.600",
+          "y": "6.075"
+        },
+        "extremo": {
+          "x": "10.400",
+          "y": "6.075"
+        },
+        "ambientes": [
+          "A3",
+          "A5"
+        ]
+      },
+      {
+        "id": "P9",
+        "bisagra": {
+          "x": "10.300",
+          "y": "4.925"
+        },
+        "extremo": {
+          "x": "11.000",
+          "y": "4.925"
+        },
+        "ambientes": [
+          "A5",
+          "A6"
+        ]
+      }
+    ],
+    "ubicaciones": [
+      {
+        "id": "L-A1-1",
+        "x": "5.000",
+        "y": "7.038",
+        "altura_m": "2.5",
+        "ambiente": "A1"
+      },
+      {
+        "id": "L-A1-2",
+        "x": "5.000",
+        "y": "8.962",
+        "altura_m": "2.5",
+        "ambiente": "A1"
+      },
+      {
+        "id": "T-A1-1",
+        "x": "5.875",
+        "y": "6.475",
+        "altura_m": "1.1",
+        "ambiente": "A1"
+      },
+      {
+        "id": "L-A2-1",
+        "x": "7.500",
+        "y": "8.000",
+        "altura_m": "2.5",
+        "ambiente": "A2"
+      },
+      {
+        "id": "T-A2-1",
+        "x": "8.275",
+        "y": "9.875",
+        "altura_m": "0.4",
+        "ambiente": "A2"
+      },
+      {
+        "id": "T-A2-2",
+        "x": "8.875",
+        "y": "6.375",
+        "altura_m": "0.4",
+        "ambiente": "A2"
+      },
+      {
+        "id": "T-A2-3",
+        "x": "6.125",
+        "y": "7.725",
+        "altura_m": "0.4",
+        "ambiente": "A2"
+      },
+      {
+        "id": "L-A3-1",
+        "x": "10.500",
+        "y": "8.000",
+        "altura_m": "2.5",
+        "ambiente": "A3"
+      },
+      {
+        "id": "T-A3-1",
+        "x": "11.275",
+        "y": "9.875",
+        "altura_m": "0.4",
+        "ambiente": "A3"
+      },
+      {
+        "id": "T-A3-2",
+        "x": "11.875",
+        "y": "6.375",
+        "altura_m": "0.4",
+        "ambiente": "A3"
+      },
+      {
+        "id": "T-A3-3",
+        "x": "9.125",
+        "y": "7.725",
+        "altura_m": "0.4",
+        "ambiente": "A3"
+      },
+      {
+        "id": "L-A4-1",
+        "x": "2.000",
+        "y": "6.288",
+        "altura_m": "2.5",
+        "ambiente": "A4"
+      },
+      {
+        "id": "L-A4-2",
+        "x": "2.000",
+        "y": "8.712",
+        "altura_m": "2.5",
+        "ambiente": "A4"
+      },
+      {
+        "id": "T-A4-1",
+        "x": "0.125",
+        "y": "7.275",
+        "altura_m": "0.4",
+        "ambiente": "A4"
+      },
+      {
+        "id": "T-A4-2",
+        "x": "1.725",
+        "y": "9.875",
+        "altura_m": "0.4",
+        "ambiente": "A4"
+      },
+      {
+        "id": "T-A4-3",
+        "x": "3.875",
+        "y": "7.725",
+        "altura_m": "0.4",
+        "ambiente": "A4"
+      },
+      {
+        "id": "T-A4-4",
+        "x": "2.275",
+        "y": "5.125",
+        "altura_m": "0.4",
+        "ambiente": "A4"
+      },
+      {
+        "id": "L-A5-1",
+        "x": "8.000",
+        "y": "5.500",
+        "altura_m": "2.5",
+        "ambiente": "A5"
+      },
+      {
+        "id": "T-A5-1",
+        "x": "7.625",
+        "y": "5.125",
+        "altura_m": "0.4",
+        "ambiente": "A5"
+      },
+      {
+        "id": "T-A5-2",
+        "x": "8.375",
+        "y": "5.875",
+        "altura_m": "0.4",
+        "ambiente": "A5"
+      },
+      {
+        "id": "L-A6-1",
+        "x": "10.750",
+        "y": "3.750",
+        "altura_m": "2.5",
+        "ambiente": "A6"
+      },
+      {
+        "id": "T-A6-1",
+        "x": "11.875",
+        "y": "2.875",
+        "altura_m": "1.1",
+        "ambiente": "A6"
+      },
+      {
+        "id": "L-A7-1",
+        "x": "1.133",
+        "y": "2.500",
+        "altura_m": "2.5",
+        "ambiente": "A7"
+      },
+      {
+        "id": "L-A7-2",
+        "x": "3.250",
+        "y": "2.500",
+        "altura_m": "2.5",
+        "ambiente": "A7"
+      },
+      {
+        "id": "L-A7-3",
+        "x": "5.367",
+        "y": "2.500",
+        "altura_m": "2.5",
+        "ambiente": "A7"
+      },
+      {
+        "id": "T-A7-1",
+        "x": "6.375",
+        "y": "3.025",
+        "altura_m": "0.4",
+        "ambiente": "A7"
+      },
+      {
+        "id": "T-A7-2",
+        "x": "5.675",
+        "y": "0.125",
+        "altura_m": "0.4",
+        "ambiente": "A7"
+      },
+      {
+        "id": "T-A7-3",
+        "x": "2.475",
+        "y": "0.125",
+        "altura_m": "0.4",
+        "ambiente": "A7"
+      },
+      {
+        "id": "T-A7-4",
+        "x": "0.125",
+        "y": "1.975",
+        "altura_m": "0.4",
+        "ambiente": "A7"
+      },
+      {
+        "id": "T-A7-5",
+        "x": "0.825",
+        "y": "4.875",
+        "altura_m": "0.4",
+        "ambiente": "A7"
+      },
+      {
+        "id": "T-A7-6",
+        "x": "4.525",
+        "y": "4.875",
+        "altura_m": "0.4",
+        "ambiente": "A7"
+      },
+      {
+        "id": "L-A8-1",
+        "x": "8.000",
+        "y": "3.712",
+        "altura_m": "2.5",
+        "ambiente": "A8"
+      },
+      {
+        "id": "L-A8-2",
+        "x": "8.000",
+        "y": "1.288",
+        "altura_m": "2.5",
+        "ambiente": "A8"
+      },
+      {
+        "id": "T-A8-1",
+        "x": "9.375",
+        "y": "3.625",
+        "altura_m": "1.1",
+        "ambiente": "A8"
+      },
+      {
+        "id": "T-A8-2",
+        "x": "9.375",
+        "y": "0.425",
+        "altura_m": "1.1",
+        "ambiente": "A8"
+      },
+      {
+        "id": "T-A8-3",
+        "x": "7.875",
+        "y": "0.125",
+        "altura_m": "1.1",
+        "ambiente": "A8"
+      },
+      {
+        "id": "T-A8-4",
+        "x": "6.625",
+        "y": "1.075",
+        "altura_m": "1.1",
+        "ambiente": "A8"
+      },
+      {
+        "id": "T-A8-5",
+        "x": "6.625",
+        "y": "3.975",
+        "altura_m": "1.1",
+        "ambiente": "A8"
+      },
+      {
+        "id": "T-A8-6",
+        "x": "8.125",
+        "y": "4.875",
+        "altura_m": "1.1",
+        "ambiente": "A8"
+      },
+      {
+        "id": "L-A9-1",
+        "x": "10.750",
+        "y": "1.250",
+        "altura_m": "2.5",
+        "ambiente": "A9"
+      },
+      {
+        "id": "T-A9-1",
+        "x": "9.925",
+        "y": "0.125",
+        "altura_m": "1.1",
+        "ambiente": "A9"
+      },
+      {
+        "id": "T-A9-2",
+        "x": "11.875",
+        "y": "2.075",
+        "altura_m": "1.1",
+        "ambiente": "A9"
+      },
+      {
+        "id": "E-A1-1",
+        "x": "5.875",
+        "y": "7.275",
+        "altura_m": "1.1",
+        "ambiente": "A1"
+      },
+      {
+        "id": "E-A8-2",
+        "x": "6.975",
+        "y": "0.125",
+        "altura_m": "1.1",
+        "ambiente": "A8"
+      },
+      {
+        "id": "TD-1",
+        "x": "6.525",
+        "y": "5.125",
+        "altura_m": "1.6",
+        "ambiente": "A5"
+      }
+    ],
+    "interruptores": [
+      {
+        "id": "S-A7",
+        "x": "2.200",
+        "y": "0.125",
+        "altura_m": "1.2",
+        "ambiente": "A7",
+        "circuito": "C1"
+      },
+      {
+        "id": "S-A8",
+        "x": "6.625",
+        "y": "2.600",
+        "altura_m": "1.2",
+        "ambiente": "A8",
+        "circuito": "C1"
+      },
+      {
+        "id": "S-A9",
+        "x": "9.625",
+        "y": "1.800",
+        "altura_m": "1.2",
+        "ambiente": "A9",
+        "circuito": "C1"
+      },
+      {
+        "id": "S-A6",
+        "x": "11.200",
+        "y": "4.875",
+        "altura_m": "1.2",
+        "ambiente": "A6",
+        "circuito": "C1"
+      },
+      {
+        "id": "S-A5",
+        "x": "4.110",
+        "y": "5.890",
+        "altura_m": "1.2",
+        "ambiente": "A5",
+        "circuito": "C2"
+      },
+      {
+        "id": "S-A3",
+        "x": "10.600",
+        "y": "6.125",
+        "altura_m": "1.2",
+        "ambiente": "A3",
+        "circuito": "C2"
+      },
+      {
+        "id": "S-A2",
+        "x": "7.600",
+        "y": "6.125",
+        "altura_m": "1.2",
+        "ambiente": "A2",
+        "circuito": "C2"
+      },
+      {
+        "id": "S-A1",
+        "x": "5.500",
+        "y": "6.125",
+        "altura_m": "1.2",
+        "ambiente": "A1",
+        "circuito": "C2"
+      },
+      {
+        "id": "S-A4",
+        "x": "3.875",
+        "y": "6.100",
+        "altura_m": "1.2",
+        "ambiente": "A4",
+        "circuito": "C2"
+      }
+    ],
+    "recorridos": [
+      {
+        "circuito": "C1",
+        "puntos": [
+          {
+            "x": "6.525",
+            "y": "5.125"
+          },
+          {
+            "x": "8.000",
+            "y": "5.125"
+          },
+          {
+            "x": "8.000",
+            "y": "3.712"
+          },
+          {
+            "x": "8.000",
+            "y": "1.288"
+          },
+          {
+            "x": "10.750",
+            "y": "1.288"
+          },
+          {
+            "x": "10.750",
+            "y": "1.250"
+          },
+          {
+            "x": "10.750",
+            "y": "3.750"
+          },
+          {
+            "x": "5.367",
+            "y": "3.750"
+          },
+          {
+            "x": "5.367",
+            "y": "2.500"
+          },
+          {
+            "x": "3.250",
+            "y": "2.500"
+          },
+          {
+            "x": "1.133",
+            "y": "2.500"
+          }
+        ],
+        "derivaciones": [
+          [
+            {
+              "x": "3.250",
+              "y": "2.500"
+            },
+            {
+              "x": "2.200",
+              "y": "0.125"
+            }
+          ],
+          [
+            {
+              "x": "8.000",
+              "y": "3.712"
+            },
+            {
+              "x": "6.625",
+              "y": "2.600"
+            }
+          ],
+          [
+            {
+              "x": "10.750",
+              "y": "1.250"
+            },
+            {
+              "x": "9.625",
+              "y": "1.800"
+            }
+          ],
+          [
+            {
+              "x": "10.750",
+              "y": "3.750"
+            },
+            {
+              "x": "11.200",
+              "y": "4.875"
+            }
+          ]
+        ],
+        "longitud_m": "22.37"
+      },
+      {
+        "circuito": "C2",
+        "puntos": [
+          {
+            "x": "6.525",
+            "y": "5.125"
+          },
+          {
+            "x": "8.000",
+            "y": "5.125"
+          },
+          {
+            "x": "8.000",
+            "y": "5.500"
+          },
+          {
+            "x": "7.500",
+            "y": "5.500"
+          },
+          {
+            "x": "7.500",
+            "y": "8.000"
+          },
+          {
+            "x": "10.500",
+            "y": "8.000"
+          },
+          {
+            "x": "5.000",
+            "y": "8.000"
+          },
+          {
+            "x": "5.000",
+            "y": "7.038"
+          },
+          {
+            "x": "5.000",
+            "y": "8.962"
+          },
+          {
+            "x": "2.000",
+            "y": "8.962"
+          },
+          {
+            "x": "2.000",
+            "y": "8.712"
+          },
+          {
+            "x": "2.000",
+            "y": "6.288"
+          }
+        ],
+        "derivaciones": [
+          [
+            {
+              "x": "8.000",
+              "y": "5.500"
+            },
+            {
+              "x": "4.110",
+              "y": "5.890"
+            }
+          ],
+          [
+            {
+              "x": "10.500",
+              "y": "8.000"
+            },
+            {
+              "x": "10.600",
+              "y": "6.125"
+            }
+          ],
+          [
+            {
+              "x": "7.500",
+              "y": "8.000"
+            },
+            {
+              "x": "7.600",
+              "y": "6.125"
+            }
+          ],
+          [
+            {
+              "x": "5.000",
+              "y": "7.038"
+            },
+            {
+              "x": "5.500",
+              "y": "6.125"
+            }
+          ],
+          [
+            {
+              "x": "2.000",
+              "y": "6.288"
+            },
+            {
+              "x": "3.875",
+              "y": "6.100"
+            }
+          ]
+        ],
+        "longitud_m": "22.81"
+      },
+      {
+        "circuito": "C3",
+        "puntos": [
+          {
+            "x": "6.525",
+            "y": "5.125"
+          },
+          {
+            "x": "6.375",
+            "y": "5.125"
+          },
+          {
+            "x": "6.375",
+            "y": "3.025"
+          },
+          {
+            "x": "5.675",
+            "y": "3.025"
+          },
+          {
+            "x": "5.675",
+            "y": "0.125"
+          },
+          {
+            "x": "7.875",
+            "y": "0.125"
+          },
+          {
+            "x": "9.375",
+            "y": "0.125"
+          },
+          {
+            "x": "9.375",
+            "y": "0.425"
+          },
+          {
+            "x": "9.375",
+            "y": "3.625"
+          },
+          {
+            "x": "4.525",
+            "y": "3.625"
+          },
+          {
+            "x": "4.525",
+            "y": "4.875"
+          },
+          {
+            "x": "0.825",
+            "y": "4.875"
+          },
+          {
+            "x": "0.125",
+            "y": "4.875"
+          },
+          {
+            "x": "0.125",
+            "y": "1.975"
+          },
+          {
+            "x": "2.475",
+            "y": "1.975"
+          },
+          {
+            "x": "2.475",
+            "y": "0.125"
+          }
+        ],
+        "derivaciones": [],
+        "longitud_m": "48.35"
+      },
+      {
+        "circuito": "C4",
+        "puntos": [
+          {
+            "x": "6.525",
+            "y": "5.125"
+          },
+          {
+            "x": "7.625",
+            "y": "5.125"
+          },
+          {
+            "x": "8.125",
+            "y": "5.125"
+          },
+          {
+            "x": "8.125",
+            "y": "4.875"
+          },
+          {
+            "x": "8.375",
+            "y": "4.875"
+          },
+          {
+            "x": "8.375",
+            "y": "5.875"
+          },
+          {
+            "x": "6.625",
+            "y": "5.875"
+          },
+          {
+            "x": "6.625",
+            "y": "3.975"
+          },
+          {
+            "x": "6.625",
+            "y": "1.075"
+          },
+          {
+            "x": "9.925",
+            "y": "1.075"
+          },
+          {
+            "x": "9.925",
+            "y": "0.125"
+          },
+          {
+            "x": "11.875",
+            "y": "0.125"
+          },
+          {
+            "x": "11.875",
+            "y": "2.075"
+          },
+          {
+            "x": "11.875",
+            "y": "2.875"
+          },
+          {
+            "x": "11.875",
+            "y": "6.375"
+          },
+          {
+            "x": "11.275",
+            "y": "6.375"
+          },
+          {
+            "x": "11.275",
+            "y": "9.875"
+          }
+        ],
+        "derivaciones": [],
+        "longitud_m": "43.90"
+      },
+      {
+        "circuito": "C5",
+        "puntos": [
+          {
+            "x": "6.525",
+            "y": "5.125"
+          },
+          {
+            "x": "5.875",
+            "y": "5.125"
+          },
+          {
+            "x": "5.875",
+            "y": "6.475"
+          },
+          {
+            "x": "6.125",
+            "y": "6.475"
+          },
+          {
+            "x": "6.125",
+            "y": "7.725"
+          },
+          {
+            "x": "3.875",
+            "y": "7.725"
+          },
+          {
+            "x": "0.125",
+            "y": "7.725"
+          },
+          {
+            "x": "0.125",
+            "y": "7.275"
+          },
+          {
+            "x": "1.725",
+            "y": "7.275"
+          },
+          {
+            "x": "1.725",
+            "y": "9.875"
+          },
+          {
+            "x": "2.275",
+            "y": "9.875"
+          },
+          {
+            "x": "2.275",
+            "y": "5.125"
+          },
+          {
+            "x": "8.875",
+            "y": "5.125"
+          },
+          {
+            "x": "8.875",
+            "y": "6.375"
+          },
+          {
+            "x": "9.125",
+            "y": "6.375"
+          },
+          {
+            "x": "9.125",
+            "y": "7.725"
+          },
+          {
+            "x": "8.275",
+            "y": "7.725"
+          },
+          {
+            "x": "8.275",
+            "y": "9.875"
+          }
+        ],
+        "derivaciones": [],
+        "longitud_m": "51.00"
+      },
+      {
+        "circuito": "C6",
+        "puntos": [
+          {
+            "x": "6.525",
+            "y": "5.125"
+          },
+          {
+            "x": "5.875",
+            "y": "5.125"
+          },
+          {
+            "x": "5.875",
+            "y": "7.275"
+          }
+        ],
+        "derivaciones": [],
+        "longitud_m": "5.10"
+      },
+      {
+        "circuito": "C7",
+        "puntos": [
+          {
+            "x": "6.525",
+            "y": "5.125"
+          },
+          {
+            "x": "6.975",
+            "y": "5.125"
+          },
+          {
+            "x": "6.975",
+            "y": "0.125"
+          }
+        ],
+        "derivaciones": [],
+        "longitud_m": "7.75"
+      }
+    ],
+    "banderas": []
+  }
+}

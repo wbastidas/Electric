@@ -142,12 +142,15 @@ def limite_caida(ctx: Contexto, tramo: Tramo, rastro: Rastro) -> Decimal:
     return rastro.usar(ctx.perfil.parametro("caida_total_max_pct")) - ramal
 
 
-def breaker_requerido(ctx: Contexto, tramo: Tramo, corriente_diseno: Decimal, r: Rastro) -> Decimal:
-    """Primer breaker normalizado que cubre la corriente de diseño y el mínimo del uso."""
+def breaker_requerido(ctx: Contexto, tramo: Tramo, corriente_a: Decimal, r: Rastro) -> Decimal:
+    """Primer breaker normalizado que cubre la corriente y el mínimo del uso.
+
+    El 125 % se aplica a la ampacidad del conductor (RC-07), no al breaker.
+    """
     minimo = r.usar(ctx.perfil.minimo_calibre(tramo.uso)).breaker_min or Decimal(0)
     if tramo.uso == "alimentador":
         minimo = max(minimo, r.usar(ctx.perfil.parametro("principal_min_a")))
-    return r.usar(ctx.perfil.normalizado("breakers", max(corriente_diseno, minimo)))
+    return r.usar(ctx.perfil.normalizado("breakers", max(corriente_a, minimo)))
 
 
 def seleccionar(ctx: Contexto, tramo: Tramo, rastro: Rastro) -> Seleccion:
@@ -163,7 +166,7 @@ def seleccionar(ctx: Contexto, tramo: Tramo, rastro: Rastro) -> Seleccion:
 
     i = corriente(tramo.potencia_w, tramo.tension_v, fp, tramo.trifasico)
     i_diseno = i * factor_diseno
-    breaker = breaker_requerido(ctx, tramo, i_diseno, rastro)
+    breaker = breaker_requerido(ctx, tramo, i, rastro)
 
     filas, tabla = perfil.conductores()
     minimo = rastro.usar(perfil.minimo_calibre(tramo.uso)).calibre

@@ -411,10 +411,10 @@ def proteccion(ctx: Contexto) -> list[Resultado]:
                 "Protección",
                 sel.breaker,
                 "A",
-                "Primer breaker normalizado ≥ 1,25 × I y ≥ mínimo del uso, admitido por el calibre",
+                "Primer breaker normalizado ≥ I y ≥ mínimo del uso, admitido por el calibre",
                 rastro,
                 entradas={
-                    "corriente_diseno_a": sel.corriente_diseno,
+                    "corriente_a": ctx.res("RC-06", tramo.sujeto).decimal,
                     "calibre": sel.fila.calibre,
                 },
                 detalle={"polos": Decimal(tramo.polos), "diferencial": diferencial},

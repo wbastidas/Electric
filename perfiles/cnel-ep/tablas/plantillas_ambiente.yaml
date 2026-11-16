@@ -1,0 +1,88 @@
+id: cnel-ep/plantillas-ambiente
+tipo: plantillas_ambiente
+version: 0.1.0
+vigente_desde: 2026-11-16
+fuente:
+  norma: Propuesta propia de diseño; no viene de la norma ni del documento de requerimientos
+  numeral: null
+  url: null
+estado: por_verificar
+nota: >-
+  Reglas de colocación automática por tipo de ambiente: densidad de
+  luminarias, separación de tomacorrientes, alturas y equipos admitidos. Son
+  criterios de partida para que un ingeniero los ajuste. El uso "otro" se
+  aplica a los ambientes que no se reconocen.
+unidades: {area_por_luminaria_m2: m2, separacion_tomas_m: m, altura_tomas_m: m}
+filas:
+  - uso: bano
+    patrones: [bano, wc, sshh, toilet, aseo]
+    area_por_luminaria_m2: 6
+    separacion_tomas_m: 99
+    tomas_min: 1
+    altura_tomas_m: 1.10
+    equipos: [ducha, calefon]
+    zona_humeda: true
+  - uso: cocina
+    patrones: [cocina, kitchen]
+    area_por_luminaria_m2: 8
+    separacion_tomas_m: 3
+    tomas_min: 3
+    altura_tomas_m: 1.10
+    equipos: [cocina]
+    zona_humeda: true
+  - uso: lavanderia
+    patrones: [lavanderia, lavado, laundry]
+    area_por_luminaria_m2: 8
+    separacion_tomas_m: 6
+    tomas_min: 2
+    altura_tomas_m: 1.10
+    equipos: [calefon]
+    zona_humeda: true
+    prioridad_tablero: 3
+  - uso: sala_comedor
+    patrones: [sala, comedor, estar, living]
+    area_por_luminaria_m2: 12
+    separacion_tomas_m: 4
+    tomas_min: 2
+    altura_tomas_m: 0.40
+    equipos: [aire_acondicionado]
+  - uso: dormitorio
+    patrones: [dormitorio, dorm, habitacion, cuarto, recamara]
+    area_por_luminaria_m2: 14
+    separacion_tomas_m: 5
+    tomas_min: 2
+    altura_tomas_m: 0.40
+    equipos: [aire_acondicionado]
+  - uso: estudio
+    patrones: [estudio, oficina, biblioteca]
+    area_por_luminaria_m2: 10
+    separacion_tomas_m: 4
+    tomas_min: 2
+    altura_tomas_m: 0.40
+  - uso: pasillo
+    patrones: [pasillo, hall, corredor, circulacion, vestibulo]
+    area_por_luminaria_m2: 10
+    separacion_tomas_m: 12
+    tomas_min: 1
+    altura_tomas_m: 0.40
+    prioridad_tablero: 1
+  - uso: garaje
+    patrones: [garaje, garage, parqueadero, cochera]
+    area_por_luminaria_m2: 15
+    separacion_tomas_m: 8
+    tomas_min: 1
+    altura_tomas_m: 1.10
+    equipos: [cargador_ev]
+    prioridad_tablero: 2
+  - uso: bodega
+    patrones: [bodega, deposito, closet, despensa]
+    area_por_luminaria_m2: 12
+    separacion_tomas_m: 99
+    tomas_min: 0
+    altura_tomas_m: 0.40
+  - uso: otro
+    patrones: []
+    area_por_luminaria_m2: 12
+    separacion_tomas_m: 5
+    tomas_min: 1
+    altura_tomas_m: 0.40

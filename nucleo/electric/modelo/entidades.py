@@ -11,6 +11,8 @@ from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from electric.modelo.plano import Plano
+
 Origen = Literal["auto", "editado", "fijado"]
 TipoCircuito = Literal["iluminacion", "tomacorrientes", "especial"]
 Conexion = Literal["fase_neutro", "linea"]
@@ -85,7 +87,8 @@ class CargaEspecial(Entidad):
 class Circuito(Entidad):
     id: str
     tipo: TipoCircuito
-    #: Longitud real del recorrido desde el tablero hasta el punto más lejano.
+    #: Longitud para la caída de tensión: recorrido del tablero al punto más lejano
+    #: o, si lo calcula el diseño, la longitud equivalente por momento de carga.
     longitud_m: Decimal = Field(gt=0)
     #: Fase asignada; si falta, el motor la asigna al balancear (RC-10).
     fase: Fase | None = None
@@ -135,6 +138,8 @@ class Proyecto(Entidad):
     circuitos: tuple[Circuito, ...]
     tablero: Tablero
     supuestos: tuple[Supuesto, ...] = ()
+    #: Geometría leída del plano y ubicación de la instalación; opcional.
+    plano: Plano | None = None
 
     @model_validator(mode="after")
     def _coherencia(self) -> Self:

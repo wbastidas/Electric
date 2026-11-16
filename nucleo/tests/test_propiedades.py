@@ -88,6 +88,6 @@ def test_todo_tramo_cumple_ampacidad_proteccion_y_caida(potencia: D) -> None:
         diseno = conductor.entradas["corriente_diseno_a"]
         assert isinstance(diseno, D)
         assert conductor.det("ampacidad_corregida_a") >= diseno
-        assert breaker >= diseno
+        assert breaker >= calculado.res("RC-06", sujeto).decimal
         caida = calculado.res("RC-08", sujeto)
         assert caida.decimal <= caida.det("limite_pct")

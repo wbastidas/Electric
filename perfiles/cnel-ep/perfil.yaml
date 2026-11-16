@@ -27,3 +27,4 @@ tablas:
   - tablas/tierra_equipos.yaml
   - tablas/parametros.yaml
   - tablas/redondeo.yaml
+  - tablas/plantillas_ambiente.yaml

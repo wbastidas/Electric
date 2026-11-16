@@ -27,3 +27,9 @@ filas:
   - {clave: diferencial_zonas_humedas, valor: 1, nota: RC-09 - 1 exige protección diferencial en zonas húmedas; 0 no la exige.}
   - {clave: electrodo_longitud_m, valor: 1.80, unidad: m, nota: RC-14 - varilla de puesta a tierra.}
   - {clave: electrodo_diametro_pulg, valor: 0.625, unidad: pulg, nota: RC-14 - varilla de 5/8 de pulgada.}
+  - {clave: puntos_max_iluminacion, valor: 15, nota: RF-18 - puntos por circuito de iluminación.}
+  - {clave: salidas_max_tomacorrientes, valor: 10, nota: RF-18 - salidas por circuito de tomacorrientes.}
+  - {clave: altura_interruptor_m, valor: 1.20, unidad: m, nota: Propuesta de diseño; por confirmar con la NEC-SB-IE.}
+  - {clave: altura_tablero_m, valor: 1.60, unidad: m, nota: Propuesta de diseño; por confirmar con el manual de CNEL.}
+  - {clave: altura_techo_m, valor: 2.50, unidad: m, nota: Supuesto para las bajadas de tubería; se ajustará por proyecto.}
+  - {clave: distancia_interruptor_puerta_m, valor: 0.20, unidad: m, nota: Propuesta de diseño.}

@@ -71,7 +71,7 @@ def test_vivienda_completa_da_el_cuadro_de_cargas(cliente: TestClient) -> None:
     assert resumen["Demanda máxima"]["estado"] == "por_verificar"
     cuadro = {f["circuito"]: f for f in calculos["cuadro"]}
     assert cuadro["C4"]["conductor"] == "10 AWG"
-    assert cuadro["alimentador"]["breaker"] == "2P 60 A"
+    assert cuadro["alimentador"]["breaker"] == "2P 50 A"
     assert len(calculos["tablas_sin_verificar"]) == 16
     assert any("C4" in aviso for aviso in calculos["avisos"])
     caida = next(r for r in calculos["resultados"] if (r["id"], r["sujeto"]) == ("RC-08", "C1"))

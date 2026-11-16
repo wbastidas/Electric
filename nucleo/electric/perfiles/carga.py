@@ -23,6 +23,7 @@ from electric.perfiles.esquema import (
     FilaFactorDemanda,
     FilaMedidor,
     FilaMinimoCalibre,
+    FilaPlantilla,
     FilaSistema,
     FilaTramoDemanda,
     MetaPerfil,
@@ -40,6 +41,7 @@ from electric.perfiles.esquema import (
     TablaMedidores,
     TablaMinimosCalibre,
     TablaParametros,
+    TablaPlantillas,
     TablaRedondeo,
     TablaSerie,
     TablaSistemas,
@@ -175,6 +177,19 @@ class Perfil:
     def tramos_demanda(self) -> tuple[tuple[FilaTramoDemanda, ...], RefTabla]:
         tabla = self._tabla("tramos_demanda", TablaTramosDemanda)
         return tabla.filas, self._ref(tabla, "todos los tramos")
+
+    # -- plantillas de diseño ---------------------------------------------
+
+    def plantillas(self) -> tuple[tuple[FilaPlantilla, ...], TablaPlantillas]:
+        tabla = self._tabla("plantillas_ambiente", TablaPlantillas)
+        return tabla.filas, tabla
+
+    def plantilla(self, uso: str) -> tuple[FilaPlantilla, RefTabla]:
+        filas, tabla = self.plantillas()
+        for fila in filas:
+            if fila.uso == uso:
+                return fila, self._ref(tabla, uso)
+        raise FilaNoEncontrada(tabla.id, f"el uso '{uso}'")
 
     # -- sistema de tensión ------------------------------------------------
 

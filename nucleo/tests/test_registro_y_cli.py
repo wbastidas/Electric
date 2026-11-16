@@ -36,7 +36,7 @@ def test_cli_informe(capsys: pytest.CaptureFixture[str]) -> None:
     assert salida.startswith("BORRADOR")
     assert "9885 W" in salida
     assert "Tipo I" in salida
-    assert "2P 60 A" in salida
+    assert "2P 50 A" in salida
     assert "Tablas sin verificar usadas en este cálculo: 16" in salida
 
 
@@ -52,7 +52,7 @@ def test_cli_json_y_explicar(capsys: pytest.CaptureFixture[str]) -> None:
 
 def test_cli_validar_perfil(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["validar-perfil", str(PERFILES / "cnel-ep")]) == 0
-    assert "válido, 17 tablas" in capsys.readouterr().out
+    assert "válido, 18 tablas" in capsys.readouterr().out
 
 
 def test_cli_error_legible(capsys: pytest.CaptureFixture[str]) -> None:

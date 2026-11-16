@@ -78,11 +78,12 @@ def test_corriente(calculado: Calculado, sujeto: str, potencia: int, tension: in
         ("C3", "12 AWG", 20, 1),
         # 12 AWG daría 3,24 % en 25 m; el motor sube a 10 AWG.
         ("C4", "10 AWG", 20, 1),
-        # 31,7 A × 1,25 = 39,6 A: breaker de 40 A, que exige 8 AWG.
+        # 31,7 A: breaker de 40 A; 10 AWG solo admite 30 A, así que sube a 8 AWG.
         ("C5", "8 AWG", 40, 1),
-        ("C6", "8 AWG", 40, 2),
-        # 44,8 A × 1,25 = 56 A: breaker de 60 A; 6 AWG solo admite 50 A.
-        (ALIMENTADOR, "4 AWG", 60, 2),
+        # 27,2 A: breaker de 30 A; 27,2 × 1,25 = 34 A cabe en 10 AWG (35 A).
+        ("C6", "10 AWG", 30, 2),
+        # 44,8 A: breaker de 50 A; 44,8 × 1,25 = 56 A cabe en 6 AWG (65 A).
+        (ALIMENTADOR, "6 AWG", 50, 2),
     ],
 )
 def test_conductor_y_proteccion(
@@ -111,8 +112,8 @@ def _caida(potencia: float, tension: float, largo: float, r: float, x: float) ->
     [
         ("C1", _caida(1000, 120, 18, 10.2, 0.190)),
         ("C4", _caida(1400, 120, 25, 3.9, 0.164)),
-        ("C6", _caida(6000, 240, 10, 2.56, 0.171)),
-        (ALIMENTADOR, _caida(9885, 240, 15, 1.02, 0.157)),
+        ("C6", _caida(6000, 240, 10, 3.9, 0.164)),
+        (ALIMENTADOR, _caida(9885, 240, 15, 1.61, 0.167)),
     ],
 )
 def test_caida_de_tension(calculado: Calculado, sujeto: str, esperado: float) -> None:
@@ -143,7 +144,7 @@ def test_tablero_medidor_y_tierra(calculado: Calculado) -> None:
     tablero = calculado.res("RC-11", "TD-1")
     assert tablero.entradas == {"polos_usados": D(7), "polos_reserva": D(2)}
     assert tablero.decimal == 12
-    assert tablero.det("principal_a") == 60
+    assert tablero.det("principal_a") == 50
     assert tablero.det("barras_a") == 100
     assert calculado.res("RC-12", PROYECTO).valor == "clase 100"
     assert calculado.res("RC-14", "C1").valor == "14 AWG"
@@ -156,8 +157,8 @@ def test_ducteria(calculado: Calculado) -> None:
     ducto = calculado.res("RC-13", "C1")
     assert ducto.valor == '1/2"'
     assert ducto.entradas["area_conductores_mm2"] == D("18.78")
-    # Alimentador: tres 4 AWG y tierra 10 AWG: 173,09 mm²; exige 432,7 mm²: 1".
-    assert calculado.res("RC-13", ALIMENTADOR).valor == '1"'
+    # Alimentador: tres 6 AWG y tierra 10 AWG: 111,74 mm²; exige 279,4 mm²: 3/4".
+    assert calculado.res("RC-13", ALIMENTADOR).valor == '3/4"'
     for resultado in calculado.de("RC-13"):
         assert resultado.det("relleno_pct") <= 40
 

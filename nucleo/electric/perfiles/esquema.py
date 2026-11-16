@@ -155,6 +155,24 @@ class FilaRedondeo(Dato):
     decimales: int = Field(ge=0, le=9)
 
 
+class FilaPlantilla(Dato):
+    """Reglas de colocación automática para un tipo de ambiente."""
+
+    uso: str
+    #: Palabras que identifican el uso en el nombre del ambiente, sin tildes.
+    patrones: tuple[str, ...] = ()
+    area_por_luminaria_m2: Decimal = Field(gt=0)
+    luminarias_min: int = Field(default=1, ge=0)
+    separacion_tomas_m: Decimal = Field(gt=0)
+    tomas_min: int = Field(default=1, ge=0)
+    altura_tomas_m: Decimal = Field(gt=0)
+    #: Equipos especiales que se ubican en este ambiente.
+    equipos: tuple[str, ...] = ()
+    zona_humeda: bool = False
+    #: Orden de preferencia para ubicar el tablero; `None` si no lo admite.
+    prioridad_tablero: int | None = None
+
+
 # --- Tablas --------------------------------------------------------------
 
 
@@ -238,6 +256,13 @@ class TablaParametros(TablaBase):
     filas: tuple[FilaParametro, ...]
 
 
+class TablaPlantillas(TablaBase):
+    """Plantillas por tipo de ambiente; el orden decide a igualdad de patrones."""
+
+    tipo: Literal["plantillas_ambiente"]
+    filas: tuple[FilaPlantilla, ...]
+
+
 class TablaRedondeo(TablaBase):
     tipo: Literal["redondeo"]
     filas: tuple[FilaRedondeo, ...]
@@ -259,6 +284,7 @@ Tabla = Annotated[
     | TablaDuctos
     | TablaTierraEquipos
     | TablaParametros
+    | TablaPlantillas
     | TablaRedondeo,
     Field(discriminator="tipo"),
 ]
