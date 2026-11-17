@@ -19,8 +19,11 @@ from electric.industrial import (
     leer_cuadro,
     plantilla,
 )
+from electric.industrial.estudios import Estudios, estudiar
+from electric.industrial.unifilar import generar_unifilar
 from electric.perfiles import Perfil
-from electric.perfiles.esquema import Estado, TablaSistemas
+from electric.perfiles.esquema import Estado, TablaSistemas, peor_estado
+from electric.salida_cad import renderizar
 from fastapi import APIRouter, Body, Depends, Query, Request, Response
 from pydantic import Field
 from sqlalchemy import select
@@ -63,6 +66,10 @@ class BorradorIndustria(Esquema):
     ubicacion: Coordenadas | None = None
     existente: TransformadorExistente | None = None
     maquinas: list[Maquina] = Field(default=[], max_length=2000)
+    #: Metros del tablero principal a cada tablero de distribución.
+    distancias_m: dict[str, Decimal] = {}
+    #: Potencia de cortocircuito de la red de CNEL; si falta, la del perfil.
+    scc_red_mva: Decimal | None = Field(default=None, gt=0)
     #: Nombre del último cuadro de cargas cargado.
     cuadro: str | None = None
 
@@ -156,8 +163,40 @@ class AnalisisOut(Esquema):
     tableros: list[TableroIndustrial] = []
     resultados: list[ResultadoOut] = []
     decision: DecisionOut | None = None
+    alimentadores: list[AlimentadorOut] = []
+    circuitos: list[CircuitoOut] = []
+    cortocircuito: list[CortocircuitoOut] = []
+    #: Fuente usada en el cortocircuito: transformador particular o existente.
+    fuente_cortocircuito: str = ""
     avisos: list[str] = []
     estado_tablas: Estado | None = None
+
+
+class AlimentadorOut(Esquema):
+    tablero: str
+    corriente_a: float
+    breaker_a: float | None
+    conductor: str | None
+    longitud_m: float | None
+    caida_pct: float | None
+    distancia_supuesta: bool
+
+
+class CircuitoOut(Esquema):
+    maquina: str
+    tablero: str
+    polos: int
+    corriente_a: float
+    breaker_a: float | None
+    conductor: str | None
+    caida_pct: float | None
+
+
+class CortocircuitoOut(Esquema):
+    punto: str
+    ik_ka: float
+    ip_ka: float
+    capacidad_ka: float | None
 
 
 class OpcionTexto(Esquema):
@@ -229,7 +268,13 @@ def _f(valor: Decimal) -> float:
     return float(round(valor, 4))
 
 
-def analisis_a_salida(analisis: AnalisisIndustrial, perfil: Perfil, revision: int) -> AnalisisOut:
+def _opt(valor: Decimal | None) -> float | None:
+    return _f(valor) if valor is not None else None
+
+
+def analisis_a_salida(
+    analisis: AnalisisIndustrial, estudios: Estudios, perfil: Perfil, revision: int
+) -> AnalisisOut:
     d = analisis.decision
     t = d.transformador
     return AnalisisOut(
@@ -276,7 +321,43 @@ def analisis_a_salida(analisis: AnalisisIndustrial, perfil: Perfil, revision: in
             )
             for x in analisis.tableros
         ],
-        resultados=[resultado_a_salida(r, perfil) for r in analisis.resultados],
+        resultados=[
+            resultado_a_salida(r, perfil) for r in (*analisis.resultados, *estudios.resultados)
+        ],
+        alimentadores=[
+            AlimentadorOut(
+                tablero=x.tablero,
+                corriente_a=_f(x.corriente_a),
+                breaker_a=_opt(x.breaker_a),
+                conductor=x.conductor.texto if x.conductor else None,
+                longitud_m=_opt(x.conductor.longitud_m) if x.conductor else None,
+                caida_pct=_opt(x.conductor.caida_pct) if x.conductor else None,
+                distancia_supuesta=x.distancia_supuesta,
+            )
+            for x in estudios.alimentadores
+        ],
+        circuitos=[
+            CircuitoOut(
+                maquina=c.maquina,
+                tablero=c.tablero,
+                polos=c.polos,
+                corriente_a=_f(c.corriente_a),
+                breaker_a=_opt(c.breaker_a),
+                conductor=c.conductor.texto if c.conductor else None,
+                caida_pct=_opt(c.conductor.caida_pct) if c.conductor else None,
+            )
+            for c in estudios.circuitos
+        ],
+        cortocircuito=[
+            CortocircuitoOut(
+                punto=c.punto,
+                ik_ka=_f(c.ik_ka),
+                ip_ka=_f(c.ip_ka),
+                capacidad_ka=_opt(c.capacidad_ka),
+            )
+            for c in estudios.cortocircuito
+        ],
+        fuente_cortocircuito=estudios.fuente,
         decision=DecisionOut(
             nivel=d.nivel.id,
             nivel_nombre=d.nivel.nombre,
@@ -294,8 +375,8 @@ def analisis_a_salida(analisis: AnalisisIndustrial, perfil: Perfil, revision: in
                 else None
             ),
         ),
-        avisos=list(analisis.avisos),
-        estado_tablas=analisis.estado,
+        avisos=[*analisis.avisos, *estudios.avisos],
+        estado_tablas=peor_estado([analisis.estado, estudios.estado]),
     )
 
 
@@ -423,18 +504,12 @@ def subir_cuadro(
     return _guardar(sesion, fila, datos)
 
 
-@rutas.get("/industrias/{id}/analisis")
-def analizar_industria(id: str, sesion: SesionDep, perfiles: PerfilesDep) -> AnalisisOut:
-    fila = _buscar(sesion, id)
-    datos = BorradorIndustria.model_validate_json(fila.datos)
-    perfil = _perfil(perfiles, datos.perfil)
+def _estudiar(
+    datos: BorradorIndustria, perfil: Perfil
+) -> tuple[AnalisisIndustrial, Estudios] | str:
+    """Análisis y estudios, o el motivo por el que todavía no se puede."""
     if not datos.maquinas:
-        return AnalisisOut(
-            estado="incompleto",
-            revision=fila.revision,
-            aviso=AVISO_BORRADOR,
-            pendientes=["Cargue el cuadro de cargas o agregue al menos una máquina."],
-        )
+        return "Cargue el cuadro de cargas o agregue al menos una máquina."
     try:
         industria = Industria(
             nombre=datos.nombre,
@@ -443,13 +518,59 @@ def analizar_industria(id: str, sesion: SesionDep, perfiles: PerfilesDep) -> Ana
             fp_objetivo=datos.fp_objetivo,
             ubicacion=datos.ubicacion,
             existente=datos.existente,
+            distancias_m=datos.distancias_m,
+            scc_red_mva=datos.scc_red_mva,
         )
         analisis = analizar(industria, perfil)
+        return analisis, estudiar(analisis, perfil)
     except (ErrorElectric, ValueError) as error:
+        return str(error)
+
+
+@rutas.get("/industrias/{id}/analisis")
+def analizar_industria(id: str, sesion: SesionDep, perfiles: PerfilesDep) -> AnalisisOut:
+    fila = _buscar(sesion, id)
+    datos = BorradorIndustria.model_validate_json(fila.datos)
+    perfil = _perfil(perfiles, datos.perfil)
+    resultado = _estudiar(datos, perfil)
+    if isinstance(resultado, str):
         return AnalisisOut(
             estado="incompleto",
             revision=fila.revision,
             aviso=AVISO_BORRADOR,
-            pendientes=[str(error)],
+            pendientes=[resultado],
         )
-    return analisis_a_salida(analisis, perfil, fila.revision)
+    analisis, estudios = resultado
+    return analisis_a_salida(analisis, estudios, perfil, fila.revision)
+
+
+TIPOS = {
+    "dxf": "application/dxf",
+    "png": "image/png",
+    "pdf": "application/pdf",
+}
+
+
+@rutas.get(
+    "/industrias/{id}/unifilar.{formato}",
+    response_class=Response,
+    responses={200: {"content": {t: {} for t in TIPOS.values()}}},
+)
+def descargar_unifilar(
+    id: str, formato: Literal["dxf", "png", "pdf"], sesion: SesionDep, perfiles: PerfilesDep
+) -> Response:
+    fila = _buscar(sesion, id)
+    datos = BorradorIndustria.model_validate_json(fila.datos)
+    resultado = _estudiar(datos, _perfil(perfiles, datos.perfil))
+    if isinstance(resultado, str):
+        raise Problema(
+            422, "industria_incompleta", "Todavía no se puede dibujar el unifilar", resultado
+        )
+    dxf = generar_unifilar(*resultado)
+    contenido = dxf if formato == "dxf" else renderizar(dxf, formato)
+    disposicion = "attachment" if formato == "dxf" else "inline"
+    return Response(
+        contenido,
+        media_type=TIPOS[formato],
+        headers={"Content-Disposition": f'{disposicion}; filename="unifilar.{formato}"'},
+    )

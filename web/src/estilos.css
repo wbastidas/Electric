@@ -774,3 +774,19 @@ table.ambientes select {
   color: var(--ambar-texto);
   margin-left: 1rem;
 }
+
+input.corto {
+  width: 7.5rem;
+  padding: 0.25rem 0.4rem;
+}
+tr.principal td {
+  background: var(--acento-suave);
+}
+img.unifilar {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: #fff;
+  margin-top: 0.75rem;
+}

@@ -285,8 +285,13 @@ def test_cli_industrial(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> N
     cuadro = tmp_path / "cuadro.xlsx"
     assert main(["plantilla-industrial", str(cuadro)]) == 0
     assert cuadro.exists()
-    assert main(["industrial", str(cuadro), "--nombre", "Taller"]) == 0
+    unifilar = tmp_path / "unifilar.dxf"
+    argumentos_tp = ["industrial", str(cuadro), "--nombre", "Taller", "--distancias", "TD-1=35.5"]
+    assert main([*argumentos_tp, "--unifilar", str(unifilar)]) == 0
+    assert unifilar.exists() and unifilar.with_suffix(".pdf").exists()
     salida = capsys.readouterr().out
+    assert "Cortocircuito (Transformador particular de 100 kVA)" in salida
+    assert "35.5 m" in salida
     assert "Decisión: Transformador particular" in salida
     assert "Transformador propuesto: 100 kVA" in salida
 
@@ -307,3 +312,106 @@ def test_sobre_12_kw_puede_usar_el_existente_sujeto_a_factibilidad(perfil_cnel: 
     assert decision.nivel.id == "transformador_propio"
     assert decision.opcion == "existente"
     assert "factibilidad" in decision.motivos[1]
+
+
+# --- Estudios: alimentadores, circuitos y cortocircuito ------------------------------
+
+
+def _resistiva(kw: int, tablero: str = "TD-1") -> Maquina:
+    return Maquina(
+        id=f"R{kw}{tablero}", tipo="resistiva", potencia=D(kw), tablero=tablero,
+        factor_utilizacion=D(1), factor_simultaneidad=D(1),
+    )  # fmt: skip
+
+
+def test_cortocircuito_en_bornes_de_un_transformador_particular(perfil_cnel: Perfil) -> None:
+    from electric.industrial.estudios import PRINCIPAL, estudiar
+
+    analisis = analizar(_industria(_resistiva(70)), perfil_cnel)
+    assert analisis.decision.transformador is not None
+    assert analisis.decision.transformador.kva == D(100)
+    estudios = estudiar(analisis, perfil_cnel)
+    tp = estudios.punto(PRINCIPAL)
+    # In = 100 kVA ÷ (√3 × 220 V) = 262 A; ÷ 3,5 % ≈ 7,5 kA; con c = 1,05 y la red, ≈ 7,8 kA.
+    assert D("7.5") < tp.ik_ka < D("8.0")
+    assert tp.ip_ka > tp.ik_ka * D("1.3")
+    assert tp.capacidad_ka == D(10)
+    td = estudios.punto("TD-1")
+    assert td.ik_ka < tp.ik_ka
+    assert "particular de 100 kVA" in estudios.fuente
+
+
+def test_los_motores_aportan_al_cortocircuito(perfil_cnel: Perfil) -> None:
+    from electric.industrial.estudios import PRINCIPAL, estudiar
+
+    sin = estudiar(analizar(_industria(_resistiva(70)), perfil_cnel), perfil_cnel)
+    con = estudiar(
+        analizar(
+            _industria(
+                _resistiva(70),
+                Maquina(id="M", potencia=D(2), unidad="HP", factor_utilizacion=D("0.1")),
+            ),
+            perfil_cnel,
+        ),
+        perfil_cnel,
+    )
+    assert con.punto(PRINCIPAL).ik_ka > sin.punto(PRINCIPAL).ik_ka
+
+
+def test_alimentador_con_distancia_indicada_y_supuesta(perfil_cnel: Perfil) -> None:
+    from electric.industrial.estudios import estudiar
+
+    industria = _industria(
+        _resistiva(40, "TD-1"), _resistiva(20, "TD-2"), distancias_m={"TD-1": D(120)}
+    )
+    estudios = estudiar(analizar(industria, perfil_cnel), perfil_cnel)
+    lejos, cerca = estudios.alimentadores
+    assert not lejos.distancia_supuesta and cerca.distancia_supuesta
+    assert lejos.conductor is not None and lejos.conductor.longitud_m == D(120)
+    assert lejos.conductor.caida_pct <= D(2)
+    assert lejos.breaker_a is not None
+    filas, _ = perfil_cnel.conductores()
+    ampacidad = next(f.ampacidad for f in filas if f.calibre == lejos.conductor.calibre)
+    assert ampacidad * lejos.conductor.paralelos >= lejos.breaker_a
+
+
+def test_circuito_de_motor_admite_breaker_mayor_que_el_conductor(perfil_cnel: Perfil) -> None:
+    from electric.industrial.estudios import estudiar
+
+    motor = Maquina(id="M", potencia=D(10), unidad="HP", arranque="directo")
+    estudios = estudiar(analizar(_industria(motor), perfil_cnel), perfil_cnel)
+    circuito = estudios.circuitos[0]
+    assert circuito.breaker_a is not None and circuito.conductor is not None
+    # El breaker cubre un tercio del arranque y no pasa 2,5 × In.
+    assert circuito.breaker_a <= circuito.corriente_a * D("2.5") + D(10)
+    assert circuito.breaker_a > circuito.corriente_a * D("1.25")
+    assert circuito.polos == 3
+
+
+def test_con_transformador_existente_el_cortocircuito_incluye_la_acometida(
+    perfil_cnel: Perfil,
+) -> None:
+    from electric.industrial.estudios import PRINCIPAL, estudiar
+
+    existente = TransformadorExistente(kva=D(100), demanda_kva=D(20), distancia_m=D(150))
+    analisis = analizar(_industria(_resistiva(20), existente=existente), perfil_cnel)
+    assert analisis.decision.opcion == "existente"
+    assert analisis.decision.acometida is not None
+    lejos = estudiar(analisis, perfil_cnel).punto(PRINCIPAL)
+    cerca_ex = existente.model_copy(update={"distancia_m": D(10)})
+    cerca = estudiar(
+        analizar(_industria(_resistiva(20), existente=cerca_ex), perfil_cnel), perfil_cnel
+    ).punto(PRINCIPAL)
+    assert lejos.ik_ka < cerca.ik_ka
+
+
+def test_unifilar_es_un_dxf_valido_con_los_tableros(perfil_cnel: Perfil) -> None:
+    from electric.industrial.estudios import estudiar
+    from electric.industrial.unifilar import generar_unifilar
+
+    maquinas = leer_cuadro(_plantilla(perfil_cnel), "cuadro.xlsx")
+    analisis = analizar(Industria(nombre="Planta", maquinas=maquinas), perfil_cnel)
+    dxf = generar_unifilar(analisis, estudiar(analisis, perfil_cnel))
+    texto = dxf.decode("utf-8", errors="replace")
+    for esperado in ("TABLERO TD-1", "TABLERO TD-3", "TRANSFORMADOR PARTICULAR", "M-01", "Ik ="):
+        assert esperado in texto

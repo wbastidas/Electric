@@ -1163,6 +1163,60 @@
           }
         }
       }
+    },
+    "/api/v1/industrias/{id}/unifilar.{formato}": {
+      "get": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Descargar Unifilar",
+        "operationId": "descargar_unifilar_api_v1_industrias__id__unifilar__formato__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "formato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "dxf",
+                "png",
+                "pdf"
+              ],
+              "type": "string",
+              "title": "Formato"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/dxf": {},
+              "image/png": {},
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1226,6 +1280,78 @@
         ],
         "title": "Agregar",
         "description": "Agrega una luminaria o un tomacorriente en una posición del plano."
+      },
+      "AlimentadorOut": {
+        "properties": {
+          "tablero": {
+            "type": "string",
+            "title": "Tablero"
+          },
+          "corriente_a": {
+            "type": "number",
+            "title": "Corriente A"
+          },
+          "breaker_a": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breaker A"
+          },
+          "conductor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conductor"
+          },
+          "longitud_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitud M"
+          },
+          "caida_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caida Pct"
+          },
+          "distancia_supuesta": {
+            "type": "boolean",
+            "title": "Distancia Supuesta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tablero",
+          "corriente_a",
+          "breaker_a",
+          "conductor",
+          "longitud_m",
+          "caida_pct",
+          "distancia_supuesta"
+        ],
+        "title": "AlimentadorOut"
       },
       "Ambiente": {
         "properties": {
@@ -1355,6 +1481,35 @@
                 "type": "null"
               }
             ]
+          },
+          "alimentadores": {
+            "items": {
+              "$ref": "#/components/schemas/AlimentadorOut"
+            },
+            "type": "array",
+            "title": "Alimentadores",
+            "default": []
+          },
+          "circuitos": {
+            "items": {
+              "$ref": "#/components/schemas/CircuitoOut"
+            },
+            "type": "array",
+            "title": "Circuitos",
+            "default": []
+          },
+          "cortocircuito": {
+            "items": {
+              "$ref": "#/components/schemas/CortocircuitoOut"
+            },
+            "type": "array",
+            "title": "Cortocircuito",
+            "default": []
+          },
+          "fuente_cortocircuito": {
+            "type": "string",
+            "title": "Fuente Cortocircuito",
+            "default": ""
           },
           "avisos": {
             "items": {
@@ -1614,6 +1769,36 @@
             "maxItems": 2000,
             "title": "Maquinas",
             "default": []
+          },
+          "distancias_m": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Distancias M",
+            "default": {}
+          },
+          "scc_red_mva": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scc Red Mva"
           },
           "cuadro": {
             "anyOf": [
@@ -1942,6 +2127,71 @@
         ],
         "title": "Circuito"
       },
+      "CircuitoOut": {
+        "properties": {
+          "maquina": {
+            "type": "string",
+            "title": "Maquina"
+          },
+          "tablero": {
+            "type": "string",
+            "title": "Tablero"
+          },
+          "polos": {
+            "type": "integer",
+            "title": "Polos"
+          },
+          "corriente_a": {
+            "type": "number",
+            "title": "Corriente A"
+          },
+          "breaker_a": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breaker A"
+          },
+          "conductor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conductor"
+          },
+          "caida_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caida Pct"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "maquina",
+          "tablero",
+          "polos",
+          "corriente_a",
+          "breaker_a",
+          "conductor",
+          "caida_pct"
+        ],
+        "title": "CircuitoOut"
+      },
       "ComprobacionOut": {
         "properties": {
           "nombre": {
@@ -2002,6 +2252,42 @@
           "lon"
         ],
         "title": "Coordenadas"
+      },
+      "CortocircuitoOut": {
+        "properties": {
+          "punto": {
+            "type": "string",
+            "title": "Punto"
+          },
+          "ik_ka": {
+            "type": "number",
+            "title": "Ik Ka"
+          },
+          "ip_ka": {
+            "type": "number",
+            "title": "Ip Ka"
+          },
+          "capacidad_ka": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacidad Ka"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "punto",
+          "ik_ka",
+          "ip_ka",
+          "capacidad_ka"
+        ],
+        "title": "CortocircuitoOut"
       },
       "DatoResumenOut": {
         "properties": {

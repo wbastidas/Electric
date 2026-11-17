@@ -392,6 +392,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/industrias/{id}/unifilar.{formato}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Descargar Unifilar */
+        get: operations["descargar_unifilar_api_v1_industrias__id__unifilar__formato__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -417,6 +434,23 @@ export interface components {
             y: number | string;
             /** Circuito */
             circuito?: string | null;
+        };
+        /** AlimentadorOut */
+        AlimentadorOut: {
+            /** Tablero */
+            tablero: string;
+            /** Corriente A */
+            corriente_a: number;
+            /** Breaker A */
+            breaker_a: number | null;
+            /** Conductor */
+            conductor: string | null;
+            /** Longitud M */
+            longitud_m: number | null;
+            /** Caida Pct */
+            caida_pct: number | null;
+            /** Distancia Supuesta */
+            distancia_supuesta: boolean;
         };
         /** Ambiente */
         Ambiente: {
@@ -475,6 +509,26 @@ export interface components {
              */
             resultados: components["schemas"]["ResultadoOut"][];
             decision?: components["schemas"]["DecisionOut"] | null;
+            /**
+             * Alimentadores
+             * @default []
+             */
+            alimentadores: components["schemas"]["AlimentadorOut"][];
+            /**
+             * Circuitos
+             * @default []
+             */
+            circuitos: components["schemas"]["CircuitoOut"][];
+            /**
+             * Cortocircuito
+             * @default []
+             */
+            cortocircuito: components["schemas"]["CortocircuitoOut"][];
+            /**
+             * Fuente Cortocircuito
+             * @default
+             */
+            fuente_cortocircuito: string;
             /**
              * Avisos
              * @default []
@@ -596,6 +650,15 @@ export interface components {
              * @default []
              */
             maquinas: components["schemas"]["Maquina"][];
+            /**
+             * Distancias M
+             * @default {}
+             */
+            distancias_m: {
+                [key: string]: number | string;
+            };
+            /** Scc Red Mva */
+            scc_red_mva?: number | string | null;
             /** Cuadro */
             cuadro?: string | null;
         };
@@ -719,6 +782,23 @@ export interface components {
              */
             zona_humeda: boolean;
         };
+        /** CircuitoOut */
+        CircuitoOut: {
+            /** Maquina */
+            maquina: string;
+            /** Tablero */
+            tablero: string;
+            /** Polos */
+            polos: number;
+            /** Corriente A */
+            corriente_a: number;
+            /** Breaker A */
+            breaker_a: number | null;
+            /** Conductor */
+            conductor: string | null;
+            /** Caida Pct */
+            caida_pct: number | null;
+        };
         /** ComprobacionOut */
         ComprobacionOut: {
             /** Nombre */
@@ -734,6 +814,17 @@ export interface components {
             lat: number | string;
             /** Lon */
             lon: number | string;
+        };
+        /** CortocircuitoOut */
+        CortocircuitoOut: {
+            /** Punto */
+            punto: string;
+            /** Ik Ka */
+            ik_ka: number;
+            /** Ip Ka */
+            ip_ka: number;
+            /** Capacidad Ka */
+            capacidad_ka: number | null;
         };
         /** DatoResumenOut */
         DatoResumenOut: {
@@ -2540,6 +2631,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnalisisOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descargar_unifilar_api_v1_industrias__id__unifilar__formato__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                formato: "dxf" | "png" | "pdf";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/dxf": unknown;
+                    "image/png": unknown;
+                    "application/pdf": unknown;
                 };
             };
             /** @description Validation Error */

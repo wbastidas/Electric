@@ -321,7 +321,9 @@ class TablaSerie(TablaBase):
     """Serie de valores normalizados, de menor a mayor."""
 
     tipo: Literal["serie"]
-    serie: Literal["breakers", "espacios_tablero", "barras", "capacitores_kvar"]
+    serie: Literal[
+        "breakers", "espacios_tablero", "barras", "capacitores_kvar", "capacidad_interruptiva_ka"
+    ]
     filas: tuple[Decimal, ...]
 
 

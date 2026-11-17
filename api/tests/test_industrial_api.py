@@ -59,13 +59,27 @@ def test_flujo_completo_de_una_industria(cliente: TestClient) -> None:
     assert analisis["decision"]["opcion"] == "particular"
     assert analisis["decision"]["transformador"]["kva"] == 100
 
+    assert {c["punto"] for c in analisis["cortocircuito"]} == {"TP", "TD-1", "TD-2", "TD-3"}
+    assert len(analisis["alimentadores"]) == 3
+    assert all(a["distancia_supuesta"] for a in analisis["alimentadores"])
+    assert len(analisis["circuitos"]) == 6
+    assert "particular" in analisis["fuente_cortocircuito"]
+    for formato, inicio in (("dxf", b"  0"), ("png", b"\x89PNG"), ("pdf", b"%PDF")):
+        unifilar = cliente.get(f"{BASE}/industrias/{id}/unifilar.{formato}")
+        assert unifilar.status_code == 200, unifilar.text
+        assert unifilar.content.startswith(inicio)
+
     datos = cargada.json()["datos"]
+    datos["distancias_m"] = {"TD-1": 45}
     datos["existente"] = {"codigo": "T-1", "kva": 300, "demanda_kva": 60, "distancia_m": 50}
     guardada = cliente.put(f"{BASE}/industrias/{id}", json={"revision": 2, "datos": datos})
     assert guardada.status_code == 200, guardada.text
     analisis = cliente.get(f"{BASE}/industrias/{id}/analisis").json()
     assert analisis["decision"]["opcion"] == "existente"
     assert "factibilidad" in " ".join(analisis["decision"]["motivos"])
+    assert "existente" in analisis["fuente_cortocircuito"]
+    td1 = next(a for a in analisis["alimentadores"] if a["tablero"] == "TD-1")
+    assert td1["longitud_m"] == 45 and not td1["distancia_supuesta"]
 
     lista = cliente.get(f"{BASE}/industrias").json()
     assert lista[0]["maquinas"] == 6
@@ -86,3 +100,8 @@ def test_cuadro_con_errores(cliente: TestClient) -> None:
     )
     assert respuesta.status_code == 422
     assert "fila 2" in respuesta.json()["detail"]
+
+
+def test_unifilar_sin_maquinas(cliente: TestClient) -> None:
+    id = cliente.post(f"{BASE}/industrias", json={"nombre": "Vacía"}).json()["id"]
+    assert cliente.get(f"{BASE}/industrias/{id}/unifilar.png").status_code == 422

@@ -124,5 +124,7 @@ export const api = {
   analisisIndustria: (id: string) => pedir<AnalisisIndustrial>(`/industrias/${id}/analisis`),
   opcionesIndustriales: () => pedir<OpcionesIndustriales>("/industrial/opciones"),
   urlPlantillaIndustrial: "/api/v1/industrial/plantilla",
+  urlUnifilar: (id: string, formato: "dxf" | "png" | "pdf", revision: number) =>
+    `/api/v1/industrias/${id}/unifilar.${formato}?r=${revision}`,
   urlSalida: (id: string, formato: "dxf" | "png" | "pdf") => `/api/v1/proyectos/${id}/salida.${formato}`,
 };

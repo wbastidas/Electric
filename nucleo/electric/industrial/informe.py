@@ -7,6 +7,7 @@ from decimal import Decimal
 
 from electric.calculo.resultado import presentar
 from electric.industrial.analisis import AnalisisIndustrial
+from electric.industrial.estudios import Estudios
 from electric.perfiles.carga import Perfil
 
 
@@ -22,7 +23,9 @@ def _tabla(encabezado: tuple[str, ...], filas: Sequence[tuple[str, ...]]) -> str
     return "\n".join(lineas)
 
 
-def informe_industrial(analisis: AnalisisIndustrial, perfil: Perfil) -> str:
+def informe_industrial(
+    analisis: AnalisisIndustrial, perfil: Perfil, estudios: Estudios | None = None
+) -> str:
     partes = [f"{analisis.industria.nombre} · {analisis.sistema.descripcion}", ""]
     filas = [
         (
@@ -90,7 +93,44 @@ def informe_industrial(analisis: AnalisisIndustrial, perfil: Perfil) -> str:
         partes.append(
             f"Transformador propuesto: {t.kva} kVA, {t.fases}F, {t.montaje}, Z {t.z_pct} %"
         )
-    if analisis.avisos:
-        partes += ["", "Por revisar"] + [f"- {a}" for a in analisis.avisos]
+    if estudios is not None:
+        partes += ["", "Alimentadores"]
+        partes.append(
+            _tabla(
+                ("Tablero", "I A", "Breaker", "Conductor", "Longitud", "ΔV %"),
+                [
+                    (
+                        x.tablero,
+                        _n(x.corriente_a),
+                        f"{x.breaker_a} A" if x.breaker_a is not None else "fuera de serie",
+                        x.conductor.texto if x.conductor else "sin solución",
+                        f"{x.conductor.longitud_m} m" + (" *" if x.distancia_supuesta else "")
+                        if x.conductor
+                        else "",
+                        _n(x.conductor.caida_pct, 2) if x.conductor else "",
+                    )
+                    for x in estudios.alimentadores
+                ],
+            )
+        )
+        if estudios.cortocircuito:
+            partes += ["", f"Cortocircuito ({estudios.fuente})"]
+            partes.append(
+                _tabla(
+                    ("Punto", "Ik kA", "ip kA", "Icu breakers"),
+                    [
+                        (
+                            c.punto,
+                            _n(c.ik_ka, 2),
+                            _n(c.ip_ka, 1),
+                            f"{c.capacidad_ka} kA" if c.capacidad_ka is not None else "fuera",
+                        )
+                        for c in estudios.cortocircuito
+                    ],
+                )
+            )
+    avisos = list(analisis.avisos) + list(estudios.avisos if estudios else ())
+    if avisos:
+        partes += ["", "Por revisar"] + [f"- {a}" for a in avisos]
     partes += ["", f"Estado de las tablas usadas: {analisis.estado}"]
     return "\n".join(partes)

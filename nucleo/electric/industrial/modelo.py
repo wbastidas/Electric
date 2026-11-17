@@ -84,6 +84,11 @@ class Industria(Dato):
     fp_objetivo: Decimal | None = Field(default=None, gt=0, le=1)
     ubicacion: Coordenadas | None = None
     existente: TransformadorExistente | None = None
+    #: Distancia del tablero principal a cada tablero de distribución.
+    distancias_m: dict[str, Decimal] = Field(default_factory=dict)
+    #: Potencia de cortocircuito de la red de CNEL en el punto de conexión; si
+    #: falta, la del perfil.
+    scc_red_mva: Decimal | None = Field(default=None, gt=0)
 
     @model_validator(mode="after")
     def _ids_unicos(self) -> Industria:

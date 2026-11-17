@@ -139,6 +139,23 @@ El análisis entrega:
    acometida y caída al arrancar motores. Si algo no cumple, se propone el
    transformador particular y se dice por qué.
 
+Con el análisis se calculan además los estudios para presentar a CNEL:
+
+- **Alimentadores** del tablero principal a cada tablero: breaker, conductor
+  (con paralelos desde 1/0 AWG) y caída de tensión. La distancia de cada
+  tablero se escribe en la tabla de tableros; si falta se suponen 20 m.
+- **Circuitos de máquinas:** breaker y conductor. En motores el conductor va
+  al 125 % y el breaker cubre un tercio del arranque, hasta 250 % de In
+  (NEC 430.52).
+- **Cortocircuito trifásico** (IEC 60909 simplificado) en el tablero principal
+  y en cada tablero: red de CNEL (250 MVA si no se indica el dato de la
+  factibilidad), transformador particular o existente con su acometida,
+  alimentadores y aporte de los motores. Con la corriente se elige la
+  capacidad de interrupción (Icu) de los breakers.
+- **Diagrama unifilar** en DXF, PDF y PNG: red, transformador, medición,
+  breaker principal, banco de capacitores, tableros y máquinas, con la
+  corriente de cortocircuito en cada barra.
+
 Base normativa usada (leída de resúmenes, falta contrastar con los PDF):
 
 - **ARCONEL-008/24** (distribución y comercialización): hasta 12 kW de demanda
@@ -208,6 +225,7 @@ uv venv && uv pip install -e ".[dev]"
 .venv/bin/electric plantilla-industrial cuadro.xlsx
 .venv/bin/electric industrial cuadro.xlsx
 .venv/bin/electric industrial cuadro.xlsx --existente-kva 75 --clientes C=20 --distancia 60
+.venv/bin/electric industrial cuadro.xlsx --distancias TD-1=45 --scc 180 --unifilar unifilar.dxf
 ```
 
 ### Pruebas y comprobaciones
@@ -298,5 +316,8 @@ en `api/` y `pnpm gen` en `web/`.
   arranque del 15 %, la acometida de 200 m como máximo, la demanda por estrato
   y los umbrales de nivel de servicio (12 kW y 500 kW siguen Tipo I y II; los
   5000 kW de subestación son una propuesta).
+- Cortocircuito: 250 MVA en la red, X/R 5 de transformadores, aporte de
+  motores de 4 × In, c = 1,05, tablero principal junto al transformador,
+  circuitos de máquinas de 15 m y la serie de capacidades de interrupción.
 
 Cada uno está anotado en la tabla correspondiente y marcado `por_verificar`.

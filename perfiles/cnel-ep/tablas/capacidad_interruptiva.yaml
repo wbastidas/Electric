@@ -1,0 +1,13 @@
+id: general/capacidad-interruptiva-ka
+tipo: serie
+serie: capacidad_interruptiva_ka
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: Capacidades de interrupción habituales de interruptores en caja moldeada (IEC 60947-2)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: Capacidad de interrupción en cortocircuito (Icu) de catálogos comerciales.
+unidades: {valor: kA}
+filas: [10, 14, 18, 22, 25, 35, 42, 50, 65, 85, 100, 150]

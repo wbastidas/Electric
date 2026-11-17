@@ -44,3 +44,11 @@ filas:
   - {clave: caida_arranque_max_pct, valor: 15, unidad: '%', nota: Propuesta - caída momentánea máxima en barras del transformador al arrancar el motor mayor.}
   - {clave: distancia_max_secundaria_m, valor: 200, unidad: m, nota: 'ARCONEL-004/18 - radio de 200 m a un transformador existente para atención en bajo voltaje a cargo de la distribuidora; verificar en ARCONEL-008/24.'}
   - {clave: conductores_paralelo_max, valor: 4, nota: Propuesta - conductores por fase en paralelo como máximo para un alimentador.}
+  - {clave: tension_media_kv, valor: 13.8, unidad: kV, nota: Tensión de la red de media tensión de CNEL; confirmar por unidad de negocio.}
+  - {clave: potencia_cc_red_mva, valor: 250, unidad: MVA, nota: 'Propuesta - potencia de cortocircuito de la red en el punto de conexión; reemplazar por el dato de la factibilidad de CNEL.'}
+  - {clave: factor_c_cortocircuito, valor: 1.05, nota: IEC 60909 - factor de tensión c máximo en baja tensión.}
+  - {clave: relacion_xr_transformador, valor: 5, nota: Propuesta - relación X/R típica de transformadores de distribución.}
+  - {clave: contribucion_motores, valor: 4, nota: 'Propuesta - aporte de los motores al cortocircuito, en veces su corriente nominal.'}
+  - {clave: distancia_tablero_defecto_m, valor: 20, unidad: m, nota: Supuesto si no se indica la distancia del tablero principal a un tablero de distribución.}
+  - {clave: longitud_circuito_maquina_m, valor: 15, unidad: m, nota: Supuesto - longitud del circuito de cada máquina desde su tablero.}
+  - {clave: factor_breaker_motor, valor: 2.5, nota: 'NEC 430.52 - breaker de tiempo inverso hasta 250 % de la corriente del motor; el conductor va al 125 %.'}

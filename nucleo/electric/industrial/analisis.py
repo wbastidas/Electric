@@ -128,6 +128,8 @@ class Decision:
     comprobaciones: tuple[Comprobacion, ...]
     #: El transformador que se propone si la industria necesita uno particular.
     transformador: FilaTransformador | None
+    #: Acometida desde el transformador existente, si se lo usa: conductor y paralelos.
+    acometida: tuple[FilaConductor, int] | None = None
 
 
 @dataclass(frozen=True)
@@ -735,4 +737,5 @@ def _decidir(
         ),
         comprobaciones=tuple(comprobaciones),
         transformador=None,
+        acometida=(acometida[0], acometida[1]) if acometida is not None else None,
     )

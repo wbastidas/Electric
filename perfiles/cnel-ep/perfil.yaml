@@ -37,3 +37,4 @@ tablas:
   - tablas/niveles_servicio.yaml
   - tablas/demanda_estratos.yaml
   - tablas/capacitores.yaml
+  - tablas/capacidad_interruptiva.yaml

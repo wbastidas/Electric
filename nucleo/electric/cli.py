@@ -239,9 +239,22 @@ def _clientes(texto: str) -> dict[str, int]:
     return salida
 
 
+def _distancias(texto: str) -> dict[str, Decimal]:
+    salida: dict[str, Decimal] = {}
+    for parte in filter(None, texto.split(",")):
+        tablero, _, metros = parte.partition("=")
+        if not metros:
+            raise ErrorElectric(f"distancia '{parte}': use TABLERO=M, por ejemplo TD-1=40")
+        salida[tablero.strip()] = Decimal(metros)
+    return salida
+
+
 def _industrial(args: argparse.Namespace) -> int:
     from electric.industrial import Industria, TransformadorExistente, analizar, leer_cuadro
+    from electric.industrial.estudios import estudiar
     from electric.industrial.informe import informe_industrial
+    from electric.industrial.unifilar import generar_unifilar
+    from electric.salida_cad import renderizar
 
     origen = Path(args.cuadro)
     try:
@@ -265,8 +278,18 @@ def _industrial(args: argparse.Namespace) -> int:
         maquinas=leer_cuadro(contenido, origen.name),
         fp_objetivo=Decimal(args.fp_objetivo) if args.fp_objetivo else None,
         existente=existente,
+        distancias_m=_distancias(args.distancias),
+        scc_red_mva=Decimal(args.scc) if args.scc else None,
     )
-    print(informe_industrial(analizar(industria, perfil), perfil))
+    analisis = analizar(industria, perfil)
+    estudios = estudiar(analisis, perfil)
+    print(informe_industrial(analisis, perfil, estudios))
+    if args.unifilar:
+        destino = Path(args.unifilar)
+        dxf = generar_unifilar(analisis, estudios)
+        destino.write_bytes(dxf)
+        destino.with_suffix(".pdf").write_bytes(renderizar(dxf, "pdf"))
+        print(f"\nUnifilar escrito en {destino} y {destino.with_suffix('.pdf')}")
     return 0
 
 
@@ -323,6 +346,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     i.add_argument("--demanda", help="demanda actual medida del transformador, en kVA")
     i.add_argument("--clientes", default="", help="clientes por estrato: C=20,comercial=2")
     i.add_argument("--distancia", default="0", help="metros de acometida hasta la industria")
+    i.add_argument("--distancias", default="", help="metros a cada tablero: TD-1=40,TD-2=25")
+    i.add_argument("--scc", help="potencia de cortocircuito de la red, en MVA")
+    i.add_argument("--unifilar", help="escribe el diagrama unifilar en este .dxf (y su .pdf)")
     i.set_defaults(funcion=_industrial)
 
     t = comandos.add_parser("plantilla-industrial", help="escribe la plantilla Excel del cuadro")

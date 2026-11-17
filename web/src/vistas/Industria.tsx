@@ -130,6 +130,13 @@ export function Industria({ id }: { id: string }) {
                 onChange={(e) => cambiar({ fp_objetivo: e.target.value === "" ? null : e.target.value })}
               />
             </Campo>
+            <Campo etiqueta="Scc de la red (MVA)" ayuda="Dato de la factibilidad de CNEL; vacío: 250 MVA.">
+              <input
+                inputMode="decimal"
+                value={datos.scc_red_mva ?? ""}
+                onChange={(e) => cambiar({ scc_red_mva: e.target.value === "" ? null : e.target.value })}
+              />
+            </Campo>
             <Campo etiqueta="Latitud">
               <input inputMode="decimal" value={lat} placeholder="-2.1709" onChange={(e) => ubicar("lat", e.target.value)} />
             </Campo>
@@ -179,7 +186,18 @@ export function Industria({ id }: { id: string }) {
         <Aviso tipo="nota">{analisis.data.pendientes.join(" ")}</Aviso>
       ) : null}
       {analisis.data?.estado === "listo" ? (
-        <Resultados analisis={analisis.data} elegir={setSeleccion} />
+        <Resultados
+          id={id}
+          analisis={analisis.data}
+          elegir={setSeleccion}
+          distancias={datos.distancias_m ?? {}}
+          cambiarDistancia={(tablero, valor) => {
+            const otras = { ...(datos.distancias_m ?? {}) };
+            if (valor.trim() === "") delete otras[tablero];
+            else otras[tablero] = valor;
+            cambiar({ distancias_m: otras });
+          }}
+        />
       ) : null}
       {seleccion ? <Detalle resultado={seleccion} cerrar={() => setSeleccion(null)} /> : null}
     </div>
@@ -258,6 +276,7 @@ function ExistenteForm({
 }
 
 function TablaMaquinas({ analisis }: { analisis: AnalisisIndustrial }) {
+  const circuito = (id: string) => analisis.circuitos.find((c) => c.maquina === id);
   return (
     <div className="tabla-ancha">
       <table>
@@ -275,6 +294,8 @@ function TablaMaquinas({ analisis }: { analisis: AnalisisIndustrial }) {
             <th className="derecha">In A</th>
             <th className="derecha">Demanda kW</th>
             <th>Arranque</th>
+            <th>Breaker</th>
+            <th>Conductor</th>
           </tr>
         </thead>
         <tbody>
@@ -292,17 +313,37 @@ function TablaMaquinas({ analisis }: { analisis: AnalisisIndustrial }) {
               <td className="derecha">{num(f.corriente_a)}</td>
               <td className="derecha">{num(f.demanda_kw, 2)}</td>
               <td>{f.arranque ? `${f.arranque.replaceAll("_", " ")} (${num(f.corriente_arranque_a, 0)} A)` : "—"}</td>
+              <td>{circuito(f.id)?.breaker_a ? `${circuito(f.id)?.polos}P ${num(circuito(f.id)?.breaker_a, 0)} A` : "—"}</td>
+              <td>{circuito(f.id)?.conductor ?? "—"}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      <p className="tenue">* Usa valores típicos del perfil en las celdas vacías; pase el cursor para ver cuáles.</p>
+      <p className="tenue">
+        * Usa valores típicos del perfil en las celdas vacías; pase el cursor para ver cuáles. Circuitos de máquinas
+        calculados con 15 m desde su tablero.
+      </p>
     </div>
   );
 }
 
-function Resultados({ analisis, elegir }: { analisis: AnalisisIndustrial; elegir: (r: Resultado) => void }) {
+function Resultados({
+  id,
+  analisis,
+  elegir,
+  distancias,
+  cambiarDistancia,
+}: {
+  id: string;
+  analisis: AnalisisIndustrial;
+  elegir: (r: Resultado) => void;
+  distancias: Record<string, number | string>;
+  cambiarDistancia: (tablero: string, valor: string) => void;
+}) {
   const d = analisis.decision;
+  const alimentador = (t: string) => analisis.alimentadores.find((a) => a.tablero === t);
+  const cc = (punto: string) => analisis.cortocircuito.find((c) => c.punto === punto);
+  const tp = cc("TP");
   return (
     <>
       <div className="columnas">
@@ -360,9 +401,22 @@ function Resultados({ analisis, elegir }: { analisis: AnalisisIndustrial; elegir
                 <th className="derecha">FP</th>
                 <th className="derecha">Corriente A</th>
                 <th className="derecha">Breaker</th>
+                <th>Distancia (m)</th>
+                <th>Alimentador</th>
+                <th className="derecha">ΔV</th>
+                <th className="derecha">Ik</th>
+                <th className="derecha">Icu</th>
               </tr>
             </thead>
             <tbody>
+              {tp ? (
+                <tr className="principal">
+                  <td>TP (principal)</td>
+                  <td colSpan={10} className="tenue">{analisis.fuente_cortocircuito}</td>
+                  <td className="derecha">{num(tp.ik_ka, 2)} kA</td>
+                  <td className="derecha">{tp.capacidad_ka ? `${num(tp.capacidad_ka, 0)} kA` : "fuera de serie"}</td>
+                </tr>
+              ) : null}
               {analisis.tableros.map((t) => (
                 <tr key={t.tablero}>
                   <td>{t.tablero}</td>
@@ -373,6 +427,22 @@ function Resultados({ analisis, elegir }: { analisis: AnalisisIndustrial; elegir
                   <td className="derecha">{num(t.fp, 2)}</td>
                   <td className="derecha">{num(t.corriente_a)}</td>
                   <td className="derecha">{t.breaker_a ? `${num(t.breaker_a, 0)} A` : "fuera de serie"}</td>
+                  <td>
+                    <input
+                      className="corto"
+                      inputMode="decimal"
+                      aria-label={`Distancia a ${t.tablero}`}
+                      placeholder={`${num(alimentador(t.tablero)?.longitud_m)} (supuesta)`}
+                      value={distancias[t.tablero] ?? ""}
+                      onChange={(e) => cambiarDistancia(t.tablero, e.target.value)}
+                    />
+                  </td>
+                  <td>{alimentador(t.tablero)?.conductor ?? "sin solución"}</td>
+                  <td className="derecha">{num(alimentador(t.tablero)?.caida_pct, 2)} %</td>
+                  <td className="derecha">{cc(t.tablero) ? `${num(cc(t.tablero)?.ik_ka, 2)} kA` : "—"}</td>
+                  <td className="derecha">
+                    {cc(t.tablero)?.capacidad_ka ? `${num(cc(t.tablero)?.capacidad_ka, 0)} kA` : "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -383,6 +453,24 @@ function Resultados({ analisis, elegir }: { analisis: AnalisisIndustrial; elegir
             <ul>{analisis.avisos.map((a) => <li key={a}>{a}</li>)}</ul>
           </Aviso>
         ) : null}
+        <p className="tenue">
+          Escriba la distancia real de cada tablero y pulse «Guardar y analizar»; sin ella se supone 20 m. Ik:
+          cortocircuito trifásico con aporte de motores; Icu: capacidad de interrupción mínima de los breakers.
+        </p>
+      </section>
+      <section className="tarjeta">
+        <h2>Diagrama unifilar</h2>
+        <div className="acciones izquierda">
+          <a className="boton" href={api.urlUnifilar(id, "dxf", analisis.revision)}>Descargar DXF</a>
+          <a className="boton" href={api.urlUnifilar(id, "pdf", analisis.revision)} target="_blank" rel="noreferrer">
+            Abrir PDF
+          </a>
+        </div>
+        <img
+          className="unifilar"
+          src={api.urlUnifilar(id, "png", analisis.revision)}
+          alt="Diagrama unifilar de la industria"
+        />
         <p className="tenue">{analisis.aviso}</p>
       </section>
     </>
