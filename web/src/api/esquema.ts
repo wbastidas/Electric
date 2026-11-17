@@ -409,6 +409,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/industrias/{id}/curvas.png": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Descargar Curvas
+         * @description Curvas tiempo-corriente de las protecciones en serie.
+         */
+        get: operations["descargar_curvas_api_v1_industrias__id__curvas_png_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -529,6 +549,7 @@ export interface components {
              * @default
              */
             fuente_cortocircuito: string;
+            coordinacion?: components["schemas"]["CoordinacionOut"] | null;
             /**
              * Avisos
              * @default []
@@ -814,6 +835,15 @@ export interface components {
             lat: number | string;
             /** Lon */
             lon: number | string;
+        };
+        /** CoordinacionOut */
+        CoordinacionOut: {
+            /** Fusible */
+            fusible: string | null;
+            /** Transformador */
+            transformador: components["schemas"]["ComprobacionOut"][];
+            /** Pares */
+            pares: components["schemas"]["ParOut"][];
         };
         /** CortocircuitoOut */
         CortocircuitoOut: {
@@ -1236,6 +1266,23 @@ export interface components {
             estratos: components["schemas"]["OpcionTexto"][];
             /** Niveles */
             niveles: components["schemas"]["OpcionTexto"][];
+        };
+        /** ParOut */
+        ParOut: {
+            /** Aguas Arriba */
+            aguas_arriba: string;
+            /** Aguas Abajo */
+            aguas_abajo: string;
+            /** Punto */
+            punto: string;
+            /** Ik Ka */
+            ik_ka: number;
+            /** Hasta Ka */
+            hasta_ka: number;
+            /** Selectivo */
+            selectivo: boolean;
+            /** Detalle */
+            detalle: string;
         };
         /**
          * Pendiente
@@ -2665,6 +2712,37 @@ export interface operations {
                     "application/dxf": unknown;
                     "image/png": unknown;
                     "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descargar_curvas_api_v1_industrias__id__curvas_png_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": unknown;
                 };
             };
             /** @description Validation Error */

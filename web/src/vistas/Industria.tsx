@@ -458,6 +458,37 @@ function Resultados({
           cortocircuito trifásico con aporte de motores; Icu: capacidad de interrupción mínima de los breakers.
         </p>
       </section>
+      {analisis.coordinacion ? (
+        <section className="tarjeta">
+          <h2>Coordinación de protecciones</h2>
+          <p className="tenue">
+            {analisis.coordinacion.fusible
+              ? `Fusible tipo K de ${analisis.coordinacion.fusible} en el primario del transformador. `
+              : "La protección de media tensión es la del transformador existente de CNEL. "}
+            Curvas genéricas por verificar: reemplácelas por las del fabricante antes de presentar.
+          </p>
+          <ul className="comprobaciones">
+            {analisis.coordinacion.transformador.map((c) => (
+              <li key={c.nombre} className={c.cumple ? "cumple" : "falla"}>
+                <strong>{c.cumple ? "✓" : "✗"} {c.nombre}:</strong> {c.detalle}
+              </li>
+            ))}
+            {analisis.coordinacion.pares.map((x) => (
+              <li key={`${x.aguas_arriba}-${x.aguas_abajo}`} className={x.selectivo ? "cumple" : "falla"}>
+                <strong>
+                  {x.selectivo ? "✓" : "✗"} {x.aguas_arriba} → {x.aguas_abajo}:
+                </strong>{" "}
+                {x.detalle}
+              </li>
+            ))}
+          </ul>
+          <img
+            className="unifilar"
+            src={api.urlCurvas(id, analisis.revision)}
+            alt="Curvas tiempo-corriente de las protecciones"
+          />
+        </section>
+      ) : null}
       <section className="tarjeta">
         <h2>Diagrama unifilar</h2>
         <div className="acciones izquierda">

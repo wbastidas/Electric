@@ -69,6 +69,16 @@ def test_flujo_completo_de_una_industria(cliente: TestClient) -> None:
         assert unifilar.status_code == 200, unifilar.text
         assert unifilar.content.startswith(inicio)
 
+    coordinacion = analisis["coordinacion"]
+    assert coordinacion["fusible"] == "8K"
+    assert {c["nombre"] for c in coordinacion["transformador"]} == {
+        "Energización",
+        "Daño del transformador",
+    }
+    assert len(coordinacion["pares"]) == 7
+    curvas = cliente.get(f"{BASE}/industrias/{id}/curvas.png")
+    assert curvas.status_code == 200 and curvas.content.startswith(b"\x89PNG")
+
     datos = cargada.json()["datos"]
     datos["distancias_m"] = {"TD-1": 45}
     datos["existente"] = {"codigo": "T-1", "kva": 300, "demanda_kva": 60, "distancia_m": 50}

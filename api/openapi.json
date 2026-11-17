@@ -1217,6 +1217,45 @@
           }
         }
       }
+    },
+    "/api/v1/industrias/{id}/curvas.png": {
+      "get": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Descargar Curvas",
+        "description": "Curvas tiempo-corriente de las protecciones en serie.",
+        "operationId": "descargar_curvas_api_v1_industrias__id__curvas_png_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/png": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1510,6 +1549,16 @@
             "type": "string",
             "title": "Fuente Cortocircuito",
             "default": ""
+          },
+          "coordinacion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CoordinacionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "avisos": {
             "items": {
@@ -2252,6 +2301,43 @@
           "lon"
         ],
         "title": "Coordenadas"
+      },
+      "CoordinacionOut": {
+        "properties": {
+          "fusible": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fusible"
+          },
+          "transformador": {
+            "items": {
+              "$ref": "#/components/schemas/ComprobacionOut"
+            },
+            "type": "array",
+            "title": "Transformador"
+          },
+          "pares": {
+            "items": {
+              "$ref": "#/components/schemas/ParOut"
+            },
+            "type": "array",
+            "title": "Pares"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fusible",
+          "transformador",
+          "pares"
+        ],
+        "title": "CoordinacionOut"
       },
       "CortocircuitoOut": {
         "properties": {
@@ -3444,6 +3530,50 @@
           "niveles"
         ],
         "title": "OpcionesIndustriales"
+      },
+      "ParOut": {
+        "properties": {
+          "aguas_arriba": {
+            "type": "string",
+            "title": "Aguas Arriba"
+          },
+          "aguas_abajo": {
+            "type": "string",
+            "title": "Aguas Abajo"
+          },
+          "punto": {
+            "type": "string",
+            "title": "Punto"
+          },
+          "ik_ka": {
+            "type": "number",
+            "title": "Ik Ka"
+          },
+          "hasta_ka": {
+            "type": "number",
+            "title": "Hasta Ka"
+          },
+          "selectivo": {
+            "type": "boolean",
+            "title": "Selectivo"
+          },
+          "detalle": {
+            "type": "string",
+            "title": "Detalle"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "aguas_arriba",
+          "aguas_abajo",
+          "punto",
+          "ik_ka",
+          "hasta_ka",
+          "selectivo",
+          "detalle"
+        ],
+        "title": "ParOut"
       },
       "Pendiente": {
         "properties": {

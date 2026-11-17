@@ -57,7 +57,9 @@ def _a(valor: Decimal | None, unidad: str) -> str:
     return f"{_t(valor, 0)} {unidad}" if valor is not None else "fuera de serie"
 
 
-def generar_unifilar(analisis: AnalisisIndustrial, estudios: Estudios) -> bytes:
+def generar_unifilar(
+    analisis: AnalisisIndustrial, estudios: Estudios, fusible_a: Decimal | None = None
+) -> bytes:
     doc = Drawing.new("R2010")
     doc.units = 4  # milímetros
     for capa, color in CAPAS.items():
@@ -103,6 +105,8 @@ def generar_unifilar(analisis: AnalisisIndustrial, estudios: Estudios) -> bytes:
         _texto(msp, "TRANSFORMADOR PARTICULAR", 8, y + 1)
         _texto(msp, f"{_t(t.kva, 1)} kVA {t.fases}F · {tension}", 8, y - 2.5)
         _texto(msp, f"Z = {_t(t.z_pct, 2)} % · montaje en {t.montaje}", 8, y - 6)
+        if fusible_a is not None:
+            _texto(msp, f"Protección en MT: fusible {fusible_a}K", 8, y - 9.5)
     y -= 12
     if decision.opcion == "existente" and decision.acometida is not None and industria.existente:
         cable, n = decision.acometida

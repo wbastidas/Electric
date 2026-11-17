@@ -287,7 +287,9 @@ def test_cli_industrial(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> N
     assert cuadro.exists()
     unifilar = tmp_path / "unifilar.dxf"
     argumentos_tp = ["industrial", str(cuadro), "--nombre", "Taller", "--distancias", "TD-1=35.5"]
-    assert main([*argumentos_tp, "--unifilar", str(unifilar)]) == 0
+    curvas = tmp_path / "curvas.png"
+    assert main([*argumentos_tp, "--unifilar", str(unifilar), "--curvas", str(curvas)]) == 0
+    assert curvas.read_bytes().startswith(b"\x89PNG")
     assert unifilar.exists() and unifilar.with_suffix(".pdf").exists()
     salida = capsys.readouterr().out
     assert "Cortocircuito (Transformador particular de 100 kVA)" in salida
@@ -415,3 +417,84 @@ def test_unifilar_es_un_dxf_valido_con_los_tableros(perfil_cnel: Perfil) -> None
     texto = dxf.decode("utf-8", errors="replace")
     for esperado in ("TABLERO TD-1", "TABLERO TD-3", "TRANSFORMADOR PARTICULAR", "M-01", "Ik ="):
         assert esperado in texto
+
+
+# --- Coordinación de protecciones ------------------------------------------------------
+
+
+def test_curvas_genericas() -> None:
+    from electric.industrial.coordinacion import Curva
+
+    breaker = Curva("B", "breaker", 100.0, 1000.0)
+    assert breaker.tiempos(100.0) is None
+    t6 = breaker.tiempos(600.0)
+    assert t6 is not None and t6[0] < t6[1]
+    assert breaker.tiempos(1000.0) == (0.01, 0.025)
+    fusible = Curva("F", "fusible", 100.0)
+    assert fusible.tiempos(150.0) is None
+    t300 = fusible.tiempos(201.0)
+    t01 = fusible.tiempos(1400.0)
+    assert t300 is not None and 250 < t300[0] <= 300
+    assert t01 is not None and abs(t01[0] - 0.1) < 0.01
+
+
+def _coordinar(industria: Industria, perfil: Perfil):  # type: ignore[no-untyped-def]
+    from electric.industrial.coordinacion import coordinar
+    from electric.industrial.estudios import estudiar
+
+    analisis = analizar(industria, perfil)
+    return coordinar(analisis, estudiar(analisis, perfil), perfil)
+
+
+def test_fusible_del_transformador_particular(perfil_cnel: Perfil) -> None:
+    coordinacion = _coordinar(_industria(_resistiva(70)), perfil_cnel)
+    # 100 kVA a 13,8 kV: 4,18 A × 1,5 = 6,3 A → 8K.
+    assert coordinacion.fusible_a == D(8)
+    nombres = {c.nombre: c.cumple for c in coordinacion.transformador}
+    assert nombres == {"Energización": True, "Daño del transformador": True}
+    assert coordinacion.dano and coordinacion.energizacion
+
+
+def test_breakers_iguales_en_serie_no_son_selectivos(perfil_cnel: Perfil) -> None:
+    coordinacion = _coordinar(_industria(_resistiva(20, "TD-1")), perfil_cnel)
+    par = next(p for p in coordinacion.pares if p.aguas_arriba == "Alimentador TD-1")
+    assert not par.selectivo
+    assert "relación" in par.detalle
+    resultado = next(r for r in coordinacion.resultados if r.id == "coordinacion")
+    assert "pares selectivos" in str(resultado.valor)
+
+
+def test_breaker_grande_aguas_arriba_es_selectivo_en_la_zona_termica(perfil_cnel: Perfil) -> None:
+    from electric.industrial.coordinacion import Curva, _selectivo_hasta
+
+    arriba = Curva("A", "breaker", 400.0, 4000.0)
+    abajo = Curva("B", "breaker", 63.0, 630.0)
+    # Selectivo hasta el disparo instantáneo del de arriba, no más.
+    assert 3500 <= _selectivo_hasta(arriba, abajo, 70.0, 10000.0, 1.0) < 4000
+
+
+def test_con_transformador_existente_no_hay_fusible_propio(perfil_cnel: Perfil) -> None:
+    existente = TransformadorExistente(kva=D(100), demanda_kva=D(20), distancia_m=D(50))
+    coordinacion = _coordinar(_industria(_resistiva(20), existente=existente), perfil_cnel)
+    assert coordinacion.fusible_a is None
+    assert any("CNEL" in a for a in coordinacion.avisos)
+
+
+def test_grafico_de_curvas(perfil_cnel: Perfil) -> None:
+    from electric.industrial.coordinacion import grafico
+
+    coordinacion = _coordinar(_industria(_resistiva(70)), perfil_cnel)
+    assert grafico(coordinacion, "Prueba").startswith(b"\x89PNG")
+
+
+def test_cargas_monofasicas_se_reparten_por_fase(perfil_cnel: Perfil) -> None:
+    luz = Maquina(
+        id="L", tipo="iluminacion", potencia=D(6), fases=1, tablero="TD",
+        factor_utilizacion=D(1), factor_simultaneidad=D(1), fp=D(1),
+    )  # fmt: skip
+    tablero = analizar(_industria(luz), perfil_cnel).tableros[0]
+    # 6 kW en una sola fase de 127 V: 47,2 A, no 15,7 A repartidos en tres fases.
+    assert _cerca(tablero.corriente_a, "47.24")
+    tres = luz.model_copy(update={"cantidad": 3})
+    tablero = analizar(_industria(tres), perfil_cnel).tableros[0]
+    assert _cerca(tablero.corriente_a, "47.24")

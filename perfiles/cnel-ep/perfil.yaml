@@ -38,3 +38,4 @@ tablas:
   - tablas/demanda_estratos.yaml
   - tablas/capacitores.yaml
   - tablas/capacidad_interruptiva.yaml
+  - tablas/fusibles_mt.yaml

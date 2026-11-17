@@ -156,6 +156,16 @@ Con el análisis se calculan además los estudios para presentar a CNEL:
   breaker principal, banco de capacitores, tableros y máquinas, con la
   corriente de cortocircuito en cada barra.
 
+- **Coordinación de protecciones:** fusible tipo K del primario del
+  transformador particular (que soporte la energización y lo proteja de una
+  falla en bornes), breaker principal, alimentadores y el mayor breaker de
+  máquina de cada tablero. Para cada par dice si es selectivo hasta la falla
+  del punto o en qué tramo de corriente se cruzan las curvas, con el gráfico
+  tiempo-corriente. Las curvas son genéricas: sirven para detectar problemas y
+  deben reemplazarse por las del fabricante.
+- Las cargas monofásicas se reparten por fase; la corriente de cada tablero y
+  del principal es la de la fase más cargada.
+
 Base normativa usada (leída de resúmenes, falta contrastar con los PDF):
 
 - **ARCONEL-008/24** (distribución y comercialización): hasta 12 kW de demanda
@@ -225,7 +235,7 @@ uv venv && uv pip install -e ".[dev]"
 .venv/bin/electric plantilla-industrial cuadro.xlsx
 .venv/bin/electric industrial cuadro.xlsx
 .venv/bin/electric industrial cuadro.xlsx --existente-kva 75 --clientes C=20 --distancia 60
-.venv/bin/electric industrial cuadro.xlsx --distancias TD-1=45 --scc 180 --unifilar unifilar.dxf
+.venv/bin/electric industrial cuadro.xlsx --distancias TD-1=45 --scc 180 --unifilar unifilar.dxf --curvas curvas.png
 ```
 
 ### Pruebas y comprobaciones
@@ -319,5 +329,8 @@ en `api/` y `pnpm gen` en `web/`.
 - Cortocircuito: 250 MVA en la red, X/R 5 de transformadores, aporte de
   motores de 4 × In, c = 1,05, tablero principal junto al transformador,
   circuitos de máquinas de 15 m y la serie de capacidades de interrupción.
+- Protecciones: fusible K a 1,5 × In primaria, curvas genéricas de breakers
+  (disparo instantáneo a 10 × In) y fusibles K, margen de 75 % entre fusible y
+  breaker, relación 1,6 entre breakers en serie y energización de 12 × In.
 
 Cada uno está anotado en la tabla correspondiente y marcado `por_verificar`.

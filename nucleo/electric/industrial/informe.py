@@ -7,6 +7,7 @@ from decimal import Decimal
 
 from electric.calculo.resultado import presentar
 from electric.industrial.analisis import AnalisisIndustrial
+from electric.industrial.coordinacion import Coordinacion
 from electric.industrial.estudios import Estudios
 from electric.perfiles.carga import Perfil
 
@@ -24,7 +25,10 @@ def _tabla(encabezado: tuple[str, ...], filas: Sequence[tuple[str, ...]]) -> str
 
 
 def informe_industrial(
-    analisis: AnalisisIndustrial, perfil: Perfil, estudios: Estudios | None = None
+    analisis: AnalisisIndustrial,
+    perfil: Perfil,
+    estudios: Estudios | None = None,
+    coordinacion: Coordinacion | None = None,
 ) -> str:
     partes = [f"{analisis.industria.nombre} · {analisis.sistema.descripcion}", ""]
     filas = [
@@ -129,6 +133,16 @@ def informe_industrial(
                     ],
                 )
             )
+    if coordinacion is not None and (coordinacion.pares or coordinacion.transformador):
+        titulo = "Coordinación de protecciones"
+        if coordinacion.fusible_a is not None:
+            titulo += f" (fusible {coordinacion.fusible_a}K en media tensión)"
+        partes += ["", titulo]
+        for c in coordinacion.transformador:
+            partes.append(f"  [{'ok' if c.cumple else 'NO'}] {c.nombre}: {c.detalle}")
+        for x in coordinacion.pares:
+            marca = "ok" if x.selectivo else "NO"
+            partes.append(f"  [{marca}] {x.aguas_arriba} / {x.aguas_abajo}: {x.detalle}")
     avisos = list(analisis.avisos) + list(estudios.avisos if estudios else ())
     if avisos:
         partes += ["", "Por revisar"] + [f"- {a}" for a in avisos]

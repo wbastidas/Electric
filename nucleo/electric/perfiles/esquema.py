@@ -322,7 +322,12 @@ class TablaSerie(TablaBase):
 
     tipo: Literal["serie"]
     serie: Literal[
-        "breakers", "espacios_tablero", "barras", "capacitores_kvar", "capacidad_interruptiva_ka"
+        "breakers",
+        "espacios_tablero",
+        "barras",
+        "capacitores_kvar",
+        "capacidad_interruptiva_ka",
+        "fusibles_mt",
     ]
     filas: tuple[Decimal, ...]
 

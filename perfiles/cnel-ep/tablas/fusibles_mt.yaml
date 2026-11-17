@@ -1,0 +1,16 @@
+id: general/fusibles-k
+tipo: serie
+serie: fusibles_mt
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: Valores nominales habituales de fusibles tipo K (ANSI C37.42)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Corrientes nominales de tirafusibles tipo K. La curva usada es una
+  aproximación de la familia K (relación de velocidad 7); reemplazar por la
+  tabla de selección y las curvas que use CNEL EP.
+unidades: {valor: A}
+filas: [1, 2, 3, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 65, 80, 100, 140, 200]

@@ -52,3 +52,10 @@ filas:
   - {clave: distancia_tablero_defecto_m, valor: 20, unidad: m, nota: Supuesto si no se indica la distancia del tablero principal a un tablero de distribución.}
   - {clave: longitud_circuito_maquina_m, valor: 15, unidad: m, nota: Supuesto - longitud del circuito de cada máquina desde su tablero.}
   - {clave: factor_breaker_motor, valor: 2.5, nota: 'NEC 430.52 - breaker de tiempo inverso hasta 250 % de la corriente del motor; el conductor va al 125 %.'}
+  - {clave: factor_fusible_mt, valor: 1.5, nota: 'Propuesta - fusible tipo K del primario del transformador en veces su corriente nominal; reemplazar por la tabla de fusibles de CNEL.'}
+  - {clave: disparo_magnetico_veces, valor: 10, nota: Propuesta - disparo instantáneo de breakers termomagnéticos en veces su corriente nominal.}
+  - {clave: termico_constante_min, valor: 150, nota: 'Curva térmica genérica t = A ÷ ((I/In)² − 1), límite inferior de la banda; reemplazar por curvas del fabricante.'}
+  - {clave: termico_constante_max, valor: 525, nota: 'Curva térmica genérica, límite superior de la banda (unos 15 s a 6 × In).'}
+  - {clave: margen_fusible_breaker, valor: 0.75, nota: 'Práctica habitual - el breaker despeja antes del 75 % del tiempo mínimo de fusión del fusible.'}
+  - {clave: relacion_selectividad_termica, valor: 1.6, nota: Práctica habitual - relación mínima de corrientes nominales entre breakers en serie.}
+  - {clave: corriente_magnetizacion_veces, valor: 12, nota: 'Práctica habitual - corriente de energización del transformador de 12 × In durante 0,1 s.'}

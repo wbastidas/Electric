@@ -19,6 +19,7 @@ from electric.industrial import (
     leer_cuadro,
     plantilla,
 )
+from electric.industrial.coordinacion import Coordinacion, coordinar, grafico
 from electric.industrial.estudios import Estudios, estudiar
 from electric.industrial.unifilar import generar_unifilar
 from electric.perfiles import Perfil
@@ -168,6 +169,7 @@ class AnalisisOut(Esquema):
     cortocircuito: list[CortocircuitoOut] = []
     #: Fuente usada en el cortocircuito: transformador particular o existente.
     fuente_cortocircuito: str = ""
+    coordinacion: CoordinacionOut | None = None
     avisos: list[str] = []
     estado_tablas: Estado | None = None
 
@@ -197,6 +199,22 @@ class CortocircuitoOut(Esquema):
     ik_ka: float
     ip_ka: float
     capacidad_ka: float | None
+
+
+class ParOut(Esquema):
+    aguas_arriba: str
+    aguas_abajo: str
+    punto: str
+    ik_ka: float
+    hasta_ka: float
+    selectivo: bool
+    detalle: str
+
+
+class CoordinacionOut(Esquema):
+    fusible: str | None
+    transformador: list[ComprobacionOut]
+    pares: list[ParOut]
 
 
 class OpcionTexto(Esquema):
@@ -273,7 +291,11 @@ def _opt(valor: Decimal | None) -> float | None:
 
 
 def analisis_a_salida(
-    analisis: AnalisisIndustrial, estudios: Estudios, perfil: Perfil, revision: int
+    analisis: AnalisisIndustrial,
+    estudios: Estudios,
+    coordinacion: Coordinacion,
+    perfil: Perfil,
+    revision: int,
 ) -> AnalisisOut:
     d = analisis.decision
     t = d.transformador
@@ -322,7 +344,8 @@ def analisis_a_salida(
             for x in analisis.tableros
         ],
         resultados=[
-            resultado_a_salida(r, perfil) for r in (*analisis.resultados, *estudios.resultados)
+            resultado_a_salida(r, perfil)
+            for r in (*analisis.resultados, *estudios.resultados, *coordinacion.resultados)
         ],
         alimentadores=[
             AlimentadorOut(
@@ -358,6 +381,25 @@ def analisis_a_salida(
             for c in estudios.cortocircuito
         ],
         fuente_cortocircuito=estudios.fuente,
+        coordinacion=CoordinacionOut(
+            fusible=f"{coordinacion.fusible_a}K" if coordinacion.fusible_a is not None else None,
+            transformador=[
+                ComprobacionOut(nombre=c.nombre, cumple=c.cumple, detalle=c.detalle)
+                for c in coordinacion.transformador
+            ],
+            pares=[
+                ParOut(
+                    aguas_arriba=x.aguas_arriba,
+                    aguas_abajo=x.aguas_abajo,
+                    punto=x.punto,
+                    ik_ka=_f(x.ik_ka),
+                    hasta_ka=_f(x.hasta_ka),
+                    selectivo=x.selectivo,
+                    detalle=x.detalle,
+                )
+                for x in coordinacion.pares
+            ],
+        ),
         decision=DecisionOut(
             nivel=d.nivel.id,
             nivel_nombre=d.nivel.nombre,
@@ -375,8 +417,8 @@ def analisis_a_salida(
                 else None
             ),
         ),
-        avisos=[*analisis.avisos, *estudios.avisos],
-        estado_tablas=peor_estado([analisis.estado, estudios.estado]),
+        avisos=[*analisis.avisos, *estudios.avisos, *coordinacion.avisos],
+        estado_tablas=peor_estado([analisis.estado, estudios.estado, coordinacion.estado]),
     )
 
 
@@ -506,7 +548,7 @@ def subir_cuadro(
 
 def _estudiar(
     datos: BorradorIndustria, perfil: Perfil
-) -> tuple[AnalisisIndustrial, Estudios] | str:
+) -> tuple[AnalisisIndustrial, Estudios, Coordinacion] | str:
     """Análisis y estudios, o el motivo por el que todavía no se puede."""
     if not datos.maquinas:
         return "Cargue el cuadro de cargas o agregue al menos una máquina."
@@ -522,7 +564,8 @@ def _estudiar(
             scc_red_mva=datos.scc_red_mva,
         )
         analisis = analizar(industria, perfil)
-        return analisis, estudiar(analisis, perfil)
+        estudios = estudiar(analisis, perfil)
+        return analisis, estudios, coordinar(analisis, estudios, perfil)
     except (ErrorElectric, ValueError) as error:
         return str(error)
 
@@ -540,8 +583,8 @@ def analizar_industria(id: str, sesion: SesionDep, perfiles: PerfilesDep) -> Ana
             aviso=AVISO_BORRADOR,
             pendientes=[resultado],
         )
-    analisis, estudios = resultado
-    return analisis_a_salida(analisis, estudios, perfil, fila.revision)
+    analisis, estudios, coordinacion = resultado
+    return analisis_a_salida(analisis, estudios, coordinacion, perfil, fila.revision)
 
 
 TIPOS = {
@@ -566,11 +609,31 @@ def descargar_unifilar(
         raise Problema(
             422, "industria_incompleta", "Todavía no se puede dibujar el unifilar", resultado
         )
-    dxf = generar_unifilar(*resultado)
+    analisis, estudios, coordinacion = resultado
+    dxf = generar_unifilar(analisis, estudios, coordinacion.fusible_a)
     contenido = dxf if formato == "dxf" else renderizar(dxf, formato)
     disposicion = "attachment" if formato == "dxf" else "inline"
     return Response(
         contenido,
         media_type=TIPOS[formato],
         headers={"Content-Disposition": f'{disposicion}; filename="unifilar.{formato}"'},
+    )
+
+
+@rutas.get(
+    "/industrias/{id}/curvas.png",
+    response_class=Response,
+    responses={200: {"content": {"image/png": {}}}},
+)
+def descargar_curvas(id: str, sesion: SesionDep, perfiles: PerfilesDep) -> Response:
+    """Curvas tiempo-corriente de las protecciones en serie."""
+    fila = _buscar(sesion, id)
+    datos = BorradorIndustria.model_validate_json(fila.datos)
+    resultado = _estudiar(datos, _perfil(perfiles, datos.perfil))
+    if isinstance(resultado, str):
+        raise Problema(422, "industria_incompleta", "Todavía no hay curvas", resultado)
+    return Response(
+        grafico(resultado[2], f"Coordinación · {datos.nombre}"),
+        media_type="image/png",
+        headers={"Content-Disposition": 'inline; filename="curvas.png"'},
     )

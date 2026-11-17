@@ -251,6 +251,7 @@ def _distancias(texto: str) -> dict[str, Decimal]:
 
 def _industrial(args: argparse.Namespace) -> int:
     from electric.industrial import Industria, TransformadorExistente, analizar, leer_cuadro
+    from electric.industrial.coordinacion import coordinar, grafico
     from electric.industrial.estudios import estudiar
     from electric.industrial.informe import informe_industrial
     from electric.industrial.unifilar import generar_unifilar
@@ -283,10 +284,14 @@ def _industrial(args: argparse.Namespace) -> int:
     )
     analisis = analizar(industria, perfil)
     estudios = estudiar(analisis, perfil)
-    print(informe_industrial(analisis, perfil, estudios))
+    coordinacion = coordinar(analisis, estudios, perfil)
+    print(informe_industrial(analisis, perfil, estudios, coordinacion))
+    if args.curvas:
+        Path(args.curvas).write_bytes(grafico(coordinacion, f"Coordinación · {industria.nombre}"))
+        print(f"\nCurvas tiempo-corriente escritas en {args.curvas}")
     if args.unifilar:
         destino = Path(args.unifilar)
-        dxf = generar_unifilar(analisis, estudios)
+        dxf = generar_unifilar(analisis, estudios, coordinacion.fusible_a)
         destino.write_bytes(dxf)
         destino.with_suffix(".pdf").write_bytes(renderizar(dxf, "pdf"))
         print(f"\nUnifilar escrito en {destino} y {destino.with_suffix('.pdf')}")
@@ -348,6 +353,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     i.add_argument("--distancia", default="0", help="metros de acometida hasta la industria")
     i.add_argument("--distancias", default="", help="metros a cada tablero: TD-1=40,TD-2=25")
     i.add_argument("--scc", help="potencia de cortocircuito de la red, en MVA")
+    i.add_argument("--curvas", help="escribe las curvas tiempo-corriente en este .png")
     i.add_argument("--unifilar", help="escribe el diagrama unifilar en este .dxf (y su .pdf)")
     i.set_defaults(funcion=_industrial)
 

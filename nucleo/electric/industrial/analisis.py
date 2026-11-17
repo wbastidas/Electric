@@ -300,7 +300,10 @@ class _Analisis:
             kw = sum((f.demanda_kw for f in grupo), CERO)
             kvar = sum((f.demanda_kvar for f in grupo), CERO)
             kva = (kw * kw + kvar * kvar).sqrt()
-            corriente = _corriente(kva, self._tension_alimentacion(), self.trifasico)
+            corriente = max(
+                _corriente(kva, self._tension_alimentacion(), self.trifasico),
+                self.corriente_fase(grupo),
+            )
             salida.append(
                 TotalTablero(
                     tablero=nombre,
@@ -315,6 +318,36 @@ class _Analisis:
                 )
             )
         return salida
+
+    def corriente_fase(self, filas: list[FilaCuadro]) -> Decimal:
+        """Corriente de la fase más cargada, repartiendo las cargas monofásicas.
+
+        Las trifásicas cargan las fases por igual; cada unidad monofásica va a la
+        fase menos cargada (o a las dos menos cargadas si es entre líneas), de la
+        mayor a la menor.
+        """
+        n = max(self.sistema.fases, 1)
+        if n == 1:
+            kva = sum((f.demanda_kw / f.fp for f in filas), CERO)
+            return kva * MIL / self.sistema.v_fase_neutro
+        fases = [CERO] * n
+        unidades: list[tuple[Decimal, bool]] = []
+        for f in filas:
+            kva = f.demanda_kw / f.fp
+            if f.maquina.fases == 3:
+                fases = [x + kva / n for x in fases]
+                continue
+            por_unidad = kva / f.maquina.cantidad
+            entre_lineas = f.tension_v == self.sistema.v_linea
+            unidades += [(por_unidad, entre_lineas)] * f.maquina.cantidad
+        for kva, entre_lineas in sorted(unidades, key=lambda u: u[0], reverse=True):
+            orden = sorted(range(n), key=lambda k: fases[k])
+            if entre_lineas:
+                for k in orden[:2]:
+                    fases[k] += kva / 2
+            else:
+                fases[orden[0]] += kva
+        return max(fases) * MIL / self.sistema.v_fase_neutro
 
     def _tension_alimentacion(self) -> Decimal:
         return self.sistema.v_linea
@@ -462,7 +495,9 @@ def analizar(industria: Industria, perfil: Perfil) -> AnalisisIndustrial:
     )
 
     r_pr = Rastro()
-    corriente_total = _corriente(kva_corr, a._tension_alimentacion(), a.trifasico)
+    corriente_total = max(
+        _corriente(kva_corr, a._tension_alimentacion(), a.trifasico), a.corriente_fase(filas)
+    )
     breaker = a._breaker(corriente_total, r_pr)
     if breaker is None:
         a.avisos.append(
@@ -475,7 +510,8 @@ def analizar(industria: Industria, perfil: Perfil) -> AnalisisIndustrial:
         "Breaker principal",
         breaker if breaker is not None else "fuera de serie",
         "A" if breaker is not None else "",
-        "I = kVA corregida ÷ (√3 × V) × factor de diseño; normalizado superior",
+        "I = máx(kVA corregida ÷ (√3 × V), fase más cargada) × factor de diseño; "
+        "normalizado superior",
         r_pr,
         entradas={"corriente_a": corriente_total},
         detalle=(
