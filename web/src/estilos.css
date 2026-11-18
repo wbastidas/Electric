@@ -1057,3 +1057,58 @@ a.boton.primario {
 .lista-resultados button {
   text-align: left;
 }
+
+/* --- Mapa de redes MT ------------------------------------------------- */
+.mapa {
+  height: 480px;
+  border-radius: 8px;
+  border: 1px solid var(--borde);
+  margin-top: 0.75rem;
+  z-index: 0;
+}
+.mapa.modo-postes,
+.mapa.modo-arranque {
+  cursor: crosshair;
+}
+.marca-mapa span {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font: 600 11px/1 system-ui, sans-serif;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+}
+.marca-mapa.nuevo span {
+  background: #1f4e9c;
+  color: #fff;
+}
+.marca-mapa.nuevo.transformador span {
+  background: #8e24aa;
+}
+.marca-mapa.arranque span {
+  background: #d62828;
+  color: #fff;
+}
+.marca-mapa.existente span {
+  background: #c9d0da;
+  color: #333;
+}
+.nowrap {
+  white-space: nowrap;
+}
+textarea {
+  font: inherit;
+  width: 100%;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 0.4rem 0.5rem;
+  background: var(--superficie);
+  color: var(--texto);
+}
+@media (max-width: 860px) {
+  .mapa {
+    height: 360px;
+  }
+}

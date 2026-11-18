@@ -115,6 +115,21 @@ class PisoBD(Base):
     nombre: Mapped[str] = mapped_column(String(80))
 
 
+class RedMTBD(Base):
+    """Extensión de red de media tensión y la red existente que la rodea."""
+
+    __tablename__ = "redes_mt"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    nombre: Mapped[str] = mapped_column(String(200))
+    revision: Mapped[int] = mapped_column(Integer)
+    datos: Mapped[str] = mapped_column(Text)
+    #: Red existente leída del geoportal o de un archivo, en JSON; vacía si no se cargó.
+    existente: Mapped[str] = mapped_column(Text, default="")
+    creado: Mapped[str] = mapped_column(String(32))
+    actualizado: Mapped[str] = mapped_column(String(32))
+
+
 class IndustriaBD(Base):
     """Proyecto industrial: cuadro de cargas, ubicación y transformador existente."""
 

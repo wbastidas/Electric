@@ -1680,6 +1680,553 @@
           }
         }
       }
+    },
+    "/api/v1/red-mt/opciones": {
+      "get": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Opciones Mt",
+        "operationId": "opciones_mt_api_v1_red_mt_opciones_get",
+        "parameters": [
+          {
+            "name": "perfil",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "cnel-ep",
+              "title": "Perfil"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpcionesMT"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redes-mt": {
+      "get": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Listar Redes",
+        "operationId": "listar_redes_api_v1_redes_mt_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RedMTResumen"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Redes Api V1 Redes Mt Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Crear Red",
+        "operationId": "crear_red_api_v1_redes_mt_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BorradorRedMT"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedMTDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redes-mt/{id}": {
+      "get": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Leer Red",
+        "operationId": "leer_red_api_v1_redes_mt__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedMTDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Guardar Red",
+        "operationId": "guardar_red_api_v1_redes_mt__id__put",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuardarRedMT"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedMTDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Borrar Red",
+        "operationId": "borrar_red_api_v1_redes_mt__id__delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redes-mt/{id}/calculo": {
+      "get": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Calcular Red Mt",
+        "operationId": "calcular_red_mt_api_v1_redes_mt__id__calculo_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculoRedMT"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redes-mt/{id}/existente/geoportal": {
+      "post": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Existente Geoportal",
+        "description": "Red existente alrededor de un punto, consultando el geoportal de CNEL.",
+        "operationId": "existente_geoportal_api_v1_redes_mt__id__existente_geoportal_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 90.0,
+                  "minimum": -90.0
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "title": "Lat"
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 180.0,
+                  "minimum": -180.0
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "title": "Lon"
+            }
+          },
+          {
+            "name": "radio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 3000,
+              "minimum": 20,
+              "default": 300,
+              "title": "Radio"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Existente"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redes-mt/{id}/existente/archivo": {
+      "post": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Existente Archivo",
+        "description": "Red existente desde un GeoJSON exportado del SIG.",
+        "operationId": "existente_archivo_api_v1_redes_mt__id__existente_archivo_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "contentMediaType": "application/octet-stream",
+                "title": "Contenido"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Existente"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redes-mt/{id}/red.kml": {
+      "get": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Descargar Kml",
+        "operationId": "descargar_kml_api_v1_redes_mt__id__red_kml_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/vnd.google-earth.kml+xml": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/redes-mt/{id}/{plano}.{formato}": {
+      "get": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Descargar Plano",
+        "operationId": "descargar_plano_api_v1_redes_mt__id___plano___formato__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "plano",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "planimetria",
+                "unifilar"
+              ],
+              "type": "string",
+              "title": "Plano"
+            }
+          },
+          {
+            "name": "formato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "dxf",
+                "png",
+                "pdf"
+              ],
+              "type": "string",
+              "title": "Formato"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/dxf": {},
+              "image/png": {},
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ejemplos/red-mt": {
+      "post": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Crear Ejemplo Red",
+        "description": "Crea la extensión de red de ejemplo del repositorio.",
+        "operationId": "crear_ejemplo_red_api_v1_ejemplos_red_mt_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedMTDetalle"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2018,6 +2565,94 @@
         ],
         "title": "AnalisisOut"
       },
+      "Arranque": {
+        "properties": {
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lon"
+          },
+          "poste": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poste"
+          },
+          "alimentador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alimentador"
+          },
+          "scc_mva": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scc Mva"
+          },
+          "caida_previa_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Caida Previa Pct",
+            "default": "0"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "Arranque",
+        "description": "Punto de conexión en la red existente de CNEL."
+      },
       "Asistente": {
         "properties": {
           "revision": {
@@ -2293,6 +2928,103 @@
         "title": "BorradorIndustria",
         "description": "Industria en edición; puede no tener máquinas todavía."
       },
+      "BorradorRedMT": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "perfil": {
+            "type": "string",
+            "title": "Perfil",
+            "default": "cnel-ep"
+          },
+          "propietario": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Propietario",
+            "default": ""
+          },
+          "tension_kv": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Tension Kv",
+            "default": "13.8"
+          },
+          "fases": {
+            "type": "integer",
+            "enum": [
+              1,
+              3
+            ],
+            "title": "Fases",
+            "default": 3
+          },
+          "conductor": {
+            "type": "string",
+            "title": "Conductor",
+            "default": "ACSR 1/0 AWG"
+          },
+          "zona": {
+            "type": "string",
+            "enum": [
+              "urbana",
+              "rural"
+            ],
+            "title": "Zona",
+            "default": "urbana"
+          },
+          "fp": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fp",
+            "default": "0.9"
+          },
+          "arranque": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Arranque"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "postes": {
+            "items": {
+              "$ref": "#/components/schemas/PosteNuevo"
+            },
+            "type": "array",
+            "maxItems": 2000,
+            "title": "Postes",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre"
+        ],
+        "title": "BorradorRedMT",
+        "description": "Extensión en edición: puede no tener arranque ni postes todavía."
+      },
       "CalculoEdificacion": {
         "properties": {
           "estado": {
@@ -2384,6 +3116,115 @@
           "aviso"
         ],
         "title": "CalculoEdificacion"
+      },
+      "CalculoRedMT": {
+        "properties": {
+          "estado": {
+            "type": "string",
+            "enum": [
+              "listo",
+              "incompleto"
+            ],
+            "title": "Estado"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "aviso": {
+            "type": "string",
+            "title": "Aviso"
+          },
+          "pendientes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Pendientes",
+            "default": []
+          },
+          "longitud_m": {
+            "type": "number",
+            "title": "Longitud M",
+            "default": 0
+          },
+          "kva_total": {
+            "type": "number",
+            "title": "Kva Total",
+            "default": 0
+          },
+          "corriente_a": {
+            "type": "number",
+            "title": "Corriente A",
+            "default": 0
+          },
+          "caida_pct": {
+            "type": "number",
+            "title": "Caida Pct",
+            "default": 0
+          },
+          "ik_arranque_ka": {
+            "type": "number",
+            "title": "Ik Arranque Ka",
+            "default": 0
+          },
+          "ik_final_ka": {
+            "type": "number",
+            "title": "Ik Final Ka",
+            "default": 0
+          },
+          "fusible_derivacion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fusible Derivacion"
+          },
+          "postes": {
+            "items": {
+              "$ref": "#/components/schemas/PosteOut"
+            },
+            "type": "array",
+            "title": "Postes",
+            "default": []
+          },
+          "vanos": {
+            "items": {
+              "$ref": "#/components/schemas/VanoOut"
+            },
+            "type": "array",
+            "title": "Vanos",
+            "default": []
+          },
+          "resultados": {
+            "items": {
+              "$ref": "#/components/schemas/ResultadoOut"
+            },
+            "type": "array",
+            "title": "Resultados",
+            "default": []
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "estado",
+          "revision",
+          "aviso"
+        ],
+        "title": "CalculoRedMT"
       },
       "Calculos": {
         "properties": {
@@ -2780,6 +3621,43 @@
           "detalle"
         ],
         "title": "ComprobacionOut"
+      },
+      "Coordenada": {
+        "properties": {
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lon"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "Coordenada"
       },
       "Coordenadas": {
         "properties": {
@@ -3316,6 +4194,27 @@
         "title": "EscenarioOut",
         "description": "Un escenario del proyecto, resumido para compararlo con los demás."
       },
+      "Existente": {
+        "properties": {
+          "red": {
+            "$ref": "#/components/schemas/RedExistente"
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "red",
+          "avisos"
+        ],
+        "title": "Existente"
+      },
       "FilaCuadroIndustrial": {
         "properties": {
           "id": {
@@ -3601,6 +4500,24 @@
           "datos"
         ],
         "title": "GuardarIndustria"
+      },
+      "GuardarRedMT": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/BorradorRedMT"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "datos"
+        ],
+        "title": "GuardarRedMT"
       },
       "HTTPValidationError": {
         "properties": {
@@ -4054,6 +4971,25 @@
         ],
         "title": "OpcionEstilo"
       },
+      "OpcionMT": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "title": "OpcionMT"
+      },
       "OpcionTexto": {
         "properties": {
           "id": {
@@ -4177,6 +5113,36 @@
           "niveles"
         ],
         "title": "OpcionesIndustriales"
+      },
+      "OpcionesMT": {
+        "properties": {
+          "conductores": {
+            "items": {
+              "$ref": "#/components/schemas/OpcionMT"
+            },
+            "type": "array",
+            "title": "Conductores"
+          },
+          "estructuras": {
+            "items": {
+              "$ref": "#/components/schemas/OpcionMT"
+            },
+            "type": "array",
+            "title": "Estructuras"
+          },
+          "geoportal_configurado": {
+            "type": "boolean",
+            "title": "Geoportal Configurado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "conductores",
+          "estructuras",
+          "geoportal_configurado"
+        ],
+        "title": "OpcionesMT"
       },
       "ParOut": {
         "properties": {
@@ -4500,6 +5466,240 @@
         ],
         "title": "PlantaRef"
       },
+      "PosteNuevo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lon"
+          },
+          "transformador_kva": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transformador Kva"
+          },
+          "estructura": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estructura"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "lat",
+          "lon"
+        ],
+        "title": "PosteNuevo"
+      },
+      "PosteOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "lat": {
+            "type": "number",
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          },
+          "angulo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Angulo"
+          },
+          "estructura": {
+            "type": "string",
+            "title": "Estructura"
+          },
+          "estructura_nombre": {
+            "type": "string",
+            "title": "Estructura Nombre"
+          },
+          "codigo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Codigo"
+          },
+          "transformador_kva": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transformador Kva"
+          },
+          "fusible": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fusible"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "lat",
+          "lon",
+          "angulo",
+          "estructura",
+          "estructura_nombre",
+          "codigo",
+          "transformador_kva",
+          "fusible"
+        ],
+        "title": "PosteOut"
+      },
+      "PosteSIG": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lon"
+          },
+          "estructura": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estructura"
+          },
+          "material": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Material"
+          },
+          "altura": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Altura"
+          },
+          "alimentador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alimentador"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "lat",
+          "lon"
+        ],
+        "title": "PosteSIG"
+      },
       "Predio": {
         "properties": {
           "propietario": {
@@ -4620,6 +5820,77 @@
         "type": "object",
         "title": "Preferencias",
         "description": "Criterios del diseño automático; cada escenario tiene los suyos."
+      },
+      "ProteccionSIG": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lon"
+          },
+          "tipo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo"
+          },
+          "capacidad": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacidad"
+          },
+          "alimentador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alimentador"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "lat",
+          "lon"
+        ],
+        "title": "ProteccionSIG"
       },
       "Proyectista": {
         "properties": {
@@ -4961,6 +6232,128 @@
         ],
         "title": "Recorrido",
         "description": "Recorrido ortogonal de un circuito desde el tablero."
+      },
+      "RedExistente": {
+        "properties": {
+          "postes": {
+            "items": {
+              "$ref": "#/components/schemas/PosteSIG"
+            },
+            "type": "array",
+            "title": "Postes",
+            "default": []
+          },
+          "tramos": {
+            "items": {
+              "$ref": "#/components/schemas/TramoSIG"
+            },
+            "type": "array",
+            "title": "Tramos",
+            "default": []
+          },
+          "transformadores": {
+            "items": {
+              "$ref": "#/components/schemas/TransformadorSIG"
+            },
+            "type": "array",
+            "title": "Transformadores",
+            "default": []
+          },
+          "protecciones": {
+            "items": {
+              "$ref": "#/components/schemas/ProteccionSIG"
+            },
+            "type": "array",
+            "title": "Protecciones",
+            "default": []
+          },
+          "origen": {
+            "type": "string",
+            "title": "Origen",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RedExistente"
+      },
+      "RedMTDetalle": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "creado": {
+            "type": "string",
+            "title": "Creado"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/BorradorRedMT"
+          },
+          "existente": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RedExistente"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "revision",
+          "creado",
+          "actualizado",
+          "datos",
+          "existente"
+        ],
+        "title": "RedMTDetalle"
+      },
+      "RedMTResumen": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "propietario": {
+            "type": "string",
+            "title": "Propietario"
+          },
+          "postes": {
+            "type": "integer",
+            "title": "Postes"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "propietario",
+          "postes",
+          "actualizado"
+        ],
+        "title": "RedMTResumen"
       },
       "RefPerfil": {
         "properties": {
@@ -5500,6 +6893,72 @@
         ],
         "title": "TextoFondo"
       },
+      "TramoSIG": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "puntos": {
+            "items": {
+              "$ref": "#/components/schemas/Coordenada"
+            },
+            "type": "array",
+            "title": "Puntos"
+          },
+          "conductor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conductor"
+          },
+          "fases": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fases"
+          },
+          "alimentador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alimentador"
+          },
+          "tension": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tension"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "puntos"
+        ],
+        "title": "TramoSIG"
+      },
       "TransformadorExistente": {
         "properties": {
           "codigo": {
@@ -5631,6 +7090,91 @@
         ],
         "title": "TransformadorOut"
       },
+      "TransformadorSIG": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Lon"
+          },
+          "kva": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kva"
+          },
+          "fases": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fases"
+          },
+          "clientes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clientes"
+          },
+          "alimentador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alimentador"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "lat",
+          "lon"
+        ],
+        "title": "TransformadorSIG"
+      },
       "Ubicacion": {
         "properties": {
           "id": {
@@ -5756,6 +7300,50 @@
           "texto"
         ],
         "title": "ValorOut"
+      },
+      "VanoOut": {
+        "properties": {
+          "desde": {
+            "type": "string",
+            "title": "Desde"
+          },
+          "hasta": {
+            "type": "string",
+            "title": "Hasta"
+          },
+          "longitud_m": {
+            "type": "number",
+            "title": "Longitud M"
+          },
+          "carga_kva": {
+            "type": "number",
+            "title": "Carga Kva"
+          },
+          "caida_pct": {
+            "type": "number",
+            "title": "Caida Pct"
+          },
+          "caida_acumulada_pct": {
+            "type": "number",
+            "title": "Caida Acumulada Pct"
+          },
+          "excede": {
+            "type": "boolean",
+            "title": "Excede"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "desde",
+          "hasta",
+          "longitud_m",
+          "carga_kva",
+          "caida_pct",
+          "caida_acumulada_pct",
+          "excede"
+        ],
+        "title": "VanoOut"
       }
     }
   }

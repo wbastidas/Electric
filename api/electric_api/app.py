@@ -22,7 +22,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
 from sqlalchemy.orm import Session, object_session
 
-from electric_api import industrial, pisos, problemas
+from electric_api import industrial, pisos, problemas, redes_mt
 from electric_api.config import Config, leer_config
 from electric_api.db import (
     ArchivoBD,
@@ -773,6 +773,7 @@ def crear_app(config: Config | None = None) -> FastAPI:
     app.include_router(rutas)
     app.include_router(industrial.rutas)
     app.include_router(pisos.rutas)
+    app.include_router(redes_mt.rutas)
     if config.web.is_dir():
         app.mount("/", StaticFiles(directory=config.web, html=True), name="web")
     return app

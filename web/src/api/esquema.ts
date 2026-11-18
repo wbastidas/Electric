@@ -543,6 +543,171 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/red-mt/opciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Opciones Mt */
+        get: operations["opciones_mt_api_v1_red_mt_opciones_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/redes-mt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Redes */
+        get: operations["listar_redes_api_v1_redes_mt_get"];
+        put?: never;
+        /** Crear Red */
+        post: operations["crear_red_api_v1_redes_mt_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/redes-mt/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Leer Red */
+        get: operations["leer_red_api_v1_redes_mt__id__get"];
+        /** Guardar Red */
+        put: operations["guardar_red_api_v1_redes_mt__id__put"];
+        post?: never;
+        /** Borrar Red */
+        delete: operations["borrar_red_api_v1_redes_mt__id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/redes-mt/{id}/calculo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Calcular Red Mt */
+        get: operations["calcular_red_mt_api_v1_redes_mt__id__calculo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/redes-mt/{id}/existente/geoportal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Existente Geoportal
+         * @description Red existente alrededor de un punto, consultando el geoportal de CNEL.
+         */
+        post: operations["existente_geoportal_api_v1_redes_mt__id__existente_geoportal_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/redes-mt/{id}/existente/archivo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Existente Archivo
+         * @description Red existente desde un GeoJSON exportado del SIG.
+         */
+        post: operations["existente_archivo_api_v1_redes_mt__id__existente_archivo_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/redes-mt/{id}/red.kml": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Descargar Kml */
+        get: operations["descargar_kml_api_v1_redes_mt__id__red_kml_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/redes-mt/{id}/{plano}.{formato}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Descargar Plano */
+        get: operations["descargar_plano_api_v1_redes_mt__id___plano___formato__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ejemplos/red-mt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Crear Ejemplo Red
+         * @description Crea la extensión de red de ejemplo del repositorio.
+         */
+        post: operations["crear_ejemplo_red_api_v1_ejemplos_red_mt_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -672,6 +837,27 @@ export interface components {
             /** Estado Tablas */
             estado_tablas?: ("verificado" | "por_verificar" | "defecto_fuente") | null;
         };
+        /**
+         * Arranque
+         * @description Punto de conexión en la red existente de CNEL.
+         */
+        Arranque: {
+            /** Lat */
+            lat: number | string;
+            /** Lon */
+            lon: number | string;
+            /** Poste */
+            poste?: string | null;
+            /** Alimentador */
+            alimentador?: string | null;
+            /** Scc Mva */
+            scc_mva?: number | string | null;
+            /**
+             * Caida Previa Pct
+             * @default 0
+             */
+            caida_previa_pct: number | string;
+        };
         /** Asistente */
         Asistente: {
             /** Revision */
@@ -797,6 +983,57 @@ export interface components {
             /** Cuadro */
             cuadro?: string | null;
         };
+        /**
+         * BorradorRedMT
+         * @description Extensión en edición: puede no tener arranque ni postes todavía.
+         */
+        BorradorRedMT: {
+            /** Nombre */
+            nombre: string;
+            /**
+             * Perfil
+             * @default cnel-ep
+             */
+            perfil: string;
+            /**
+             * Propietario
+             * @default
+             */
+            propietario: string;
+            /**
+             * Tension Kv
+             * @default 13.8
+             */
+            tension_kv: number | string;
+            /**
+             * Fases
+             * @default 3
+             * @enum {integer}
+             */
+            fases: 1 | 3;
+            /**
+             * Conductor
+             * @default ACSR 1/0 AWG
+             */
+            conductor: string;
+            /**
+             * Zona
+             * @default urbana
+             * @enum {string}
+             */
+            zona: "urbana" | "rural";
+            /**
+             * Fp
+             * @default 0.9
+             */
+            fp: number | string;
+            arranque?: components["schemas"]["Arranque"] | null;
+            /**
+             * Postes
+             * @default []
+             */
+            postes: components["schemas"]["PosteNuevo"][];
+        };
         /** CalculoEdificacion */
         CalculoEdificacion: {
             /**
@@ -861,6 +1098,75 @@ export interface components {
              * @default []
              */
             subtableros: components["schemas"]["SubtableroOut"][];
+            /**
+             * Avisos
+             * @default []
+             */
+            avisos: string[];
+        };
+        /** CalculoRedMT */
+        CalculoRedMT: {
+            /**
+             * Estado
+             * @enum {string}
+             */
+            estado: "listo" | "incompleto";
+            /** Revision */
+            revision: number;
+            /** Aviso */
+            aviso: string;
+            /**
+             * Pendientes
+             * @default []
+             */
+            pendientes: string[];
+            /**
+             * Longitud M
+             * @default 0
+             */
+            longitud_m: number;
+            /**
+             * Kva Total
+             * @default 0
+             */
+            kva_total: number;
+            /**
+             * Corriente A
+             * @default 0
+             */
+            corriente_a: number;
+            /**
+             * Caida Pct
+             * @default 0
+             */
+            caida_pct: number;
+            /**
+             * Ik Arranque Ka
+             * @default 0
+             */
+            ik_arranque_ka: number;
+            /**
+             * Ik Final Ka
+             * @default 0
+             */
+            ik_final_ka: number;
+            /** Fusible Derivacion */
+            fusible_derivacion?: string | null;
+            /**
+             * Postes
+             * @default []
+             */
+            postes: components["schemas"]["PosteOut"][];
+            /**
+             * Vanos
+             * @default []
+             */
+            vanos: components["schemas"]["VanoOut"][];
+            /**
+             * Resultados
+             * @default []
+             */
+            resultados: components["schemas"]["ResultadoOut"][];
             /**
              * Avisos
              * @default []
@@ -1012,6 +1318,13 @@ export interface components {
             cumple: boolean;
             /** Detalle */
             detalle: string;
+        };
+        /** Coordenada */
+        Coordenada: {
+            /** Lat */
+            lat: number | string;
+            /** Lon */
+            lon: number | string;
         };
         /** Coordenadas */
         Coordenadas: {
@@ -1194,6 +1507,12 @@ export interface components {
              */
             resumen: components["schemas"]["DatoResumenOut"][];
         };
+        /** Existente */
+        Existente: {
+            red: components["schemas"]["RedExistente"];
+            /** Avisos */
+            avisos: string[];
+        };
         /** FilaCuadroIndustrial */
         FilaCuadroIndustrial: {
             /** Id */
@@ -1296,6 +1615,12 @@ export interface components {
             /** Revision */
             revision: number;
             datos: components["schemas"]["BorradorIndustria"];
+        };
+        /** GuardarRedMT */
+        GuardarRedMT: {
+            /** Revision */
+            revision: number;
+            datos: components["schemas"]["BorradorRedMT"];
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1460,6 +1785,13 @@ export interface components {
             /** Descripcion */
             descripcion: string;
         };
+        /** OpcionMT */
+        OpcionMT: {
+            /** Id */
+            id: string;
+            /** Nombre */
+            nombre: string;
+        };
         /** OpcionTexto */
         OpcionTexto: {
             /** Id */
@@ -1505,6 +1837,15 @@ export interface components {
             estratos: components["schemas"]["OpcionTexto"][];
             /** Niveles */
             niveles: components["schemas"]["OpcionTexto"][];
+        };
+        /** OpcionesMT */
+        OpcionesMT: {
+            /** Conductores */
+            conductores: components["schemas"]["OpcionMT"][];
+            /** Estructuras */
+            estructuras: components["schemas"]["OpcionMT"][];
+            /** Geoportal Configurado */
+            geoportal_configurado: boolean;
         };
         /** ParOut */
         ParOut: {
@@ -1633,6 +1974,57 @@ export interface components {
             /** Piso */
             piso: string;
         };
+        /** PosteNuevo */
+        PosteNuevo: {
+            /** Id */
+            id: string;
+            /** Lat */
+            lat: number | string;
+            /** Lon */
+            lon: number | string;
+            /** Transformador Kva */
+            transformador_kva?: number | string | null;
+            /** Estructura */
+            estructura?: string | null;
+        };
+        /** PosteOut */
+        PosteOut: {
+            /** Id */
+            id: string;
+            /** Lat */
+            lat: number;
+            /** Lon */
+            lon: number;
+            /** Angulo */
+            angulo: number | null;
+            /** Estructura */
+            estructura: string;
+            /** Estructura Nombre */
+            estructura_nombre: string;
+            /** Codigo */
+            codigo: string | null;
+            /** Transformador Kva */
+            transformador_kva: number | null;
+            /** Fusible */
+            fusible: string | null;
+        };
+        /** PosteSIG */
+        PosteSIG: {
+            /** Id */
+            id: string;
+            /** Lat */
+            lat: number | string;
+            /** Lon */
+            lon: number | string;
+            /** Estructura */
+            estructura?: string | null;
+            /** Material */
+            material?: string | null;
+            /** Altura */
+            altura?: string | null;
+            /** Alimentador */
+            alimentador?: string | null;
+        };
         /**
          * Predio
          * @description Datos del predio y de su propietario (RF-01).
@@ -1705,6 +2097,21 @@ export interface components {
             ambientes: {
                 [key: string]: components["schemas"]["PreferenciaAmbiente"];
             };
+        };
+        /** ProteccionSIG */
+        ProteccionSIG: {
+            /** Id */
+            id: string;
+            /** Lat */
+            lat: number | string;
+            /** Lon */
+            lon: number | string;
+            /** Tipo */
+            tipo?: string | null;
+            /** Capacidad */
+            capacidad?: string | null;
+            /** Alimentador */
+            alimentador?: string | null;
         };
         /**
          * Proyectista
@@ -1839,6 +2246,60 @@ export interface components {
             ][];
             /** Longitud M */
             longitud_m: number | string;
+        };
+        /** RedExistente */
+        RedExistente: {
+            /**
+             * Postes
+             * @default []
+             */
+            postes: components["schemas"]["PosteSIG"][];
+            /**
+             * Tramos
+             * @default []
+             */
+            tramos: components["schemas"]["TramoSIG"][];
+            /**
+             * Transformadores
+             * @default []
+             */
+            transformadores: components["schemas"]["TransformadorSIG"][];
+            /**
+             * Protecciones
+             * @default []
+             */
+            protecciones: components["schemas"]["ProteccionSIG"][];
+            /**
+             * Origen
+             * @default
+             */
+            origen: string;
+        };
+        /** RedMTDetalle */
+        RedMTDetalle: {
+            /** Id */
+            id: string;
+            /** Revision */
+            revision: number;
+            /** Creado */
+            creado: string;
+            /** Actualizado */
+            actualizado: string;
+            datos: components["schemas"]["BorradorRedMT"];
+            existente: components["schemas"]["RedExistente"] | null;
+        };
+        /** RedMTResumen */
+        RedMTResumen: {
+            /** Id */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Propietario */
+            propietario: string;
+            /** Postes */
+            postes: number;
+            /** Actualizado */
+            actualizado: string;
         };
         /**
          * RefPerfil
@@ -2052,6 +2513,21 @@ export interface components {
             /** Texto */
             texto: string;
         };
+        /** TramoSIG */
+        TramoSIG: {
+            /** Id */
+            id: string;
+            /** Puntos */
+            puntos: components["schemas"]["Coordenada"][];
+            /** Conductor */
+            conductor?: string | null;
+            /** Fases */
+            fases?: string | null;
+            /** Alimentador */
+            alimentador?: string | null;
+            /** Tension */
+            tension?: string | null;
+        };
         /**
          * TransformadorExistente
          * @description El transformador de CNEL desde el que se podría atender la industria.
@@ -2095,6 +2571,23 @@ export interface components {
             /** Z Pct */
             z_pct: number;
         };
+        /** TransformadorSIG */
+        TransformadorSIG: {
+            /** Id */
+            id: string;
+            /** Lat */
+            lat: number | string;
+            /** Lon */
+            lon: number | string;
+            /** Kva */
+            kva?: number | string | null;
+            /** Fases */
+            fases?: string | null;
+            /** Clientes */
+            clientes?: number | null;
+            /** Alimentador */
+            alimentador?: string | null;
+        };
         /**
          * Ubicacion
          * @description Posición de un punto, una carga especial o el tablero.
@@ -2135,6 +2628,23 @@ export interface components {
             clave: string;
             /** Texto */
             texto: string;
+        };
+        /** VanoOut */
+        VanoOut: {
+            /** Desde */
+            desde: string;
+            /** Hasta */
+            hasta: string;
+            /** Longitud M */
+            longitud_m: number;
+            /** Carga Kva */
+            carga_kva: number;
+            /** Caida Pct */
+            caida_pct: number;
+            /** Caida Acumulada Pct */
+            caida_acumulada_pct: number;
+            /** Excede */
+            excede: boolean;
         };
     };
     responses: never;
@@ -3320,6 +3830,372 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EdificacionDetalle"];
+                };
+            };
+        };
+    };
+    opciones_mt_api_v1_red_mt_opciones_get: {
+        parameters: {
+            query?: {
+                perfil?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpcionesMT"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_redes_api_v1_redes_mt_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RedMTResumen"][];
+                };
+            };
+        };
+    };
+    crear_red_api_v1_redes_mt_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BorradorRedMT"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RedMTDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    leer_red_api_v1_redes_mt__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RedMTDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    guardar_red_api_v1_redes_mt__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuardarRedMT"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RedMTDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    borrar_red_api_v1_redes_mt__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    calcular_red_mt_api_v1_redes_mt__id__calculo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalculoRedMT"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    existente_geoportal_api_v1_redes_mt__id__existente_geoportal_post: {
+        parameters: {
+            query: {
+                lat: number | string;
+                lon: number | string;
+                radio?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Existente"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    existente_archivo_api_v1_redes_mt__id__existente_archivo_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Existente"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descargar_kml_api_v1_redes_mt__id__red_kml_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.google-earth.kml+xml": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descargar_plano_api_v1_redes_mt__id___plano___formato__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                plano: "planimetria" | "unifilar";
+                formato: "dxf" | "png" | "pdf";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/dxf": unknown;
+                    "image/png": unknown;
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_ejemplo_red_api_v1_ejemplos_red_mt_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RedMTDetalle"];
                 };
             };
         };

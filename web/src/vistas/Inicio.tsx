@@ -18,6 +18,7 @@ export function Inicio() {
   const proyectos = useQuery({ queryKey: ["proyectos"], queryFn: api.proyectos });
   const edificaciones = useQuery({ queryKey: ["edificaciones"], queryFn: api.edificaciones });
   const industrias = useQuery({ queryKey: ["industrias"], queryFn: api.industrias });
+  const redes = useQuery({ queryKey: ["redes-mt"], queryFn: api.redesMT });
 
   const abrir = (hash: string) => {
     consultas.invalidateQueries();
@@ -51,6 +52,14 @@ export function Inicio() {
       enlace: `#/industrias/${i.id}`,
       actualizado: i.actualizado,
       detalle: `${i.maquinas} máquinas`,
+    })),
+    ...(redes.data ?? []).map((r) => ({
+      id: r.id,
+      nombre: r.nombre,
+      tipo: "Red MT",
+      enlace: `#/redes-mt/${r.id}`,
+      actualizado: r.actualizado,
+      detalle: `${r.postes} postes nuevos`,
     })),
   ]
     .sort((a, b) => b.actualizado.localeCompare(a.actualizado))
@@ -88,10 +97,10 @@ export function Inicio() {
           <span className="modulo-nombre">No residencial</span>
           <span className="tenue">Locales, oficinas, edificios: en desarrollo</span>
         </a>
-        <a className="modulo pronto" href="#/redes-mt">
-          <span className="modulo-cifra">—</span>
+        <a className="modulo" href="#/redes-mt">
+          <span className="modulo-cifra">{cuenta(redes.data?.length)}</span>
           <span className="modulo-nombre">Redes MT</span>
-          <span className="tenue">Extensión de red, cámaras, urbanizaciones: en desarrollo</span>
+          <span className="tenue">Extensión de red sobre el mapa, estructuras y planos</span>
         </a>
       </div>
 
@@ -102,6 +111,7 @@ export function Inicio() {
             <a className="boton primario" href="#/nuevo">Vivienda con el asistente</a>
             <a className="boton" href="#/pisos">Vivienda de varios pisos</a>
             <a className="boton" href="#/industrias">Industria</a>
+            <a className="boton" href="#/redes-mt">Extensión de red MT</a>
           </div>
           <h3>Ejemplos</h3>
           <div className="acciones-columna">

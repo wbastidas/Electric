@@ -351,3 +351,87 @@ export function PaginaIndustrias() {
     </div>
   );
 }
+
+export function PaginaRedesMT() {
+  const consultas = useQueryClient();
+  const redes = useQuery({ queryKey: ["redes-mt"], queryFn: api.redesMT });
+  const [nombre, setNombre] = useState("");
+  const abrir = (id: string) => {
+    consultas.invalidateQueries({ queryKey: ["redes-mt"] });
+    window.location.hash = `#/redes-mt/${id}`;
+  };
+  const crear = useMutation({ mutationFn: (n: string) => api.crearRedMT(n), onSuccess: (r) => abrir(r.id) });
+  const ejemplo = useMutation({ mutationFn: api.ejemploRedMT, onSuccess: (r) => abrir(r.id) });
+  const borrar = useMutation({
+    mutationFn: api.borrarRedMT,
+    onSuccess: () => consultas.invalidateQueries({ queryKey: ["redes-mt"] }),
+  });
+  return (
+    <div className="pagina">
+      <div className="titulo-modulo">
+        <h1>Redes de media tensión</h1>
+        <p className="tenue">
+          Extensión de red: trazado sobre el mapa o por coordenadas, estructuras, caída de tensión, cortocircuito,
+          protección, planimetría DXF, unifilar y KML. Cámaras, urbanizaciones y subestaciones vienen después.
+        </p>
+      </div>
+      <section className="tarjeta">
+        <h2>Nueva extensión de red</h2>
+        <form
+          className="fila-formulario"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (nombre.trim()) crear.mutate(nombre.trim());
+          }}
+        >
+          <Campo etiqueta="Nombre">
+            <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Extensión barrio Las Palmas" />
+          </Campo>
+          <button className="primario" type="submit" disabled={!nombre.trim() || crear.isPending}>
+            Nueva extensión de red
+          </button>
+          <button type="button" disabled={ejemplo.isPending} onClick={() => ejemplo.mutate()}>
+            Abrir el ejemplo
+          </button>
+        </form>
+        {crear.isError ? <MensajeError error={crear.error} /> : null}
+        {ejemplo.isError ? <MensajeError error={ejemplo.error} /> : null}
+        {redes.data?.length ? (
+          <div className="tabla-ancha">
+            <table>
+              <thead>
+                <tr>
+                  <th>Red</th>
+                  <th>Solicitante</th>
+                  <th>Postes nuevos</th>
+                  <th>Último cambio</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {redes.data.map((r) => (
+                  <tr key={r.id}>
+                    <td><a href={`#/redes-mt/${r.id}`}>{r.nombre}</a></td>
+                    <td>{r.propietario || "—"}</td>
+                    <td>{r.postes}</td>
+                    <td>{fecha(r.actualizado)}</td>
+                    <td className="derecha">
+                      <button
+                        className="discreto"
+                        onClick={() => {
+                          if (window.confirm(`¿Borrar "${r.nombre}"? No se puede deshacer.`)) borrar.mutate(r.id);
+                        }}
+                      >
+                        Borrar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+      </section>
+    </div>
+  );
+}

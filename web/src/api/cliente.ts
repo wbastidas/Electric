@@ -23,6 +23,13 @@ export type Preferencias = S["Preferencias"];
 export type Respuestas = S["Respuestas"];
 export type BorradorIndustria = S["BorradorIndustria"];
 export type DatosEdificacion = S["DatosEdificacion"];
+export type BorradorRedMT = S["BorradorRedMT"];
+export type RedMTDetalle = S["RedMTDetalle"];
+export type RedMTResumen = S["RedMTResumen"];
+export type CalculoRedMT = S["CalculoRedMT"];
+export type OpcionesMT = S["OpcionesMT"];
+export type RedExistente = S["RedExistente"];
+export type ExistenteOut = S["Existente"];
 export type EdificacionDetalle = S["EdificacionDetalle"];
 export type EdificacionResumen = S["EdificacionResumen"];
 export type CalculoEdificacion = S["CalculoEdificacion"];
@@ -113,6 +120,34 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ revision, respuestas }),
     }),
+  redesMT: () => pedir<RedMTResumen[]>("/redes-mt"),
+  redMT: (id: string) => pedir<RedMTDetalle>(`/redes-mt/${id}`),
+  crearRedMT: (nombre: string) =>
+    pedir<RedMTDetalle>("/redes-mt", { method: "POST", body: JSON.stringify({ nombre }) }),
+  guardarRedMT: (id: string, revision: number, datos: BorradorRedMT) =>
+    pedir<RedMTDetalle>(`/redes-mt/${id}`, { method: "PUT", body: JSON.stringify({ revision, datos }) }),
+  borrarRedMT: (id: string) => pedir<void>(`/redes-mt/${id}`, { method: "DELETE" }),
+  calculoRedMT: (id: string) => pedir<CalculoRedMT>(`/redes-mt/${id}/calculo`),
+  opcionesMT: () => pedir<OpcionesMT>("/red-mt/opciones"),
+  existenteGeoportal: (id: string, lat: number, lon: number, radio: number) =>
+    pedir<ExistenteOut>(
+      `/redes-mt/${id}/existente/geoportal?${new URLSearchParams({
+        lat: String(lat),
+        lon: String(lon),
+        radio: String(radio),
+      })}`,
+      { method: "POST" },
+    ),
+  existenteArchivo: (id: string, archivo: File) =>
+    pedir<ExistenteOut>(`/redes-mt/${id}/existente/archivo`, {
+      method: "POST",
+      body: archivo,
+      headers: { "Content-Type": "application/octet-stream" },
+    }),
+  ejemploRedMT: () => pedir<RedMTDetalle>("/ejemplos/red-mt", { method: "POST" }),
+  urlPlanoMT: (id: string, plano: "planimetria" | "unifilar", formato: "dxf" | "png" | "pdf", r: number) =>
+    `/api/v1/redes-mt/${id}/${plano}.${formato}?r=${r}`,
+  urlKML: (id: string) => `/api/v1/redes-mt/${id}/red.kml`,
   edificaciones: () => pedir<EdificacionResumen[]>("/edificaciones"),
   edificacion: (id: string) => pedir<EdificacionDetalle>(`/edificaciones/${id}`),
   crearEdificacion: (datos: DatosEdificacion) =>

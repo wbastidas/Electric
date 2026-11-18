@@ -129,6 +129,34 @@ En la web: «Viviendas de varios pisos» en el inicio, o «Abrir el ejemplo de d
 plantas» (`ejemplos/vivienda-2-pisos`). En la línea de comandos:
 `electric disenar-pisos planta-baja.dxf planta-alta.dxf --equipos "cocina,ducha;ducha"`.
 
+### Redes de media tensión: extensión de red
+
+Una extensión de red de MT arranca en un poste de la red existente y sigue por
+postes nuevos, que se marcan con clic sobre el mapa (OpenStreetMap), se
+arrastran para moverlos o se pegan como coordenadas (latitud, longitud y kVA
+del transformador, si lleva). La plataforma calcula:
+
+- Vanos y ángulo de deflexión en cada poste; estructura por función y ángulo
+  (derivación, pasante, angular, retención angular, retención cada N vanos,
+  terminal). Los códigos de las unidades de propiedad se toman del catálogo de
+  CNEL; mientras falten, se muestra el tipo.
+- Vano máximo por zona (urbana o rural).
+- Caída de tensión por momento eléctrico, vano por vano, con la carga de los
+  transformadores nuevos que queda aguas abajo.
+- Cortocircuito trifásico en el arranque y al final (c = 1,1).
+- Seccionador fusible de la derivación y fusible de cada transformador.
+
+Entrega la planimetría DXF/PDF con la tabla de estructuras y la red existente en
+gris, el unifilar de MT y un KML para Google Earth o un SIG.
+
+La red existente (postes con estructura, tramos de MT, transformadores y
+protecciones) se lee del geoportal de CNEL por sus servicios ArcGIS REST, con
+las capas y los campos configurados en la tabla `sig` del perfil. Ese cliente
+**no está probado contra el geoportal real**: las direcciones de las capas y los
+nombres de los campos son supuestos, y el servidor necesita acceso a
+geoportal.cnelep.gob.ec. Mientras tanto se puede cargar desde un GeoJSON
+exportado del SIG. Ejemplo: `ejemplos/red-mt` y `electric red-mt extension.json`.
+
 ### Industrias: cuadro de cargas y transformador
 
 Para una industria se parte del cuadro de cargas en Excel o CSV: una fila por
@@ -346,6 +374,9 @@ en `api/` y `pnpm gen` en `web/`.
 - Cortocircuito: 250 MVA en la red, X/R 5 de transformadores, aporte de
   motores de 4 × In, c = 1,05, tablero principal junto al transformador,
   circuitos de máquinas de 15 m y la serie de capacidades de interrupción.
+- Media tensión: conductores ACSR (R y X de uso general), vanos máximos de
+  40 m urbano y 100 m rural, retención cada 10 vanos, caída máxima de 3 %,
+  carga de transformadores al 80 %, seccionador de 10 kA y capas del SIG.
 - Protecciones: fusible K a 1,5 × In primaria, curvas genéricas de breakers
   (disparo instantáneo a 10 × In) y fusibles K, margen de 75 % entre fusible y
   breaker, relación 1,6 entre breakers en serie y energización de 12 × In.
