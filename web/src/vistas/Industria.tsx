@@ -8,7 +8,7 @@ import {
   type Resultado,
 } from "../api/cliente";
 import { Detalle } from "./Calculos";
-import { Aviso, Campo, Insignia, MensajeError } from "./comunes";
+import { Aviso, Campo, elegirPestana, Insignia, MensajeError, type Pestana, Pestanas } from "./comunes";
 
 type Existente = NonNullable<BorradorIndustria["existente"]>;
 
@@ -26,7 +26,9 @@ const EXISTENTE_VACIO: Existente = {
 };
 
 /** Proyecto industrial: cuadro de cargas, transformador existente y decisión. */
-export function Industria({ id }: { id: string }) {
+type Vista = "decision" | "tableros" | "protecciones" | "unifilar";
+
+export function Industria({ id, pestana }: { id: string; pestana?: string }) {
   const consultas = useQueryClient();
   const industria = useQuery({ queryKey: ["industria", id], queryFn: () => api.industria(id) });
   const opciones = useQuery({ queryKey: ["opciones-industriales"], queryFn: api.opcionesIndustriales });
@@ -80,6 +82,24 @@ export function Industria({ id }: { id: string }) {
     subir.mutate(archivo);
   };
 
+  const listo = analisis.data?.estado === "listo" ? analisis.data : null;
+  const noSelectivos = listo?.coordinacion?.pares.filter((x) => !x.selectivo).length ?? 0;
+  const fallasTrafo = listo?.coordinacion?.transformador.filter((c) => !c.cumple).length ?? 0;
+  const pestanas: Pestana[] = [
+    { id: "datos", titulo: "Datos y ubicación" },
+    { id: "cuadro", titulo: "Cuadro de cargas", marca: datos.maquinas.length || null },
+    { id: "decision", titulo: "Decisión y resultados" },
+    { id: "tableros", titulo: "Tableros y cortocircuito", marca: listo?.tableros.length ?? null },
+    {
+      id: "protecciones",
+      titulo: "Protecciones",
+      marca: listo?.coordinacion ? (noSelectivos + fallasTrafo ? `${noSelectivos + fallasTrafo} ✗` : "✓") : null,
+      alerta: noSelectivos + fallasTrafo > 0,
+    },
+    { id: "unifilar", titulo: "Unifilar" },
+  ];
+  const activa = elegirPestana(pestana ?? (datos.maquinas.length ? "decision" : "cuadro"), pestanas);
+
   const lat = datos.ubicacion?.lat ?? "";
   const lon = datos.ubicacion?.lon ?? "";
   const ubicar = (campo: "lat" | "lon", valor: string) => {
@@ -90,7 +110,7 @@ export function Industria({ id }: { id: string }) {
   return (
     <div className="pagina">
       <p className="miga">
-        <a href="#/">Proyectos</a> › Industria
+        <a href="#/industrias">Industrias</a> › {industria.data?.datos.nombre}
       </p>
       <div className="titulo-proyecto">
         <h1>{industria.data?.datos.nombre}</h1>
@@ -102,8 +122,11 @@ export function Industria({ id }: { id: string }) {
         </div>
       </div>
       {guardar.isError ? <MensajeError error={guardar.error} /> : null}
+      {listo ? <ResumenIndustria analisis={listo} /> : null}
+      <Pestanas items={pestanas} activa={activa} base={`#/industrias/${id}`} />
 
-      <div className="columnas">
+      {activa === "datos" ? (
+      <div className="columnas dos">
         <section className="tarjeta">
           <h2>Datos y ubicación</h2>
           <div className="rejilla">
@@ -164,7 +187,9 @@ export function Industria({ id }: { id: string }) {
           cambiar={cambiarExistente}
         />
       </div>
+      ) : null}
 
+      {activa === "cuadro" ? (
       <section className="tarjeta">
         <h2>Cuadro de cargas</h2>
         <div className="acciones izquierda">
@@ -178,17 +203,19 @@ export function Industria({ id }: { id: string }) {
           </span>
         </div>
         {subir.isError ? <MensajeError error={subir.error} /> : null}
-        {analisis.data?.estado === "listo" ? <TablaMaquinas analisis={analisis.data} /> : null}
+        {listo ? <TablaMaquinas analisis={listo} /> : null}
       </section>
+      ) : null}
 
       {analisis.isError ? <MensajeError error={analisis.error} /> : null}
-      {analisis.data?.estado === "incompleto" ? (
+      {analisis.data?.estado === "incompleto" && activa !== "datos" ? (
         <Aviso tipo="nota">{analisis.data.pendientes.join(" ")}</Aviso>
       ) : null}
-      {analisis.data?.estado === "listo" ? (
+      {listo && activa !== "datos" && activa !== "cuadro" ? (
         <Resultados
+          vista={activa as Vista}
           id={id}
-          analisis={analisis.data}
+          analisis={listo}
           elegir={setSeleccion}
           distancias={datos.distancias_m ?? {}}
           cambiarDistancia={(tablero, valor) => {
@@ -328,12 +355,14 @@ function TablaMaquinas({ analisis }: { analisis: AnalisisIndustrial }) {
 }
 
 function Resultados({
+  vista,
   id,
   analisis,
   elegir,
   distancias,
   cambiarDistancia,
 }: {
+  vista: Vista;
   id: string;
   analisis: AnalisisIndustrial;
   elegir: (r: Resultado) => void;
@@ -346,7 +375,8 @@ function Resultados({
   const tp = cc("TP");
   return (
     <>
-      <div className="columnas">
+      {vista === "decision" ? (
+      <div className="columnas dos">
         {d ? (
           <section className={`tarjeta decision ${d.opcion}`}>
             <h2>Decisión: {d.titulo}</h2>
@@ -387,6 +417,8 @@ function Resultados({
           </ul>
         </section>
       </div>
+      ) : null}
+      {vista === "tableros" ? (
       <section className="tarjeta">
         <h2>Tableros</h2>
         <div className="tabla-ancha">
@@ -458,7 +490,8 @@ function Resultados({
           cortocircuito trifásico con aporte de motores; Icu: capacidad de interrupción mínima de los breakers.
         </p>
       </section>
-      {analisis.coordinacion ? (
+      ) : null}
+      {vista === "protecciones" && analisis.coordinacion ? (
         <section className="tarjeta">
           <h2>Coordinación de protecciones</h2>
           <p className="tenue">
@@ -489,6 +522,7 @@ function Resultados({
           />
         </section>
       ) : null}
+      {vista === "unifilar" ? (
       <section className="tarjeta">
         <h2>Diagrama unifilar</h2>
         <div className="acciones izquierda">
@@ -504,6 +538,44 @@ function Resultados({
         />
         <p className="tenue">{analisis.aviso}</p>
       </section>
+      ) : null}
     </>
+  );
+}
+
+/** Cifras clave de la industria, visibles en todas las pestañas. */
+function ResumenIndustria({ analisis }: { analisis: AnalisisIndustrial }) {
+  const r = (id: string) => analisis.resultados.find((x) => x.id === id && x.sujeto === "industria")?.texto ?? "—";
+  const d = analisis.decision;
+  const tp = analisis.cortocircuito.find((c) => c.punto === "TP");
+  return (
+    <div className="resumen compacto franja">
+      <div className="dato">
+        <span className="etiqueta">Demanda</span>
+        <span className="valor">{r("demanda")}</span>
+      </div>
+      <div className="dato">
+        <span className="etiqueta">Factor de potencia</span>
+        <span className="valor">{r("factor_potencia")}</span>
+      </div>
+      <div className="dato">
+        <span className="etiqueta">Transformador</span>
+        <span className="valor">{d?.opcion === "existente" ? "Existente" : r("transformador")}</span>
+      </div>
+      <div className="dato">
+        <span className="etiqueta">Breaker principal</span>
+        <span className="valor">{r("breaker_principal")}</span>
+      </div>
+      <div className="dato">
+        <span className="etiqueta">Ik tablero principal</span>
+        <span className="valor">{tp ? `${num(tp.ik_ka, 2)} kA` : "—"}</span>
+      </div>
+      {d ? (
+        <div className={`dato decision-chip ${d.opcion}`}>
+          <span className="etiqueta">Decisión</span>
+          <span className="valor">{d.titulo}</span>
+        </div>
+      ) : null}
+    </div>
   );
 }

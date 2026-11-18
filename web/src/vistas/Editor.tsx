@@ -76,8 +76,8 @@ export function Editor({ id }: { id: string }) {
               ← {proyecto.data.planta.edificacion}
             </a>
           ) : (
-            <a className="volver" href="#/">
-              ← Proyectos
+            <a className="volver" href="#/viviendas">
+              ← Viviendas
             </a>
           )}
           <h1>{datos.nombre}</h1>

@@ -4739,6 +4739,17 @@
           "actualizado": {
             "type": "string",
             "title": "Actualizado"
+          },
+          "edificacion_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edificacion Id"
           }
         },
         "additionalProperties": false,

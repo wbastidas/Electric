@@ -8,7 +8,7 @@ const abrir = (id: string) => {
   window.location.hash = `#/proyectos/${id}`;
 };
 
-function Edificaciones() {
+export function Edificaciones() {
   const consultas = useQueryClient();
   const edificaciones = useQuery({ queryKey: ["edificaciones"], queryFn: api.edificaciones });
   const perfiles = useQuery({ queryKey: ["perfiles"], queryFn: api.perfiles });
@@ -106,7 +106,7 @@ function Edificaciones() {
   );
 }
 
-function Industrias() {
+export function Industrias() {
   const consultas = useQueryClient();
   const industrias = useQuery({ queryKey: ["industrias"], queryFn: api.industrias });
   const [nombre, setNombre] = useState("");
@@ -183,7 +183,7 @@ function Industrias() {
   );
 }
 
-export function Lista() {
+export function Viviendas() {
   const consultas = useQueryClient();
   const proyectos = useQuery({ queryKey: ["proyectos"], queryFn: api.proyectos });
   const perfiles = useQuery({ queryKey: ["perfiles"], queryFn: api.perfiles });
@@ -210,6 +210,8 @@ export function Lista() {
   });
 
   const perfil = perfiles.data?.find((p) => p.id === perfilId) ?? perfiles.data?.[0];
+  // Las plantas de una vivienda de varios pisos se listan en su vivienda.
+  const sueltas = proyectos.data?.filter((p) => !p.edificacion_id);
 
   const alEnviar = (evento: FormEvent) => {
     evento.preventDefault();
@@ -219,7 +221,10 @@ export function Lista() {
 
   return (
     <div className="pagina">
-      <h1>Proyectos</h1>
+      <div className="titulo-modulo">
+        <h1>Viviendas</h1>
+        <p className="tenue">Vivienda unifamiliar de una planta: desde el plano del arquitecto o por formulario.</p>
+      </div>
 
       <section className="tarjeta">
         <h2>Nuevo proyecto</h2>
@@ -275,10 +280,10 @@ export function Lista() {
       </section>
 
       {proyectos.isError ? <MensajeError error={proyectos.error} /> : null}
-      {proyectos.data?.length === 0 ? (
+      {sueltas?.length === 0 ? (
         <Aviso tipo="nota">Todavía no hay proyectos. Cree uno o abra el modelo de prueba con plano.</Aviso>
       ) : null}
-      {proyectos.data?.length ? (
+      {sueltas?.length ? (
         <div className="tabla-ancha">
           <table>
             <thead>
@@ -291,7 +296,7 @@ export function Lista() {
               </tr>
             </thead>
             <tbody>
-              {proyectos.data.map((p) => (
+              {sueltas.map((p) => (
                 <tr key={p.id}>
                   <td>
                     <a href={`#/proyectos/${p.id}`}>{p.nombre}</a>
@@ -316,7 +321,32 @@ export function Lista() {
           </table>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+export function PaginaPisos() {
+  return (
+    <div className="pagina">
+      <div className="titulo-modulo">
+        <h1>Viviendas de varios pisos</h1>
+        <p className="tenue">Un plano por planta, tablero principal en la planta baja y un subtablero por piso.</p>
+      </div>
       <Edificaciones />
+    </div>
+  );
+}
+
+export function PaginaIndustrias() {
+  return (
+    <div className="pagina">
+      <div className="titulo-modulo">
+        <h1>Industrias</h1>
+        <p className="tenue">
+          Cuadro de cargas, factor de potencia, transformador existente o particular, cortocircuito, protecciones y
+          unifilar.
+        </p>
+      </div>
       <Industrias />
     </div>
   );

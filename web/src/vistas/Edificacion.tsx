@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type FormEvent, useEffect, useState } from "react";
 import { api, type DatosEdificacion, type EdificacionDetalle } from "../api/cliente";
-import { Aviso, Campo, MensajeError } from "./comunes";
+import { Aviso, Campo, elegirPestana, MensajeError, type Pestana, Pestanas } from "./comunes";
 
 const num = (v: number, d = 1) => v.toLocaleString("es-EC", { maximumFractionDigits: d });
 
@@ -12,7 +12,7 @@ const ESTADO_PISO: Record<string, string> = {
 };
 
 /** Vivienda de varios pisos: un plano por planta, tablero principal y subtableros. */
-export function Edificacion({ id }: { id: string }) {
+export function Edificacion({ id, pestana }: { id: string; pestana?: string }) {
   const consultas = useQueryClient();
   const edificacion = useQuery({ queryKey: ["edificacion", id], queryFn: () => api.edificacion(id) });
   const perfiles = useQuery({ queryKey: ["perfiles"], queryFn: api.perfiles });
@@ -52,12 +52,18 @@ export function Edificacion({ id }: { id: string }) {
   const pisos = edificacion.data.pisos;
   const siguiente = pisos.length ? Math.max(...pisos.map((p) => p.nivel)) + 1 : 0;
   const c = calculo.data;
+  const pestanas: Pestana[] = [
+    { id: "plantas", titulo: "Datos y plantas", marca: pisos.length },
+    { id: "resultados", titulo: "Vivienda y tableros", marca: c?.estado === "listo" ? c.clasificacion : null },
+    { id: "unifilar", titulo: "Unifilar" },
+  ];
+  const activa = elegirPestana(pestana ?? (c?.estado === "listo" ? "resultados" : "plantas"), pestanas);
 
   return (
     <div className="pagina">
-      <a className="volver" href="#/">
-        ← Proyectos
-      </a>
+      <p className="miga">
+        <a href="#/pisos">Varios pisos</a> › {edificacion.data.datos.nombre}
+      </p>
       <div className="titulo-proyecto">
         <h1>{edificacion.data.datos.nombre}</h1>
         <div className="acciones">
@@ -68,8 +74,10 @@ export function Edificacion({ id }: { id: string }) {
         </div>
       </div>
       {guardar.isError ? <MensajeError error={guardar.error} /> : null}
+      <Pestanas items={pestanas} activa={activa} base={`#/edificaciones/${id}`} />
 
-      <div className="columnas">
+      {activa === "plantas" ? (
+      <div className="columnas dos">
         <section className="tarjeta">
           <h2>Datos de la vivienda</h2>
           <div className="rejilla">
@@ -148,10 +156,13 @@ export function Edificacion({ id }: { id: string }) {
           <NuevaPlanta id={id} siguiente={siguiente} especiales={perfil?.cargas.filter((x) => x.especial) ?? []} />
         </section>
       </div>
+      ) : null}
 
       {calculo.isError ? <MensajeError error={calculo.error} /> : null}
-      {c?.estado === "incompleto" ? <Aviso tipo="nota">{c.pendientes.join(" ")}</Aviso> : null}
-      {c?.estado === "listo" ? (
+      {c?.estado === "incompleto" && activa !== "plantas" ? (
+        <Aviso tipo="nota">{c.pendientes.join(" ")}</Aviso>
+      ) : null}
+      {c?.estado === "listo" && activa === "resultados" ? (
         <>
           <section className="tarjeta">
             <h2>Vivienda completa</h2>
@@ -242,7 +253,10 @@ export function Edificacion({ id }: { id: string }) {
               </Aviso>
             ) : null}
           </section>
-
+        </>
+      ) : null}
+      {c?.estado === "listo" && activa === "unifilar" ? (
+        <>
           <section className="tarjeta">
             <h2>Diagrama unifilar</h2>
             <div className="acciones izquierda">

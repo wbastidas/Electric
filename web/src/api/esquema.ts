@@ -1763,6 +1763,8 @@ export interface components {
             creado: string;
             /** Actualizado */
             actualizado: string;
+            /** Edificacion Id */
+            edificacion_id?: string | null;
         };
         /** Pt */
         Pt: {

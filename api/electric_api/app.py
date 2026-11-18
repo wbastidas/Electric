@@ -198,6 +198,7 @@ def listar_proyectos(sesion: SesionDep) -> list[ProyectoResumen]:
             propietario=Borrador.model_validate_json(f.datos).predio.propietario,
             creado=f.creado,
             actualizado=f.actualizado,
+            edificacion_id=planta[0] if (planta := pisos.piso_de(sesion, f.id)) else None,
         )
         for f in filas
     ]

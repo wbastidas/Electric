@@ -59,6 +59,8 @@ class ProyectoResumen(Esquema):
     propietario: str
     creado: str
     actualizado: str
+    #: Vivienda de varios pisos a la que pertenece, si es una planta.
+    edificacion_id: str | None = None
 
 
 class PlantaRef(Esquema):
