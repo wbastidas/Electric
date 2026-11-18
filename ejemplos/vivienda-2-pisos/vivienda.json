@@ -1,0 +1,780 @@
+{
+  "id": "pb-vivienda",
+  "nombre": "Vivienda de dos plantas",
+  "uso": "vivienda_unifamiliar",
+  "area_construida_m2": "165.44",
+  "perfil": {
+    "id": "cnel-ep",
+    "version": "0.1.0"
+  },
+  "predio": {
+    "propietario": "",
+    "direccion": "",
+    "clave_catastral": "",
+    "unidad_negocio": "",
+    "plantas": 1
+  },
+  "proyectista": {
+    "nombre": "",
+    "titulo": "",
+    "registro_senescyt": "",
+    "registro_cnel": ""
+  },
+  "sistema": null,
+  "puntos": [
+    {
+      "id": "PB-L-A5-1",
+      "tipo": "punto_luz",
+      "circuito": "PB-C1",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-A5-2",
+      "tipo": "punto_luz",
+      "circuito": "PB-C1",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-A5-3",
+      "tipo": "punto_luz",
+      "circuito": "PB-C1",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-A6-1",
+      "tipo": "punto_luz",
+      "circuito": "PB-C1",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-A6-2",
+      "tipo": "punto_luz",
+      "circuito": "PB-C1",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-A4-1",
+      "tipo": "punto_luz",
+      "circuito": "PB-C2",
+      "potencia_w": null,
+      "ambiente": "A4",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-A4-2",
+      "tipo": "punto_luz",
+      "circuito": "PB-C2",
+      "potencia_w": null,
+      "ambiente": "A4",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-A3-1",
+      "tipo": "punto_luz",
+      "circuito": "PB-C2",
+      "potencia_w": null,
+      "ambiente": "A3",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-A2-1",
+      "tipo": "punto_luz",
+      "circuito": "PB-C2",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-A1-1",
+      "tipo": "punto_luz",
+      "circuito": "PB-C2",
+      "potencia_w": null,
+      "ambiente": "A1",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-EXT-1",
+      "tipo": "punto_luz",
+      "circuito": "PB-C3",
+      "potencia_w": null,
+      "ambiente": "EXT",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-EXT-2",
+      "tipo": "punto_luz",
+      "circuito": "PB-C3",
+      "potencia_w": null,
+      "ambiente": "EXT",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-EXT-3",
+      "tipo": "punto_luz",
+      "circuito": "PB-C3",
+      "potencia_w": null,
+      "ambiente": "EXT",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-EXT-4",
+      "tipo": "punto_luz",
+      "circuito": "PB-C3",
+      "potencia_w": null,
+      "ambiente": "EXT",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-EXT-5",
+      "tipo": "punto_luz",
+      "circuito": "PB-C3",
+      "potencia_w": null,
+      "ambiente": "EXT",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-L-EXT-6",
+      "tipo": "punto_luz",
+      "circuito": "PB-C3",
+      "potencia_w": null,
+      "ambiente": "EXT",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A5-1",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C4",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A5-2",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C4",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A5-3",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C4",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A5-4",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C4",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A5-5",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C4",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A5-6",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C4",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A6-1",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C4",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A6-2",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C4",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A6-3",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C4",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A6-4",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C4",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A6-5",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C5",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A6-6",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C5",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A4-1",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C5",
+      "potencia_w": null,
+      "ambiente": "A4",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A3-1",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C5",
+      "potencia_w": null,
+      "ambiente": "A3",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A3-2",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C5",
+      "potencia_w": null,
+      "ambiente": "A3",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A2-1",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C5",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A2-2",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C5",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A2-3",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C5",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A2-4",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C5",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-A1-1",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C5",
+      "potencia_w": null,
+      "ambiente": "A1",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-EXT-1",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C6",
+      "potencia_w": null,
+      "ambiente": "EXT",
+      "origen": "auto"
+    },
+    {
+      "id": "PB-T-EXT-2",
+      "tipo": "tomacorriente",
+      "circuito": "PB-C6",
+      "potencia_w": null,
+      "ambiente": "EXT",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-L-A5-1",
+      "tipo": "punto_luz",
+      "circuito": "P1-C1",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-L-A5-2",
+      "tipo": "punto_luz",
+      "circuito": "P1-C1",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-L-A6-1",
+      "tipo": "punto_luz",
+      "circuito": "P1-C1",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-L-A6-2",
+      "tipo": "punto_luz",
+      "circuito": "P1-C1",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-L-A7-1",
+      "tipo": "punto_luz",
+      "circuito": "P1-C1",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-L-A4-1",
+      "tipo": "punto_luz",
+      "circuito": "P1-C2",
+      "potencia_w": null,
+      "ambiente": "A4",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-L-A3-1",
+      "tipo": "punto_luz",
+      "circuito": "P1-C2",
+      "potencia_w": null,
+      "ambiente": "A3",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-L-A3-2",
+      "tipo": "punto_luz",
+      "circuito": "P1-C2",
+      "potencia_w": null,
+      "ambiente": "A3",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-L-A2-1",
+      "tipo": "punto_luz",
+      "circuito": "P1-C2",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-L-A1-1",
+      "tipo": "punto_luz",
+      "circuito": "P1-C2",
+      "potencia_w": null,
+      "ambiente": "A1",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A5-1",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C3",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A5-2",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C3",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A5-3",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C3",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A5-4",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C3",
+      "potencia_w": null,
+      "ambiente": "A5",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A6-1",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C3",
+      "potencia_w": null,
+      "ambiente": "A6",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A7-1",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C3",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A7-2",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C3",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A7-3",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C3",
+      "potencia_w": null,
+      "ambiente": "A7",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A4-1",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C4",
+      "potencia_w": null,
+      "ambiente": "A4",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A4-2",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C4",
+      "potencia_w": null,
+      "ambiente": "A4",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A3-1",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C4",
+      "potencia_w": null,
+      "ambiente": "A3",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A2-1",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C4",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A2-2",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C4",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A2-3",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C4",
+      "potencia_w": null,
+      "ambiente": "A2",
+      "origen": "auto"
+    },
+    {
+      "id": "P1-T-A1-1",
+      "tipo": "tomacorriente",
+      "circuito": "P1-C4",
+      "potencia_w": null,
+      "ambiente": "A1",
+      "origen": "auto"
+    }
+  ],
+  "cargas_especiales": [
+    {
+      "id": "PB-E-A6-1",
+      "tipo": "cocina",
+      "circuito": "PB-C7",
+      "potencia_w": null,
+      "conexion": null,
+      "origen": "fijado",
+      "nota": null
+    },
+    {
+      "id": "PB-E-A4-2",
+      "tipo": "ducha",
+      "circuito": "PB-C8",
+      "potencia_w": null,
+      "conexion": null,
+      "origen": "fijado",
+      "nota": null
+    },
+    {
+      "id": "PB-E-A2-AA",
+      "tipo": "aire_acondicionado",
+      "circuito": "PB-C9",
+      "potencia_w": "2500",
+      "conexion": "linea",
+      "origen": "auto",
+      "nota": "9000 BTU para 9.55 m² × 600 BTU/m² (Costa)"
+    },
+    {
+      "id": "PB-E-A5-AA",
+      "tipo": "aire_acondicionado",
+      "circuito": "PB-C10",
+      "potencia_w": "2500",
+      "conexion": "linea",
+      "origen": "auto",
+      "nota": "18000 BTU para 28.37 m² × 600 BTU/m² (Costa)"
+    },
+    {
+      "id": "PB-E-A6-REF",
+      "tipo": "refrigeradora",
+      "circuito": "PB-C11",
+      "potencia_w": null,
+      "conexion": null,
+      "origen": "auto",
+      "nota": "Tomacorriente dedicado"
+    },
+    {
+      "id": "P1-E-A3-1",
+      "tipo": "ducha",
+      "circuito": "P1-C5",
+      "potencia_w": null,
+      "conexion": null,
+      "origen": "fijado",
+      "nota": null
+    },
+    {
+      "id": "P1-E-A2-AA",
+      "tipo": "aire_acondicionado",
+      "circuito": "P1-C6",
+      "potencia_w": "2500",
+      "conexion": "linea",
+      "origen": "auto",
+      "nota": "9000 BTU para 12.40 m² × 600 BTU/m² (Costa)"
+    },
+    {
+      "id": "P1-E-A5-AA",
+      "tipo": "aire_acondicionado",
+      "circuito": "P1-C7",
+      "potencia_w": "2500",
+      "conexion": "linea",
+      "origen": "auto",
+      "nota": "12000 BTU para 18.67 m² × 600 BTU/m² (Costa)"
+    },
+    {
+      "id": "P1-E-A7-AA",
+      "tipo": "aire_acondicionado",
+      "circuito": "P1-C8",
+      "potencia_w": "2500",
+      "conexion": "linea",
+      "origen": "auto",
+      "nota": "9000 BTU para 10.97 m² × 600 BTU/m² (Costa)"
+    }
+  ],
+  "circuitos": [
+    {
+      "id": "PB-C1",
+      "tipo": "iluminacion",
+      "longitud_m": "9.77",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": false
+    },
+    {
+      "id": "PB-C2",
+      "tipo": "iluminacion",
+      "longitud_m": "9.02",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": false
+    },
+    {
+      "id": "PB-C3",
+      "tipo": "iluminacion",
+      "longitud_m": "19.06",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": false
+    },
+    {
+      "id": "PB-C4",
+      "tipo": "tomacorrientes",
+      "longitud_m": "16.57",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "PB-C5",
+      "tipo": "tomacorrientes",
+      "longitud_m": "13.91",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "PB-C6",
+      "tipo": "tomacorrientes",
+      "longitud_m": "14.65",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "PB-C7",
+      "tipo": "especial",
+      "longitud_m": "10.45",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "PB-C8",
+      "tipo": "especial",
+      "longitud_m": "8.10",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "PB-C9",
+      "tipo": "especial",
+      "longitud_m": "4.95",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": false
+    },
+    {
+      "id": "PB-C10",
+      "tipo": "especial",
+      "longitud_m": "3.75",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": false
+    },
+    {
+      "id": "PB-C11",
+      "tipo": "especial",
+      "longitud_m": "12.45",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "P1-C1",
+      "tipo": "iluminacion",
+      "longitud_m": "10.77",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": false
+    },
+    {
+      "id": "P1-C2",
+      "tipo": "iluminacion",
+      "longitud_m": "9.45",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": false
+    },
+    {
+      "id": "P1-C3",
+      "tipo": "tomacorrientes",
+      "longitud_m": "16.84",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "P1-C4",
+      "tipo": "tomacorrientes",
+      "longitud_m": "11.77",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "P1-C5",
+      "tipo": "especial",
+      "longitud_m": "10.35",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": true
+    },
+    {
+      "id": "P1-C6",
+      "tipo": "especial",
+      "longitud_m": "5.75",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": false
+    },
+    {
+      "id": "P1-C7",
+      "tipo": "especial",
+      "longitud_m": "8.00",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": false
+    },
+    {
+      "id": "P1-C8",
+      "tipo": "especial",
+      "longitud_m": "8.85",
+      "fase": null,
+      "portadores_en_ducto": null,
+      "zona_humeda": false
+    }
+  ],
+  "tablero": {
+    "id": "TP",
+    "alimentador_longitud_m": "15"
+  },
+  "supuestos": [],
+  "plano": null,
+  "preferencias": {
+    "iluminacion": "plafon",
+    "zona_climatica": "costa",
+    "refrigeradora": true,
+    "exteriores": true,
+    "ambientes": {}
+  }
+}

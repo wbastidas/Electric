@@ -47,12 +47,38 @@ def texto_breaker(calculado: Calculado, sujeto: str) -> str:
     return f"{resultado.det('polos'):f}P {resultado.decimal.normalize():f} A"
 
 
-def resumen(calculado: Calculado, perfil: Perfil) -> list[DatoResumen]:
+def resumen(calculado: Calculado, perfil: Perfil, *, de_planta: bool = False) -> list[DatoResumen]:
+    """Datos principales. `de_planta`: una planta de una vivienda de varios pisos, cuya
+    clasificación, medidor y puesta a tierra corresponden a la vivienda completa."""
     tablero = calculado.proyecto.tablero.id
 
     def dato(etiqueta: str, id: str, sujeto: str, texto: str | None = None) -> DatoResumen:
         return DatoResumen(etiqueta, texto or _texto(calculado, perfil, id, sujeto), id, sujeto)
 
+    if de_planta:
+        return [
+            dato("Carga instalada de la planta", "RC-01", PROYECTO),
+            dato("Demanda de la planta", "RC-03", PROYECTO),
+            dato("Desbalance de fases", "RC-10", PROYECTO),
+            dato(
+                "Tablero",
+                "RC-11",
+                tablero,
+                f"{tablero}, {_texto(calculado, perfil, 'RC-11', tablero)}",
+            ),
+            dato(
+                "Breaker del alimentador",
+                "RC-09",
+                ALIMENTADOR,
+                texto_breaker(calculado, ALIMENTADOR),
+            ),
+            DatoResumen(
+                "Vivienda completa",
+                "clasificación, medidor y puesta a tierra en el unifilar",
+                "",
+                "",
+            ),
+        ]
     return [
         dato("Carga instalada", "RC-01", PROYECTO),
         dato("Demanda máxima", "RC-03", PROYECTO),

@@ -71,7 +71,7 @@ filas:
     aire: true
     zona_casa: social
   - uso: pasillo
-    patrones: [pasillo, hall, corredor, circulacion, vestibulo]
+    patrones: [pasillo, hall, corredor, circulacion, vestibulo, escalera, gradas]
     area_por_luminaria_m2: 10
     separacion_tomas_m: 12
     tomas_min: 1

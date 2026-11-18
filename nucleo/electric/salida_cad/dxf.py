@@ -116,7 +116,12 @@ def _tabla(
 
 
 def generar_dxf(
-    original: bytes, proyecto: Proyecto, calculado: Calculado | None, perfil: Perfil
+    original: bytes,
+    proyecto: Proyecto,
+    calculado: Calculado | None,
+    perfil: Perfil,
+    *,
+    de_planta: bool = False,
 ) -> bytes:
     """DXF con el plano original en gris y la instalación en capas `E-*`."""
     plano = proyecto.plano
@@ -225,7 +230,7 @@ def generar_dxf(
     _texto(msp, f"{proyecto.nombre} · perfil {perfil.meta.id} {perfil.meta.version}", x0, y, alto)
     y -= alto * 3
     if calculado is not None:
-        for dato in resumen(calculado, perfil):
+        for dato in resumen(calculado, perfil, de_planta=de_planta):
             _texto(msp, f"{dato.etiqueta}: {dato.texto}", x0, y, alto)
             y -= alto * 1.9
         y -= alto

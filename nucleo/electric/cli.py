@@ -208,6 +208,112 @@ def _disenar(args: argparse.Namespace) -> int:
     return 0
 
 
+def _disenar_pisos(args: argparse.Namespace) -> int:
+    from electric.calculo.resultado import ALIMENTADOR, PROYECTO
+    from electric.pisos import PlanoPiso, disenar_pisos
+    from electric.salida_cad import generar_dxf, renderizar
+    from electric.salida_cad.unifilar_pisos import generar_unifilar_pisos
+
+    perfil = cargar_perfil(_carpeta_perfiles(args.perfiles) / args.perfil)
+    archivos = [Path(a) for a in args.planos]
+    niveles = (
+        [int(n) for n in args.niveles.split(",")] if args.niveles else list(range(len(archivos)))
+    )
+    nombres = (
+        args.nombres.split(",")
+        if args.nombres
+        else ["Planta baja" if n == 0 else f"Piso {n}" for n in niveles]
+    )
+    equipos = args.equipos.split(";") if args.equipos else [""] * len(archivos)
+    if not len(archivos) == len(niveles) == len(nombres) == len(equipos):
+        raise ErrorElectric("indique un nivel, un nombre y unos equipos por cada plano")
+    planos = [
+        PlanoPiso(
+            contenido=archivo.read_bytes(),
+            archivo=archivo.name,
+            nombre=nombre.strip(),
+            nivel=nivel,
+            equipos=tuple(e.strip() for e in equipo.split(",") if e.strip()),
+        )
+        for archivo, nivel, nombre, equipo in zip(archivos, niveles, nombres, equipos, strict=True)
+    ]
+    diseno = disenar_pisos(
+        args.nombre or "Vivienda de varios pisos",
+        planos,
+        perfil,
+        medidor_m=Decimal(args.alimentador),
+        altura_piso_m=Decimal(args.altura),
+        preferencias=Preferencias(
+            iluminacion=args.iluminacion,
+            zona_climatica=args.zona,
+            refrigeradora=not args.sin_refrigeradora,
+            exteriores=not args.sin_exteriores,
+        ),
+    )
+    e = diseno.edificacion
+    calc = e.calculado
+    print(f"{e.nombre} · {len(e.pisos)} plantas · {e.area_m2} m²\n")
+    filas = []
+    for piso in e.pisos:
+        sub = next((s for s in e.subtableros if s.piso is piso), None)
+        calculado = sub.calculado if sub else e.calculado_principal
+        filas.append(
+            (
+                piso.nombre,
+                sub.tablero if sub else "TP",
+                str(len(piso.proyecto.plano.ambientes) if piso.proyecto.plano else 0),
+                str(len(piso.proyecto.circuitos)),
+                f"{calculado.res('RC-03', PROYECTO).decimal / 1000:.2f} kW".replace(".", ","),
+                f"{sub.longitud_m:.1f} m".replace(".", ",") if sub else "—",
+                f"{sub.breaker_a} A" if sub else "—",
+                sub.conductor if sub else "—",
+                f"{sub.caida_pct:.2f} %".replace(".", ",") if sub else "—",
+            )
+        )
+    print(
+        _tabla(
+            ("Planta", "Tablero", "Ambientes", "Circuitos", "Demanda", "Alimentador", "Breaker",
+             "Conductor", "ΔV"),
+            filas,
+        )
+    )  # fmt: skip
+    demanda = f"{calc.res('RC-03', PROYECTO).decimal / 1000:.2f}".replace(".", ",")
+    principal = calc.res("RC-09", ALIMENTADOR).valor
+    print(
+        f"\nVivienda completa: demanda {demanda} kW, {calc.res('RC-05', PROYECTO).valor}, "
+        f"principal {principal} A, alimentador {calc.res('RC-07', ALIMENTADOR).valor}, "
+        f"medidor {calc.res('RC-12', PROYECTO).valor}"
+    )
+    avisos = list(e.avisos) + [
+        f"{p.nombre}: {a}" for p in e.pisos for a in diseno.avisos.get(p.nivel, ())
+    ]
+    if avisos:
+        print("\nPor revisar")
+        for aviso in avisos:
+            print(f"- {aviso}")
+    if args.salida:
+        carpeta = Path(args.salida)
+        carpeta.mkdir(parents=True, exist_ok=True)
+        for plano in planos:
+            sub = next((x for x in e.subtableros if x.piso.nivel == plano.nivel), None)
+            calculado = sub.calculado if sub else e.calculado_principal
+            dxf = generar_dxf(
+                plano.contenido, calculado.proyecto, calculado, perfil, de_planta=True
+            )
+            base = Path(plano.archivo).stem
+            (carpeta / f"{base}-red.dxf").write_bytes(dxf)
+            (carpeta / f"{base}-red.png").write_bytes(renderizar(dxf, "png"))
+        unifilar = generar_unifilar_pisos(e)
+        (carpeta / "unifilar.dxf").write_bytes(unifilar)
+        (carpeta / "unifilar.pdf").write_bytes(renderizar(unifilar, "pdf"))
+        (carpeta / "unifilar.png").write_bytes(renderizar(unifilar, "png"))
+        (carpeta / "vivienda.json").write_text(
+            calc.proyecto.model_dump_json(indent=2) + "\n", encoding="utf-8"
+        )
+        print(f"\nEscritos en {carpeta}: red de cada planta, unifilar y vivienda.json")
+    return 0
+
+
 def _validar_perfil(args: argparse.Namespace) -> int:
     perfil = cargar_perfil(Path(args.carpeta))
     print(f"Perfil {perfil.meta.id} {perfil.meta.version}: válido, {len(perfil.tablas)} tablas")
@@ -362,6 +468,25 @@ def main(argv: Sequence[str] | None = None) -> int:
     t.add_argument("--perfil", default="cnel-ep")
     t.add_argument("--perfiles", help="carpeta que contiene los perfiles")
     t.set_defaults(funcion=_plantilla_industrial)
+
+    v = comandos.add_parser(
+        "disenar-pisos", help="vivienda de varios pisos: un plano DXF por planta"
+    )
+    v.add_argument("planos", nargs="+", help="planos DXF, uno por planta")
+    v.add_argument("--niveles", help="nivel de cada plano: 0,1,2 (por defecto en orden)")
+    v.add_argument("--nombres", help="nombre de cada planta, separados por coma")
+    v.add_argument("--equipos", help="equipos por planta separados por ';': cocina,ducha;ducha")
+    v.add_argument("--perfil", default="cnel-ep")
+    v.add_argument("--perfiles", help="carpeta que contiene los perfiles")
+    v.add_argument("--nombre", help="nombre de la vivienda")
+    v.add_argument("--altura", default="2.8", help="altura de piso a piso, en m")
+    v.add_argument("--alimentador", default="15", help="metros del medidor al tablero principal")
+    v.add_argument("--zona", help="zona climática")
+    v.add_argument("--iluminacion", default="plafon", help="estilo de iluminación")
+    v.add_argument("--sin-exteriores", action="store_true")
+    v.add_argument("--sin-refrigeradora", action="store_true")
+    v.add_argument("--salida", help="carpeta para la red de cada planta y el unifilar")
+    v.set_defaults(funcion=_disenar_pisos)
 
     p = comandos.add_parser("validar-perfil", help="valida un perfil y lista sus tablas")
     p.add_argument("carpeta", help="carpeta del perfil")
