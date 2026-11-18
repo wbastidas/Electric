@@ -59,3 +59,10 @@ filas:
   - {clave: margen_fusible_breaker, valor: 0.75, nota: 'Práctica habitual - el breaker despeja antes del 75 % del tiempo mínimo de fusión del fusible.'}
   - {clave: relacion_selectividad_termica, valor: 1.6, nota: Práctica habitual - relación mínima de corrientes nominales entre breakers en serie.}
   - {clave: corriente_magnetizacion_veces, valor: 12, nota: 'Práctica habitual - corriente de energización del transformador de 12 × In durante 0,1 s.'}
+  - {clave: vano_max_urbano_m, valor: 40, unidad: m, nota: Propuesta - vano máximo de red de MT en zona urbana; confirmar con CNEL.}
+  - {clave: vano_max_rural_m, valor: 100, unidad: m, nota: Propuesta - vano máximo de red de MT en zona rural; confirmar con CNEL.}
+  - {clave: retencion_cada_vanos, valor: 10, nota: Propuesta - retención en alineación cada tantos vanos seguidos.}
+  - {clave: caida_mt_max_pct, valor: 3, unidad: '%', nota: Propuesta - caída de tensión máxima de la extensión de red de MT; confirmar con la regulación de calidad.}
+  - {clave: factor_carga_transformador_mt, valor: 0.8, nota: Propuesta - carga de cada transformador nuevo como fracción de su potencia para la caída de tensión.}
+  - {clave: capacidad_seccionador_ka, valor: 10, unidad: kA, nota: Propuesta - capacidad de interrupción del seccionador fusible de la derivación.}
+  - {clave: altura_poste_mt_m, valor: 12, unidad: m, nota: Propuesta - poste de hormigón para red de MT.}

@@ -1,0 +1,59 @@
+{
+  "nombre": "Extensión de red MT de ejemplo",
+  "tension_kv": "13.8",
+  "fases": 3,
+  "conductor": "ACSR 1/0 AWG",
+  "zona": "urbana",
+  "fp": "0.9",
+  "arranque": {
+    "lat": "-2.170000",
+    "lon": "-79.900000",
+    "poste": "P-EX-12",
+    "alimentador": "ALIM-01"
+  },
+  "postes": [
+    {
+      "id": "PN-1",
+      "lat": "-2.170000",
+      "lon": "-79.899660"
+    },
+    {
+      "id": "PN-2",
+      "lat": "-2.170000",
+      "lon": "-79.899320"
+    },
+    {
+      "id": "PN-3",
+      "lat": "-2.170000",
+      "lon": "-79.898980",
+      "transformador_kva": "50"
+    },
+    {
+      "id": "PN-4",
+      "lat": "-2.170250",
+      "lon": "-79.898800"
+    },
+    {
+      "id": "PN-5",
+      "lat": "-2.170570",
+      "lon": "-79.898800"
+    },
+    {
+      "id": "PN-6",
+      "lat": "-2.170890",
+      "lon": "-79.898800",
+      "transformador_kva": "75"
+    },
+    {
+      "id": "PN-7",
+      "lat": "-2.171210",
+      "lon": "-79.898800"
+    },
+    {
+      "id": "PN-8",
+      "lat": "-2.171530",
+      "lon": "-79.898800",
+      "transformador_kva": "100"
+    }
+  ]
+}

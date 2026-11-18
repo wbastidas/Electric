@@ -1,0 +1,22 @@
+id: general/conductores-mt
+tipo: conductores_mt
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: Valores de uso general de conductores ACSR desnudos (catálogos de fabricantes)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Resistencia a 50 °C y reactancia para una disposición típica de red aérea de
+  13,8 kV (separación media geométrica cercana a 1 m). Reemplazar por los
+  conductores y valores de la base SIG y del catálogo de CNEL EP.
+unidades: {r_ohm_km: ohm/km, x_ohm_km: ohm/km, ampacidad: A}
+filas:
+  - {calibre: ACSR 4 AWG, r_ohm_km: 1.354, x_ohm_km: 0.48, ampacidad: 140}
+  - {calibre: ACSR 2 AWG, r_ohm_km: 0.853, x_ohm_km: 0.47, ampacidad: 180}
+  - {calibre: ACSR 1/0 AWG, r_ohm_km: 0.536, x_ohm_km: 0.45, ampacidad: 230}
+  - {calibre: ACSR 2/0 AWG, r_ohm_km: 0.426, x_ohm_km: 0.44, ampacidad: 270}
+  - {calibre: ACSR 3/0 AWG, r_ohm_km: 0.338, x_ohm_km: 0.43, ampacidad: 300}
+  - {calibre: ACSR 4/0 AWG, r_ohm_km: 0.268, x_ohm_km: 0.42, ampacidad: 340}
+  - {calibre: ACSR 266.8 MCM, r_ohm_km: 0.214, x_ohm_km: 0.40, ampacidad: 460}

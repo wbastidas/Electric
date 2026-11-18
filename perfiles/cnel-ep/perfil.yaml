@@ -39,3 +39,6 @@ tablas:
   - tablas/capacitores.yaml
   - tablas/capacidad_interruptiva.yaml
   - tablas/fusibles_mt.yaml
+  - tablas/conductores_mt.yaml
+  - tablas/estructuras_mt.yaml
+  - tablas/sig_cnel.yaml

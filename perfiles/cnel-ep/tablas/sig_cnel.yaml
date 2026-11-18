@@ -1,0 +1,27 @@
+id: cnel-ep/sig
+tipo: sig
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: Geoportal de CNEL EP (servicios ArcGIS REST)
+  numeral: null
+  url: https://geoportal.cnelep.gob.ec/cnel/
+estado: por_verificar
+nota: >-
+  Correspondencia entre las capas y campos del geoportal y los datos que usa la
+  plataforma. Las URL de capa y los nombres de campo son supuestos: no se pudo
+  consultar el servicio desde el entorno de desarrollo. Hay que confirmarlos
+  con el geoportal real y corregirlos aquí, sin tocar el código.
+filas:
+  - capa: postes
+    url: null
+    campos: {id: CODIGO, estructura: ESTRUCTURA, material: MATERIAL, altura: ALTURA, alimentador: ALIMENTADOR}
+  - capa: tramos_mt
+    url: null
+    campos: {id: CODIGO, conductor: CONDUCTOR, fases: FASES, alimentador: ALIMENTADOR, tension: VOLTAJE}
+  - capa: transformadores
+    url: null
+    campos: {id: CODIGO, kva: POTENCIA, fases: FASES, clientes: CLIENTES, alimentador: ALIMENTADOR}
+  - capa: protecciones
+    url: null
+    campos: {id: CODIGO, tipo: TIPO, capacidad: CAPACIDAD, alimentador: ALIMENTADOR}

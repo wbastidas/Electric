@@ -1,0 +1,21 @@
+id: cnel-ep/estructuras-mt
+tipo: estructuras_mt
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: Tipos funcionales de estructuras de red aérea; códigos por tomar del catálogo y la base SIG de CNEL EP
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Cada poste nuevo recibe un tipo de estructura según su función y el ángulo
+  de deflexión de la línea. Los códigos de las unidades de propiedad se
+  llenan con los del catálogo de CNEL EP; mientras falten, se muestra el tipo.
+unidades: {angulo_max: grados}
+filas:
+  - {id: arranque, nombre: Derivación desde la red existente, funcion: arranque, codigo_3f: null, codigo_1f: null}
+  - {id: pasante, nombre: Pasante (alineación), funcion: linea, angulo_max: 5, codigo_3f: null, codigo_1f: null}
+  - {id: angular, nombre: Angular, funcion: linea, angulo_max: 30, codigo_3f: null, codigo_1f: null}
+  - {id: retencion_angular, nombre: Retención angular, funcion: linea, angulo_max: 90, codigo_3f: null, codigo_1f: null}
+  - {id: retencion, nombre: Retención en alineación, funcion: retencion, codigo_3f: null, codigo_1f: null}
+  - {id: terminal, nombre: Terminal (fin de línea), funcion: terminal, codigo_3f: null, codigo_1f: null}

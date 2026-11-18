@@ -19,11 +19,14 @@ from electric.errores import ErrorPerfil, FilaNoEncontrada
 from electric.perfiles.esquema import (
     FilaAire,
     FilaArranque,
+    FilaCapaSIG,
     FilaCarga,
     FilaConductor,
+    FilaConductorMT,
     FilaDucto,
     FilaEstiloLuz,
     FilaEstrato,
+    FilaEstructuraMT,
     FilaFactorDemanda,
     FilaMedidor,
     FilaMinimoCalibre,
@@ -43,9 +46,11 @@ from electric.perfiles.esquema import (
     TablaCargas,
     TablaCircuitosMinimos,
     TablaConductores,
+    TablaConductoresMT,
     TablaDuctos,
     TablaEstilosLuz,
     TablaEstratos,
+    TablaEstructurasMT,
     TablaFactoresAgrupamiento,
     TablaFactoresDemanda,
     TablaFactoresEspeciales,
@@ -57,6 +62,7 @@ from electric.perfiles.esquema import (
     TablaPlantillas,
     TablaRedondeo,
     TablaSerie,
+    TablaSIG,
     TablaSistemas,
     TablaTierraEquipos,
     TablaTiposIndustriales,
@@ -314,6 +320,29 @@ class Perfil:
         if "demanda_estratos" not in self.tablas:
             return ()
         return self._tabla("demanda_estratos", TablaEstratos).filas
+
+    # -- media tensión (tablas opcionales) -------------------------------
+
+    def conductores_mt(self) -> tuple[FilaConductorMT, ...]:
+        if "conductores_mt" not in self.tablas:
+            return ()
+        return self._tabla("conductores_mt", TablaConductoresMT).filas
+
+    def conductor_mt(self, calibre: str) -> tuple[FilaConductorMT, RefTabla]:
+        tabla = self._tabla("conductores_mt", TablaConductoresMT)
+        for fila in tabla.filas:
+            if fila.calibre == calibre:
+                return fila, self._ref(tabla, calibre)
+        raise FilaNoEncontrada(tabla.id, f"el conductor de MT '{calibre}'")
+
+    def estructuras_mt(self) -> tuple[tuple[FilaEstructuraMT, ...], RefTabla]:
+        tabla = self._tabla("estructuras_mt", TablaEstructurasMT)
+        return tabla.filas, self._ref(tabla, "tipos de estructura")
+
+    def capas_sig(self) -> tuple[FilaCapaSIG, ...]:
+        if "sig" not in self.tablas:
+            return ()
+        return self._tabla("sig", TablaSIG).filas
 
     # -- sistema de tensión ------------------------------------------------
 

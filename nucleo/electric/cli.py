@@ -316,6 +316,65 @@ def _disenar_pisos(args: argparse.Namespace) -> int:
     return 0
 
 
+def _red_mt(args: argparse.Namespace) -> int:
+    from electric.mt import (
+        ExtensionMT,
+        calcular_red,
+        generar_kml,
+        generar_planimetria,
+        generar_unifilar_mt,
+        leer_geojson,
+    )
+    from electric.salida_cad import renderizar
+
+    perfil = cargar_perfil(_carpeta_perfiles(args.perfiles) / args.perfil)
+    try:
+        extension = ExtensionMT.model_validate_json(Path(args.extension).read_text("utf-8"))
+    except OSError as error:
+        raise ErrorElectric(f"no se pudo leer {args.extension}: {error}") from error
+    existente = None
+    if args.existente:
+        existente, avisos_sig = leer_geojson(Path(args.existente).read_bytes(), perfil)
+        for aviso in avisos_sig:
+            print(f"- {aviso}")
+    red = calcular_red(extension, perfil)
+    print(
+        f"{extension.nombre} · {extension.tension_kv} kV · {extension.fases}F · "
+        f"{extension.conductor}"
+    )
+    filas = [
+        (
+            str(n),
+            p.id,
+            p.estructura_nombre,
+            f"{p.angulo}°" if p.angulo is not None else "—",
+            f"{p.transformador_kva} kVA" if p.transformador_kva else "",
+            p.fusible or "",
+        )
+        for n, p in enumerate(red.postes, start=1)
+    ]
+    print(_tabla(("N", "Poste", "Estructura", "Deflexión", "Transformador", "Fusible"), filas))
+    print()
+    for r in red.resultados:
+        print(f"- {r.nombre}: {presentar(r.valor, r.unidad, perfil)}")
+    if red.avisos:
+        print("\nPor revisar")
+        for aviso in red.avisos:
+            print(f"- {aviso}")
+    if args.salida:
+        carpeta = Path(args.salida)
+        carpeta.mkdir(parents=True, exist_ok=True)
+        plano = generar_planimetria(red, existente)
+        unifilar = generar_unifilar_mt(red)
+        (carpeta / "planimetria.dxf").write_bytes(plano)
+        (carpeta / "planimetria.pdf").write_bytes(renderizar(plano, "pdf"))
+        (carpeta / "unifilar.dxf").write_bytes(unifilar)
+        (carpeta / "unifilar.pdf").write_bytes(renderizar(unifilar, "pdf"))
+        (carpeta / "red.kml").write_bytes(generar_kml(red))
+        print(f"\nEscritos en {carpeta}: planimetría, unifilar y red.kml")
+    return 0
+
+
 def _validar_perfil(args: argparse.Namespace) -> int:
     perfil = cargar_perfil(Path(args.carpeta))
     print(f"Perfil {perfil.meta.id} {perfil.meta.version}: válido, {len(perfil.tablas)} tablas")
@@ -489,6 +548,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     v.add_argument("--sin-refrigeradora", action="store_true")
     v.add_argument("--salida", help="carpeta para la red de cada planta y el unifilar")
     v.set_defaults(funcion=_disenar_pisos)
+
+    m = comandos.add_parser("red-mt", help="extensión de red de media tensión desde un JSON")
+    m.add_argument("extension", help="archivo JSON con el arranque y los postes nuevos")
+    m.add_argument("--existente", help="red existente en GeoJSON, para dibujarla en gris")
+    m.add_argument("--perfil", default="cnel-ep")
+    m.add_argument("--perfiles", help="carpeta que contiene los perfiles")
+    m.add_argument("--salida", help="carpeta para la planimetría, el unifilar y el KML")
+    m.set_defaults(funcion=_red_mt)
 
     p = comandos.add_parser("validar-perfil", help="valida un perfil y lista sus tablas")
     p.add_argument("carpeta", help="carpeta del perfil")

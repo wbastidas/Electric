@@ -262,6 +262,36 @@ class FilaEstrato(Dato):
     descripcion: str = ""
 
 
+# --- Media tensión --------------------------------------------------------
+
+
+class FilaConductorMT(Dato):
+    calibre: str
+    r_ohm_km: Decimal = Field(gt=0)
+    x_ohm_km: Decimal = Field(gt=0)
+    ampacidad: Decimal = Field(gt=0)
+
+
+class FilaEstructuraMT(Dato):
+    """Tipo funcional de estructura y su código en el catálogo, si se conoce."""
+
+    id: str
+    nombre: str
+    funcion: Literal["arranque", "linea", "retencion", "terminal"]
+    #: Para estructuras de línea: ángulo de deflexión máximo que admite.
+    angulo_max: Decimal | None = None
+    codigo_3f: str | None = None
+    codigo_1f: str | None = None
+
+
+class FilaCapaSIG(Dato):
+    """Capa del geoportal y el nombre de cada campo que se usa."""
+
+    capa: Literal["postes", "tramos_mt", "transformadores", "protecciones"]
+    url: str | None = None
+    campos: dict[str, str]
+
+
 # --- Tablas --------------------------------------------------------------
 
 
@@ -401,6 +431,23 @@ class TablaEstratos(TablaBase):
     filas: tuple[FilaEstrato, ...]
 
 
+class TablaConductoresMT(TablaBase):
+    """De menor a mayor ampacidad."""
+
+    tipo: Literal["conductores_mt"]
+    filas: tuple[FilaConductorMT, ...]
+
+
+class TablaEstructurasMT(TablaBase):
+    tipo: Literal["estructuras_mt"]
+    filas: tuple[FilaEstructuraMT, ...]
+
+
+class TablaSIG(TablaBase):
+    tipo: Literal["sig"]
+    filas: tuple[FilaCapaSIG, ...]
+
+
 class TablaRedondeo(TablaBase):
     tipo: Literal["redondeo"]
     filas: tuple[FilaRedondeo, ...]
@@ -431,6 +478,9 @@ Tabla = Annotated[
     | TablaTransformadores
     | TablaNivelesServicio
     | TablaEstratos
+    | TablaConductoresMT
+    | TablaEstructurasMT
+    | TablaSIG
     | TablaRedondeo,
     Field(discriminator="tipo"),
 ]
