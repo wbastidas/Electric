@@ -22,6 +22,10 @@ export type Escenario = S["EscenarioOut"];
 export type Preferencias = S["Preferencias"];
 export type Respuestas = S["Respuestas"];
 export type BorradorIndustria = S["BorradorIndustria"];
+export type DatosEdificacion = S["DatosEdificacion"];
+export type EdificacionDetalle = S["EdificacionDetalle"];
+export type EdificacionResumen = S["EdificacionResumen"];
+export type CalculoEdificacion = S["CalculoEdificacion"];
 export type IndustriaDetalle = S["IndustriaDetalle"];
 export type IndustriaResumen = S["IndustriaResumen"];
 export type AnalisisIndustrial = S["AnalisisOut"];
@@ -109,6 +113,27 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ revision, respuestas }),
     }),
+  edificaciones: () => pedir<EdificacionResumen[]>("/edificaciones"),
+  edificacion: (id: string) => pedir<EdificacionDetalle>(`/edificaciones/${id}`),
+  crearEdificacion: (datos: DatosEdificacion) =>
+    pedir<EdificacionDetalle>("/edificaciones", { method: "POST", body: JSON.stringify(datos) }),
+  guardarEdificacion: (id: string, datos: DatosEdificacion) =>
+    pedir<EdificacionDetalle>(`/edificaciones/${id}`, { method: "PUT", body: JSON.stringify(datos) }),
+  borrarEdificacion: (id: string) => pedir<void>(`/edificaciones/${id}`, { method: "DELETE" }),
+  subirPiso: (id: string, archivo: File, nivel: number, nombre: string, equipos: string[]) =>
+    pedir<EdificacionDetalle>(
+      `/edificaciones/${id}/pisos?${new URLSearchParams({
+        nivel: String(nivel),
+        nombre,
+        archivo: archivo.name,
+        equipos: equipos.join(","),
+      })}`,
+      { method: "POST", body: archivo, headers: { "Content-Type": "application/octet-stream" } },
+    ),
+  calculoEdificacion: (id: string) => pedir<CalculoEdificacion>(`/edificaciones/${id}/calculo`),
+  ejemploPisos: () => pedir<EdificacionDetalle>("/ejemplos/vivienda-2-pisos", { method: "POST" }),
+  urlUnifilarEdificacion: (id: string, formato: "dxf" | "png" | "pdf", marca: string) =>
+    `/api/v1/edificaciones/${id}/unifilar.${formato}?r=${encodeURIComponent(marca)}`,
   industrias: () => pedir<IndustriaResumen[]>("/industrias"),
   industria: (id: string) => pedir<IndustriaDetalle>(`/industrias/${id}`),
   crearIndustria: (datos: Partial<BorradorIndustria> & { nombre: string }) =>

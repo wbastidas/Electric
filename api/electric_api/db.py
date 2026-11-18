@@ -87,6 +87,34 @@ class ArchivoBD(Base):
     contenido: Mapped[bytes] = mapped_column(LargeBinary)
 
 
+class EdificacionBD(Base):
+    """Vivienda de varios pisos: agrupa un proyecto por planta."""
+
+    __tablename__ = "edificaciones"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    nombre: Mapped[str] = mapped_column(String(200))
+    #: Datos comunes en JSON: perfil, alimentador desde el medidor, altura de piso…
+    datos: Mapped[str] = mapped_column(Text)
+    creado: Mapped[str] = mapped_column(String(32))
+    actualizado: Mapped[str] = mapped_column(String(32))
+
+
+class PisoBD(Base):
+    """Planta de una edificación: un proyecto con su propio plano."""
+
+    __tablename__ = "pisos"
+
+    proyecto_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("proyectos.id"), primary_key=True
+    )
+    edificacion_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("edificaciones.id"), index=True
+    )
+    nivel: Mapped[int] = mapped_column(Integer)
+    nombre: Mapped[str] = mapped_column(String(80))
+
+
 class IndustriaBD(Base):
     """Proyecto industrial: cuadro de cargas, ubicación y transformador existente."""
 

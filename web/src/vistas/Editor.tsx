@@ -71,14 +71,26 @@ export function Editor({ id }: { id: string }) {
     <div className="pagina">
       <div className="cabecera">
         <div>
-          <a className="volver" href="#/">
-            ← Proyectos
-          </a>
+          {proyecto.data?.planta ? (
+            <a className="volver" href={`#/edificaciones/${proyecto.data.planta.edificacion_id}`}>
+              ← {proyecto.data.planta.edificacion}
+            </a>
+          ) : (
+            <a className="volver" href="#/">
+              ← Proyectos
+            </a>
+          )}
           <h1>{datos.nombre}</h1>
           <p className="tenue">
             {proyecto.data?.escenario ? `Escenario «${proyecto.data.escenario}» · ` : ""}
             {perfil.nombre} · versión {perfil.version} · revisión {revision}
           </p>
+          {proyecto.data?.planta ? (
+            <p className="tenue">
+              {proyecto.data.planta.piso} de una vivienda de varios pisos: la clasificación, el breaker principal y el
+              medidor de la vivienda completa están en la vista de la vivienda.
+            </p>
+          ) : null}
         </div>
         <div className="acciones">
           <span className="tenue" aria-live="polite">

@@ -14,7 +14,7 @@ from ezdxf.enums import TextEntityAlignment
 from ezdxf.layouts.layout import Modelspace
 
 from electric.calculo import Calculado
-from electric.calculo.resultado import ALIMENTADOR, PROYECTO
+from electric.calculo.resultado import ALIMENTADOR, PROYECTO, redondear
 from electric.pisos import PRINCIPAL, Edificacion
 from electric.salida_cad.dxf import _verificado
 
@@ -56,7 +56,7 @@ def _breaker(msp: Modelspace, x: float, y: float) -> float:
 
 
 def _num(valor: Decimal, decimales: int = 0) -> str:
-    return f"{valor:.{decimales}f}".replace(".", ",")
+    return f"{redondear(valor, decimales):f}".replace(".", ",")
 
 
 def _circuitos(msp: Modelspace, calculado: Calculado, x0: float, y: float) -> float:

@@ -61,6 +61,12 @@ class ProyectoResumen(Esquema):
     actualizado: str
 
 
+class PlantaRef(Esquema):
+    edificacion_id: str
+    edificacion: str
+    piso: str
+
+
 class ProyectoDetalle(Esquema):
     id: str
     revision: int
@@ -71,6 +77,8 @@ class ProyectoDetalle(Esquema):
     deshacer: str | None = None
     #: Nombre del escenario, si el proyecto tiene varios.
     escenario: str | None = None
+    #: Si el proyecto es una planta de una vivienda de varios pisos.
+    planta: PlantaRef | None = None
 
 
 class Guardar(Esquema):

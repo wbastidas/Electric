@@ -1256,6 +1256,430 @@
           }
         }
       }
+    },
+    "/api/v1/edificaciones": {
+      "get": {
+        "tags": [
+          "pisos"
+        ],
+        "summary": "Listar Edificaciones",
+        "operationId": "listar_edificaciones_api_v1_edificaciones_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EdificacionResumen"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Edificaciones Api V1 Edificaciones Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "pisos"
+        ],
+        "summary": "Crear Edificacion",
+        "operationId": "crear_edificacion_api_v1_edificaciones_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatosEdificacion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EdificacionDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/edificaciones/{id}": {
+      "get": {
+        "tags": [
+          "pisos"
+        ],
+        "summary": "Leer Edificacion",
+        "operationId": "leer_edificacion_api_v1_edificaciones__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EdificacionDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "pisos"
+        ],
+        "summary": "Guardar Edificacion",
+        "operationId": "guardar_edificacion_api_v1_edificaciones__id__put",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatosEdificacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EdificacionDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "pisos"
+        ],
+        "summary": "Borrar Edificacion",
+        "description": "Borra la vivienda y los proyectos de sus plantas.",
+        "operationId": "borrar_edificacion_api_v1_edificaciones__id__delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/edificaciones/{id}/pisos": {
+      "post": {
+        "tags": [
+          "pisos"
+        ],
+        "summary": "Subir Piso",
+        "description": "Agrega una planta con su plano: se lee, se diseña y queda como proyecto propio.",
+        "operationId": "subir_piso_api_v1_edificaciones__id__pisos_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "nivel",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 40,
+              "minimum": -5,
+              "title": "Nivel"
+            }
+          },
+          {
+            "name": "nombre",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "title": "Nombre"
+            }
+          },
+          {
+            "name": "archivo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "default": "plano.dxf",
+              "title": "Archivo"
+            }
+          },
+          {
+            "name": "equipos",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 300,
+              "default": "",
+              "title": "Equipos"
+            }
+          },
+          {
+            "name": "escala",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Escala"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "contentMediaType": "application/octet-stream",
+                "title": "Contenido"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EdificacionDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/edificaciones/{id}/calculo": {
+      "get": {
+        "tags": [
+          "pisos"
+        ],
+        "summary": "Calcular Edificacion",
+        "operationId": "calcular_edificacion_api_v1_edificaciones__id__calculo_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculoEdificacion"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/edificaciones/{id}/unifilar.{formato}": {
+      "get": {
+        "tags": [
+          "pisos"
+        ],
+        "summary": "Unifilar Edificacion",
+        "operationId": "unifilar_edificacion_api_v1_edificaciones__id__unifilar__formato__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "formato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "dxf",
+                "png",
+                "pdf"
+              ],
+              "type": "string",
+              "title": "Formato"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/dxf": {},
+              "image/png": {},
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ejemplos/vivienda-2-pisos": {
+      "post": {
+        "tags": [
+          "pisos"
+        ],
+        "summary": "Crear Ejemplo Pisos",
+        "description": "Crea la vivienda de dos plantas del repositorio, con cada planta diseñada.",
+        "operationId": "crear_ejemplo_pisos_api_v1_ejemplos_vivienda_2_pisos_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EdificacionDetalle"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1869,6 +2293,98 @@
         "title": "BorradorIndustria",
         "description": "Industria en edición; puede no tener máquinas todavía."
       },
+      "CalculoEdificacion": {
+        "properties": {
+          "estado": {
+            "type": "string",
+            "enum": [
+              "listo",
+              "incompleto"
+            ],
+            "title": "Estado"
+          },
+          "aviso": {
+            "type": "string",
+            "title": "Aviso"
+          },
+          "pendientes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Pendientes",
+            "default": []
+          },
+          "area_m2": {
+            "type": "number",
+            "title": "Area M2",
+            "default": 0
+          },
+          "demanda_kw": {
+            "type": "number",
+            "title": "Demanda Kw",
+            "default": 0
+          },
+          "clasificacion": {
+            "type": "string",
+            "title": "Clasificacion",
+            "default": ""
+          },
+          "principal_a": {
+            "type": "number",
+            "title": "Principal A",
+            "default": 0
+          },
+          "alimentador": {
+            "type": "string",
+            "title": "Alimentador",
+            "default": ""
+          },
+          "caida_pct": {
+            "type": "number",
+            "title": "Caida Pct",
+            "default": 0
+          },
+          "medidor": {
+            "type": "string",
+            "title": "Medidor",
+            "default": ""
+          },
+          "piso_principal": {
+            "type": "string",
+            "title": "Piso Principal",
+            "default": ""
+          },
+          "demanda_principal_kw": {
+            "type": "number",
+            "title": "Demanda Principal Kw",
+            "default": 0
+          },
+          "subtableros": {
+            "items": {
+              "$ref": "#/components/schemas/SubtableroOut"
+            },
+            "type": "array",
+            "title": "Subtableros",
+            "default": []
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "estado",
+          "aviso"
+        ],
+        "title": "CalculoEdificacion"
+      },
       "Calculos": {
         "properties": {
           "estado": {
@@ -2414,6 +2930,67 @@
         ],
         "title": "DatoResumenOut"
       },
+      "DatosEdificacion": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "perfil": {
+            "$ref": "#/components/schemas/RefPerfil"
+          },
+          "propietario": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Propietario",
+            "default": ""
+          },
+          "medidor_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Medidor M",
+            "default": "15"
+          },
+          "altura_piso_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Altura Piso M",
+            "default": "2.8"
+          },
+          "preferencias": {
+            "$ref": "#/components/schemas/Preferencias",
+            "default": {
+              "iluminacion": "plafon",
+              "refrigeradora": true,
+              "exteriores": true,
+              "ambientes": {}
+            }
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre",
+          "perfil"
+        ],
+        "title": "DatosEdificacion"
+      },
       "DecisionOut": {
         "properties": {
           "nivel": {
@@ -2500,6 +3077,76 @@
           "avisos"
         ],
         "title": "DisenoOut"
+      },
+      "EdificacionDetalle": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "creado": {
+            "type": "string",
+            "title": "Creado"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/DatosEdificacion"
+          },
+          "pisos": {
+            "items": {
+              "$ref": "#/components/schemas/PisoOut"
+            },
+            "type": "array",
+            "title": "Pisos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "creado",
+          "actualizado",
+          "datos",
+          "pisos"
+        ],
+        "title": "EdificacionDetalle"
+      },
+      "EdificacionResumen": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "propietario": {
+            "type": "string",
+            "title": "Propietario"
+          },
+          "pisos": {
+            "type": "integer",
+            "title": "Pisos"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "propietario",
+          "pisos",
+          "actualizado"
+        ],
+        "title": "EdificacionResumen"
       },
       "Editar": {
         "properties": {
@@ -3689,6 +4336,55 @@
         ],
         "title": "PerfilOut"
       },
+      "PisoOut": {
+        "properties": {
+          "proyecto_id": {
+            "type": "string",
+            "title": "Proyecto Id"
+          },
+          "nivel": {
+            "type": "integer",
+            "title": "Nivel"
+          },
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "ambientes": {
+            "type": "integer",
+            "title": "Ambientes"
+          },
+          "circuitos": {
+            "type": "integer",
+            "title": "Circuitos"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "listo",
+              "sin_plano",
+              "incompleto"
+            ],
+            "title": "Estado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "proyecto_id",
+          "nivel",
+          "codigo",
+          "nombre",
+          "ambientes",
+          "circuitos",
+          "estado"
+        ],
+        "title": "PisoOut"
+      },
       "Plano": {
         "properties": {
           "archivo": {
@@ -3779,6 +4475,30 @@
           "ambientes"
         ],
         "title": "Plano"
+      },
+      "PlantaRef": {
+        "properties": {
+          "edificacion_id": {
+            "type": "string",
+            "title": "Edificacion Id"
+          },
+          "edificacion": {
+            "type": "string",
+            "title": "Edificacion"
+          },
+          "piso": {
+            "type": "string",
+            "title": "Piso"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "edificacion_id",
+          "edificacion",
+          "piso"
+        ],
+        "title": "PlantaRef"
       },
       "Predio": {
         "properties": {
@@ -3971,6 +4691,16 @@
               }
             ],
             "title": "Escenario"
+          },
+          "planta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PlantaRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -4473,6 +5203,65 @@
           "descripcion"
         ],
         "title": "SistemaOut"
+      },
+      "SubtableroOut": {
+        "properties": {
+          "proyecto_id": {
+            "type": "string",
+            "title": "Proyecto Id"
+          },
+          "piso": {
+            "type": "string",
+            "title": "Piso"
+          },
+          "tablero": {
+            "type": "string",
+            "title": "Tablero"
+          },
+          "longitud_m": {
+            "type": "number",
+            "title": "Longitud M"
+          },
+          "vertical_m": {
+            "type": "number",
+            "title": "Vertical M"
+          },
+          "horizontal_m": {
+            "type": "number",
+            "title": "Horizontal M"
+          },
+          "demanda_kw": {
+            "type": "number",
+            "title": "Demanda Kw"
+          },
+          "breaker_a": {
+            "type": "number",
+            "title": "Breaker A"
+          },
+          "conductor": {
+            "type": "string",
+            "title": "Conductor"
+          },
+          "caida_pct": {
+            "type": "number",
+            "title": "Caida Pct"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "proyecto_id",
+          "piso",
+          "tablero",
+          "longitud_m",
+          "vertical_m",
+          "horizontal_m",
+          "demanda_kw",
+          "breaker_a",
+          "conductor",
+          "caida_pct"
+        ],
+        "title": "SubtableroOut"
       },
       "Supuesto": {
         "properties": {

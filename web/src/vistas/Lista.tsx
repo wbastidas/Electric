@@ -8,6 +8,104 @@ const abrir = (id: string) => {
   window.location.hash = `#/proyectos/${id}`;
 };
 
+function Edificaciones() {
+  const consultas = useQueryClient();
+  const edificaciones = useQuery({ queryKey: ["edificaciones"], queryFn: api.edificaciones });
+  const perfiles = useQuery({ queryKey: ["perfiles"], queryFn: api.perfiles });
+  const [nombre, setNombre] = useState("");
+  const abrirEdificacion = (id: string) => {
+    consultas.invalidateQueries({ queryKey: ["edificaciones"] });
+    window.location.hash = `#/edificaciones/${id}`;
+  };
+  const crear = useMutation({
+    mutationFn: (n: string) => {
+      const perfil = perfiles.data?.find((p) => p.id === "cnel-ep") ?? perfiles.data?.[0];
+      if (!perfil) throw new Error("sin perfil");
+      return api.crearEdificacion({
+        nombre: n,
+        perfil: { id: perfil.id, version: perfil.version },
+        propietario: "",
+        medidor_m: "15",
+        altura_piso_m: "2.8",
+        preferencias: { iluminacion: "plafon", zona_climatica: null, refrigeradora: true, exteriores: true, ambientes: {} },
+      });
+    },
+    onSuccess: (e) => abrirEdificacion(e.id),
+  });
+  const ejemplo = useMutation({ mutationFn: api.ejemploPisos, onSuccess: (e) => abrirEdificacion(e.id) });
+  const borrar = useMutation({
+    mutationFn: api.borrarEdificacion,
+    onSuccess: () => {
+      consultas.invalidateQueries({ queryKey: ["edificaciones"] });
+      consultas.invalidateQueries({ queryKey: ["proyectos"] });
+    },
+  });
+  return (
+    <section className="tarjeta">
+      <h2>Viviendas de varios pisos</h2>
+      <p className="tenue">
+        Un plano DXF por planta: el tablero principal queda en la planta baja y cada piso tiene su subtablero con el
+        alimentador calculado.
+      </p>
+      <form
+        className="fila-formulario"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (nombre.trim()) crear.mutate(nombre.trim());
+        }}
+      >
+        <Campo etiqueta="Nombre de la vivienda">
+          <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Casa Pérez, dos plantas" />
+        </Campo>
+        <button className="primario" type="submit" disabled={!nombre.trim() || crear.isPending}>
+          Nueva vivienda de varios pisos
+        </button>
+        <button type="button" disabled={ejemplo.isPending} onClick={() => ejemplo.mutate()}>
+          {ejemplo.isPending ? "Diseñando las dos plantas…" : "Abrir el ejemplo de dos plantas"}
+        </button>
+      </form>
+      {crear.isError ? <MensajeError error={crear.error} /> : null}
+      {ejemplo.isError ? <MensajeError error={ejemplo.error} /> : null}
+      {edificaciones.data?.length ? (
+        <div className="tabla-ancha">
+          <table>
+            <thead>
+              <tr>
+                <th>Vivienda</th>
+                <th>Propietario</th>
+                <th>Plantas</th>
+                <th>Último cambio</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {edificaciones.data.map((e) => (
+                <tr key={e.id}>
+                  <td><a href={`#/edificaciones/${e.id}`}>{e.nombre}</a></td>
+                  <td>{e.propietario || "—"}</td>
+                  <td>{e.pisos}</td>
+                  <td>{fecha(e.actualizado)}</td>
+                  <td className="derecha">
+                    <button
+                      className="discreto"
+                      onClick={() => {
+                        if (window.confirm(`¿Borrar "${e.nombre}" y sus plantas? No se puede deshacer.`))
+                          borrar.mutate(e.id);
+                      }}
+                    >
+                      Borrar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 function Industrias() {
   const consultas = useQueryClient();
   const industrias = useQuery({ queryKey: ["industrias"], queryFn: api.industrias });
@@ -218,6 +316,7 @@ export function Lista() {
           </table>
         </div>
       ) : null}
+      <Edificaciones />
       <Industrias />
     </div>
   );

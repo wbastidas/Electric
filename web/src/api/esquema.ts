@@ -429,6 +429,120 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/edificaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar Edificaciones */
+        get: operations["listar_edificaciones_api_v1_edificaciones_get"];
+        put?: never;
+        /** Crear Edificacion */
+        post: operations["crear_edificacion_api_v1_edificaciones_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/edificaciones/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Leer Edificacion */
+        get: operations["leer_edificacion_api_v1_edificaciones__id__get"];
+        /** Guardar Edificacion */
+        put: operations["guardar_edificacion_api_v1_edificaciones__id__put"];
+        post?: never;
+        /**
+         * Borrar Edificacion
+         * @description Borra la vivienda y los proyectos de sus plantas.
+         */
+        delete: operations["borrar_edificacion_api_v1_edificaciones__id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/edificaciones/{id}/pisos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Subir Piso
+         * @description Agrega una planta con su plano: se lee, se diseña y queda como proyecto propio.
+         */
+        post: operations["subir_piso_api_v1_edificaciones__id__pisos_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/edificaciones/{id}/calculo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Calcular Edificacion */
+        get: operations["calcular_edificacion_api_v1_edificaciones__id__calculo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/edificaciones/{id}/unifilar.{formato}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Unifilar Edificacion */
+        get: operations["unifilar_edificacion_api_v1_edificaciones__id__unifilar__formato__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ejemplos/vivienda-2-pisos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Crear Ejemplo Pisos
+         * @description Crea la vivienda de dos plantas del repositorio, con cada planta diseñada.
+         */
+        post: operations["crear_ejemplo_pisos_api_v1_ejemplos_vivienda_2_pisos_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -683,6 +797,76 @@ export interface components {
             /** Cuadro */
             cuadro?: string | null;
         };
+        /** CalculoEdificacion */
+        CalculoEdificacion: {
+            /**
+             * Estado
+             * @enum {string}
+             */
+            estado: "listo" | "incompleto";
+            /** Aviso */
+            aviso: string;
+            /**
+             * Pendientes
+             * @default []
+             */
+            pendientes: string[];
+            /**
+             * Area M2
+             * @default 0
+             */
+            area_m2: number;
+            /**
+             * Demanda Kw
+             * @default 0
+             */
+            demanda_kw: number;
+            /**
+             * Clasificacion
+             * @default
+             */
+            clasificacion: string;
+            /**
+             * Principal A
+             * @default 0
+             */
+            principal_a: number;
+            /**
+             * Alimentador
+             * @default
+             */
+            alimentador: string;
+            /**
+             * Caida Pct
+             * @default 0
+             */
+            caida_pct: number;
+            /**
+             * Medidor
+             * @default
+             */
+            medidor: string;
+            /**
+             * Piso Principal
+             * @default
+             */
+            piso_principal: string;
+            /**
+             * Demanda Principal Kw
+             * @default 0
+             */
+            demanda_principal_kw: number;
+            /**
+             * Subtableros
+             * @default []
+             */
+            subtableros: components["schemas"]["SubtableroOut"][];
+            /**
+             * Avisos
+             * @default []
+             */
+            avisos: string[];
+        };
         /** Calculos */
         Calculos: {
             /**
@@ -872,6 +1056,36 @@ export interface components {
              */
             estado: "verificado" | "por_verificar" | "defecto_fuente";
         };
+        /** DatosEdificacion */
+        DatosEdificacion: {
+            /** Nombre */
+            nombre: string;
+            perfil: components["schemas"]["RefPerfil"];
+            /**
+             * Propietario
+             * @default
+             */
+            propietario: string;
+            /**
+             * Medidor M
+             * @default 15
+             */
+            medidor_m: number | string;
+            /**
+             * Altura Piso M
+             * @default 2.8
+             */
+            altura_piso_m: number | string;
+            /**
+             * @default {
+             *       "iluminacion": "plafon",
+             *       "refrigeradora": true,
+             *       "exteriores": true,
+             *       "ambientes": {}
+             *     }
+             */
+            preferencias: components["schemas"]["Preferencias"];
+        };
         /** DecisionOut */
         DecisionOut: {
             /** Nivel */
@@ -898,6 +1112,31 @@ export interface components {
             proyecto: components["schemas"]["ProyectoDetalle"];
             /** Avisos */
             avisos: string[];
+        };
+        /** EdificacionDetalle */
+        EdificacionDetalle: {
+            /** Id */
+            id: string;
+            /** Creado */
+            creado: string;
+            /** Actualizado */
+            actualizado: string;
+            datos: components["schemas"]["DatosEdificacion"];
+            /** Pisos */
+            pisos: components["schemas"]["PisoOut"][];
+        };
+        /** EdificacionResumen */
+        EdificacionResumen: {
+            /** Id */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Propietario */
+            propietario: string;
+            /** Pisos */
+            pisos: number;
+            /** Actualizado */
+            actualizado: string;
         };
         /** Editar */
         Editar: {
@@ -1327,6 +1566,26 @@ export interface components {
             /** Tablas */
             tablas: components["schemas"]["TablaOut"][];
         };
+        /** PisoOut */
+        PisoOut: {
+            /** Proyecto Id */
+            proyecto_id: string;
+            /** Nivel */
+            nivel: number;
+            /** Codigo */
+            codigo: string;
+            /** Nombre */
+            nombre: string;
+            /** Ambientes */
+            ambientes: number;
+            /** Circuitos */
+            circuitos: number;
+            /**
+             * Estado
+             * @enum {string}
+             */
+            estado: "listo" | "sin_plano" | "incompleto";
+        };
         /** Plano */
         Plano: {
             /** Archivo */
@@ -1364,6 +1623,15 @@ export interface components {
              * @default []
              */
             banderas: string[];
+        };
+        /** PlantaRef */
+        PlantaRef: {
+            /** Edificacion Id */
+            edificacion_id: string;
+            /** Edificacion */
+            edificacion: string;
+            /** Piso */
+            piso: string;
         };
         /**
          * Predio
@@ -1479,6 +1747,7 @@ export interface components {
             deshacer?: string | null;
             /** Escenario */
             escenario?: string | null;
+            planta?: components["schemas"]["PlantaRef"] | null;
         };
         /** ProyectoResumen */
         ProyectoResumen: {
@@ -1675,6 +1944,29 @@ export interface components {
             id: string;
             /** Descripcion */
             descripcion: string;
+        };
+        /** SubtableroOut */
+        SubtableroOut: {
+            /** Proyecto Id */
+            proyecto_id: string;
+            /** Piso */
+            piso: string;
+            /** Tablero */
+            tablero: string;
+            /** Longitud M */
+            longitud_m: number;
+            /** Vertical M */
+            vertical_m: number;
+            /** Horizontal M */
+            horizontal_m: number;
+            /** Demanda Kw */
+            demanda_kw: number;
+            /** Breaker A */
+            breaker_a: number;
+            /** Conductor */
+            conductor: string;
+            /** Caida Pct */
+            caida_pct: number;
         };
         /**
          * Supuesto
@@ -2752,6 +3044,280 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_edificaciones_api_v1_edificaciones_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EdificacionResumen"][];
+                };
+            };
+        };
+    };
+    crear_edificacion_api_v1_edificaciones_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DatosEdificacion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EdificacionDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    leer_edificacion_api_v1_edificaciones__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EdificacionDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    guardar_edificacion_api_v1_edificaciones__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DatosEdificacion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EdificacionDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    borrar_edificacion_api_v1_edificaciones__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    subir_piso_api_v1_edificaciones__id__pisos_post: {
+        parameters: {
+            query: {
+                nivel: number;
+                nombre: string;
+                archivo?: string;
+                equipos?: string;
+                escala?: number | null;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EdificacionDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    calcular_edificacion_api_v1_edificaciones__id__calculo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalculoEdificacion"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unifilar_edificacion_api_v1_edificaciones__id__unifilar__formato__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                formato: "dxf" | "png" | "pdf";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/dxf": unknown;
+                    "image/png": unknown;
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_ejemplo_pisos_api_v1_ejemplos_vivienda_2_pisos_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EdificacionDetalle"];
                 };
             };
         };

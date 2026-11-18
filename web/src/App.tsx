@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "./api/cliente";
 import { Asistente } from "./vistas/Asistente";
 import { MensajeError } from "./vistas/comunes";
+import { Edificacion } from "./vistas/Edificacion";
 import { Editor } from "./vistas/Editor";
 import { Industria } from "./vistas/Industria";
 import { Lista } from "./vistas/Lista";
@@ -10,13 +11,15 @@ import { Lista } from "./vistas/Lista";
 type Ruta =
   | { vista: "lista" }
   | { vista: "nuevo" }
-  | { vista: "proyecto" | "asistente" | "industria"; id: string };
+  | { vista: "proyecto" | "asistente" | "industria" | "edificacion"; id: string };
 
 const leerRuta = (): Ruta => {
   const hash = window.location.hash;
   if (hash === "#/nuevo") return { vista: "nuevo" };
   const asistente = hash.match(/^#\/proyectos\/([^/]+)\/asistente$/);
   if (asistente) return { vista: "asistente", id: asistente[1] };
+  const edificacion = hash.match(/^#\/edificaciones\/([^/]+)$/);
+  if (edificacion) return { vista: "edificacion", id: edificacion[1] };
   const industria = hash.match(/^#\/industrias\/([^/]+)$/);
   if (industria) return { vista: "industria", id: industria[1] };
   const proyecto = hash.match(/^#\/proyectos\/([^/]+)$/);
@@ -50,6 +53,7 @@ export function App() {
       <main>
         {ruta.vista === "proyecto" ? <Editor key={ruta.id} id={ruta.id} /> : null}
         {ruta.vista === "asistente" ? <AsistenteDe key={ruta.id} id={ruta.id} /> : null}
+        {ruta.vista === "edificacion" ? <Edificacion key={ruta.id} id={ruta.id} /> : null}
         {ruta.vista === "industria" ? <Industria key={ruta.id} id={ruta.id} /> : null}
         {ruta.vista === "nuevo" ? <Asistente key="nuevo" /> : null}
         {ruta.vista === "lista" ? <Lista /> : null}

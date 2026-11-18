@@ -790,3 +790,20 @@ img.unifilar {
   background: #fff;
   margin-top: 0.75rem;
 }
+
+.nueva-planta {
+  border-top: 1px solid var(--borde);
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+}
+fieldset.equipos {
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0.75rem 0;
+}
+fieldset.equipos .casilla {
+  margin-bottom: 0;
+}

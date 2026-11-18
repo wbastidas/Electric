@@ -22,12 +22,13 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
 from sqlalchemy.orm import Session, object_session
 
-from electric_api import industrial, problemas
+from electric_api import industrial, pisos, problemas
 from electric_api.config import Config, leer_config
 from electric_api.db import (
     ArchivoBD,
     BitacoraBD,
     EscenarioBD,
+    PisoBD,
     ProyectoBD,
     VersionBD,
     ahora,
@@ -46,6 +47,7 @@ from electric_api.esquemas import (
     Guardar,
     NuevoEscenario,
     PerfilOut,
+    PlantaRef,
     ProyectoDetalle,
     ProyectoResumen,
     Revision,
@@ -116,6 +118,7 @@ def _detalle(fila: ProyectoBD) -> ProyectoDetalle:
     sesion = object_session(fila)
     previo = _a_deshacer(sesion, fila) if sesion is not None else None
     escenario = _escenario(sesion, fila.id) if sesion is not None else None
+    planta = pisos.piso_de(sesion, fila.id) if sesion is not None else None
     return ProyectoDetalle(
         id=fila.id,
         revision=fila.revision,
@@ -124,6 +127,11 @@ def _detalle(fila: ProyectoBD) -> ProyectoDetalle:
         datos=Borrador.model_validate_json(fila.datos),
         deshacer=previo[1].accion if previo else None,
         escenario=escenario.nombre if escenario else None,
+        planta=(
+            PlantaRef(edificacion_id=planta[0], edificacion=planta[1], piso=planta[2])
+            if planta
+            else None
+        ),
     )
 
 
@@ -245,6 +253,9 @@ def borrar_proyecto(id: str, sesion: SesionDep) -> Response:
     escenario = sesion.get(EscenarioBD, id)
     if escenario is not None:
         sesion.delete(escenario)
+    piso = sesion.get(PisoBD, id)
+    if piso is not None:
+        sesion.delete(piso)
     archivo = sesion.get(ArchivoBD, id)
     if archivo is not None:
         sesion.delete(archivo)
@@ -760,6 +771,7 @@ def crear_app(config: Config | None = None) -> FastAPI:
     problemas.registrar(app)
     app.include_router(rutas)
     app.include_router(industrial.rutas)
+    app.include_router(pisos.rutas)
     if config.web.is_dir():
         app.mount("/", StaticFiles(directory=config.web, html=True), name="web")
     return app

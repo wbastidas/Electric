@@ -112,6 +112,23 @@ bitácora con lo que se hizo.
 El plano es sintético. La detección de ambientes solo se ha probado con él;
 con planos reales de arquitectos habrá casos que todavía no resuelve.
 
+### Viviendas de varios pisos
+
+Un plano DXF por planta, dibujados con las mismas coordenadas. Cada planta se
+lee y se diseña con su plano, y queda como un proyecto que se abre y se edita
+en el editor de siempre. El tablero principal está en la planta más baja y
+alimenta sus circuitos; cada otro piso tiene un subtablero cuyo alimentador
+sube la altura de piso por nivel más el recorrido en planta entre tableros, y
+se calcula con la demanda de esa planta. La demanda, la clasificación CNEL, el
+breaker principal, el alimentador del medidor y el medidor salen de la vivienda
+completa (todos los circuitos juntos), no de sumar las plantas. Se genera el
+diagrama unifilar con el tablero principal y los subtableros. Las luces y tomas
+de fachada van solo en la planta más baja.
+
+En la web: «Viviendas de varios pisos» en el inicio, o «Abrir el ejemplo de dos
+plantas» (`ejemplos/vivienda-2-pisos`). En la línea de comandos:
+`electric disenar-pisos planta-baja.dxf planta-alta.dxf --equipos "cocina,ducha;ducha"`.
+
 ### Industrias: cuadro de cargas y transformador
 
 Para una industria se parte del cuadro de cargas en Excel o CSV: una fila por

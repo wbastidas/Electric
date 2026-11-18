@@ -209,7 +209,7 @@ def _disenar(args: argparse.Namespace) -> int:
 
 
 def _disenar_pisos(args: argparse.Namespace) -> int:
-    from electric.calculo.resultado import ALIMENTADOR, PROYECTO
+    from electric.calculo.resultado import ALIMENTADOR, PROYECTO, redondear
     from electric.pisos import PlanoPiso, disenar_pisos
     from electric.salida_cad import generar_dxf, renderizar
     from electric.salida_cad.unifilar_pisos import generar_unifilar_pisos
@@ -263,7 +263,9 @@ def _disenar_pisos(args: argparse.Namespace) -> int:
                 sub.tablero if sub else "TP",
                 str(len(piso.proyecto.plano.ambientes) if piso.proyecto.plano else 0),
                 str(len(piso.proyecto.circuitos)),
-                f"{calculado.res('RC-03', PROYECTO).decimal / 1000:.2f} kW".replace(".", ","),
+                f"{redondear(calculado.res('RC-03', PROYECTO).decimal / 1000, 2):f} kW".replace(
+                    ".", ","
+                ),
                 f"{sub.longitud_m:.1f} m".replace(".", ",") if sub else "—",
                 f"{sub.breaker_a} A" if sub else "—",
                 sub.conductor if sub else "—",
@@ -277,7 +279,7 @@ def _disenar_pisos(args: argparse.Namespace) -> int:
             filas,
         )
     )  # fmt: skip
-    demanda = f"{calc.res('RC-03', PROYECTO).decimal / 1000:.2f}".replace(".", ",")
+    demanda = f"{redondear(calc.res('RC-03', PROYECTO).decimal / 1000, 2):f}".replace(".", ",")
     principal = calc.res("RC-09", ALIMENTADOR).valor
     print(
         f"\nVivienda completa: demanda {demanda} kW, {calc.res('RC-05', PROYECTO).valor}, "
