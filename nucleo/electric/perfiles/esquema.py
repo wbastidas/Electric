@@ -285,6 +285,15 @@ class FilaNivelLuz(Dato):
     descripcion: str = ""
 
 
+class FilaTransformadorPotencia(Dato):
+    """Transformador de potencia de subestación: potencias por enfriamiento e impedancia."""
+
+    mva_onan: Decimal = Field(gt=0)
+    mva_onaf: Decimal = Field(gt=0)
+    z_pct: Decimal = Field(gt=0)
+    grupo: str = "Dyn1"
+
+
 class FilaCoincidencia(Dato):
     """Factor de coincidencia para un número de usuarios; vacío en la última fila."""
 
@@ -409,6 +418,9 @@ class TablaSerie(TablaBase):
         "fusibles_mt",
         "relaciones_tc",
         "generadores_kva",
+        "interruptores_at_a",
+        "interruptores_mt_a",
+        "icc_interruptores_ka",
     ]
     filas: tuple[Decimal, ...]
 
@@ -504,6 +516,11 @@ class TablaNivelesLuz(TablaBase):
     filas: tuple[FilaNivelLuz, ...]
 
 
+class TablaTransformadoresPotencia(TablaBase):
+    tipo: Literal["transformadores_potencia"]
+    filas: tuple[FilaTransformadorPotencia, ...]
+
+
 class TablaCoincidencia(TablaBase):
     tipo: Literal["coincidencia"]
     filas: tuple[FilaCoincidencia, ...]
@@ -558,6 +575,7 @@ Tabla = Annotated[
     | TablaDemandaUsuarios
     | TablaCoincidencia
     | TablaNivelesLuz
+    | TablaTransformadoresPotencia
     | TablaRedondeo,
     Field(discriminator="tipo"),
 ]

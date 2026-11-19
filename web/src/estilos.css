@@ -1154,3 +1154,4 @@ td.mal { color: var(--rojo-texto); font-weight: 600; }
 table.editable td:first-child input { min-width: 9.5rem; }
 table.editable select { min-width: 6.5rem; }
 td.fuerte { font-weight: 700; }
+tr.falla td { background: var(--rojo-fondo); color: var(--rojo-texto); }

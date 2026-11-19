@@ -90,3 +90,14 @@ filas:
   - {clave: kva_max_transformador_urbanizacion_1f, valor: 50, unidad: kVA, nota: Propuesta - mayor transformador monofásico por sector en urbanizaciones; confirmar con CNEL.}
   - {clave: kva_max_transformador_urbanizacion_3f, valor: 112.5, unidad: kVA, nota: Propuesta - mayor transformador trifásico por sector en urbanizaciones; confirmar con CNEL.}
   - {clave: caida_red_bt_max_pct, valor: 4, unidad: '%', nota: Propuesta - caída de tensión máxima de la red secundaria hasta el último lote; confirmar con la regulación de calidad.}
+  - {clave: tension_alta_kv, valor: 69, unidad: kV, nota: 'Tensión de subtransmisión de CNEL EP para subestaciones de clientes.'}
+  - {clave: potencia_cc_at_mva, valor: 500, unidad: MVA, nota: 'Supuesto por verificar - potencia de cortocircuito en el punto de conexión a 69 kV; reemplazar por el dato de la factibilidad de CNEL.'}
+  - {clave: corriente_max_alimentador_mt_a, valor: 400, unidad: A, nota: 'Propuesta - corriente máxima de diseño de un alimentador de 13,8 kV.'}
+  - {clave: tiempo_despeje_falla_s, valor: 0.5, unidad: s, nota: Propuesta - duración de la falla para la malla (IEEE 80); confirmar con los ajustes de protección.}
+  - {clave: factor_division_corriente, valor: 0.6, nota: 'Supuesto - fracción de la corriente de falla a tierra que circula por la malla (Sf, IEEE 80).'}
+  - {clave: resistividad_superficial_ohm_m, valor: 3000, unidad: ohm·m, nota: Práctica habitual - capa de grava triturada sobre el patio de la subestación.}
+  - {clave: espesor_capa_superficial_m, valor: 0.1, unidad: m, nota: Práctica habitual - 10 cm de grava.}
+  - {clave: resistencia_tierra_subestacion_max_ohm, valor: 1, unidad: ohm, nota: 'Propuesta - resistencia de malla de subestaciones de subtransmisión; confirmar con CNEL.'}
+  - {clave: pararrayos_at_kv, valor: 60, unidad: kV, nota: Práctica habitual - pararrayos de 60 kV (MCOV 48 kV) para 69 kV con neutro a tierra.}
+  - {clave: pararrayos_mt_kv, valor: 10, unidad: kV, nota: 'Práctica habitual - pararrayos de 10 kV (MCOV 8,4 kV) para 13,8 kV.'}
+  - {clave: transformador_auxiliar_kva, valor: 75, unidad: kVA, nota: Propuesta - transformador de servicios auxiliares de la subestación.}

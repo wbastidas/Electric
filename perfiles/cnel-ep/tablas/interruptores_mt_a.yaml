@@ -1,0 +1,13 @@
+id: cnel-ep/interruptores-mt-a
+tipo: serie
+serie: interruptores_mt_a
+version: 0.1.0
+vigente_desde: 2026-11-19
+fuente:
+  norma: Corrientes nominales de interruptores de 15 kV (celdas metal-clad)
+  numeral: null
+  url: null
+estado: por_verificar
+nota: Valores normalizados habituales; confirmar con el catálogo homologado.
+unidades: {valor: A}
+filas: [630, 1250, 2000, 2500, 3150]

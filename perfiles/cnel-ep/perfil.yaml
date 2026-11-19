@@ -48,3 +48,7 @@ tablas:
   - tablas/coincidencia.yaml
   - tablas/generadores.yaml
   - tablas/niveles_iluminacion.yaml
+  - tablas/transformadores_potencia.yaml
+  - tablas/interruptores_at_a.yaml
+  - tablas/interruptores_mt_a.yaml
+  - tablas/icc_interruptores_ka.yaml

@@ -1,0 +1,13 @@
+id: cnel-ep/icc-interruptores-ka
+tipo: serie
+serie: icc_interruptores_ka
+version: 0.1.0
+vigente_desde: 2026-11-19
+fuente:
+  norma: Capacidades de interrupción simétrica normalizadas (IEC 62271-100)
+  numeral: null
+  url: null
+estado: por_verificar
+nota: Valores normalizados habituales; confirmar con el catálogo homologado.
+unidades: {valor: kA}
+filas: [12.5, 16, 20, 25, 31.5, 40, 50]

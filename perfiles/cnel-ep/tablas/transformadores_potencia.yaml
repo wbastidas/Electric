@@ -1,0 +1,22 @@
+id: cnel-ep/transformadores-potencia
+tipo: transformadores_potencia
+version: 0.1.0
+vigente_desde: 2026-11-19
+fuente:
+  norma: Potencias e impedancias habituales de transformadores 69/13,8 kV (IEC 60076); confirmar con las homologaciones de CNEL EP
+  numeral: null
+  url: null
+estado: por_verificar
+nota: >-
+  Potencia en enfriamiento natural (ONAN) y forzado (ONAF) e impedancia típica
+  en la base ONAN. Grupo de conexión Dyn1 habitual en subestaciones de distribución.
+unidades: {mva_onan: MVA, mva_onaf: MVA, z_pct: '%'}
+filas:
+  - {mva_onan: 2.5, mva_onaf: 3.125, z_pct: 6.5}
+  - {mva_onan: 5, mva_onaf: 6.25, z_pct: 7.5}
+  - {mva_onan: 7.5, mva_onaf: 9.375, z_pct: 8.0}
+  - {mva_onan: 10, mva_onaf: 12.5, z_pct: 8.5}
+  - {mva_onan: 12, mva_onaf: 16, z_pct: 9.0}
+  - {mva_onan: 16, mva_onaf: 20, z_pct: 9.5}
+  - {mva_onan: 20, mva_onaf: 25, z_pct: 10.0}
+  - {mva_onan: 24, mva_onaf: 32, z_pct: 10.5}

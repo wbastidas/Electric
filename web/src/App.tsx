@@ -10,6 +10,7 @@ import { Industria } from "./vistas/Industria";
 import { Inicio } from "./vistas/Inicio";
 import { PaginaIndustrias, PaginaNoResidencial, PaginaPisos, PaginaRedesMT, Viviendas } from "./vistas/Lista";
 import { RedMT } from "./vistas/RedMT";
+import { Subestacion } from "./vistas/Subestacion";
 import { Urbanizacion } from "./vistas/Urbanizacion";
 
 type Modulo = "inicio" | "viviendas" | "pisos" | "industrias" | "no-residencial" | "redes-mt";
@@ -18,7 +19,7 @@ type Ruta =
   | { vista: "modulo"; modulo: Modulo }
   | { vista: "nuevo" }
   | { vista: "proyecto" | "asistente"; id: string }
-  | { vista: "industria" | "edificacion" | "red-mt" | "edificio" | "urbanizacion"; id: string; pestana?: string };
+  | { vista: "industria" | "edificacion" | "red-mt" | "edificio" | "urbanizacion" | "subestacion"; id: string; pestana?: string };
 
 const MODULOS: Modulo[] = ["viviendas", "pisos", "industrias", "no-residencial", "redes-mt"];
 
@@ -31,6 +32,8 @@ const leerRuta = (): Ruta => {
   if (edificacion) return { vista: "edificacion", id: edificacion[1], pestana: edificacion[2] };
   const edificio = hash.match(/^#\/edificios\/([^/]+)(?:\/([\w-]+))?$/);
   if (edificio) return { vista: "edificio", id: edificio[1], pestana: edificio[2] };
+  const subestacion = hash.match(/^#\/subestaciones\/([^/]+)(?:\/([\w-]+))?$/);
+  if (subestacion) return { vista: "subestacion", id: subestacion[1], pestana: subestacion[2] };
   const urbanizacion = hash.match(/^#\/urbanizaciones\/([^/]+)(?:\/([\w-]+))?$/);
   if (urbanizacion) return { vista: "urbanizacion", id: urbanizacion[1], pestana: urbanizacion[2] };
   const redMT = hash.match(/^#\/redes-mt\/([^/]+)(?:\/([\w-]+))?$/);
@@ -48,7 +51,7 @@ const moduloDe = (ruta: Ruta): Modulo => {
   if (ruta.vista === "modulo") return ruta.modulo;
   if (ruta.vista === "industria") return "industrias";
   if (ruta.vista === "edificacion") return "pisos";
-  if (ruta.vista === "red-mt" || ruta.vista === "urbanizacion") return "redes-mt";
+  if (ruta.vista === "red-mt" || ruta.vista === "urbanizacion" || ruta.vista === "subestacion") return "redes-mt";
   if (ruta.vista === "edificio") return "no-residencial";
   return "viviendas";
 };
@@ -110,6 +113,7 @@ export function App() {
         {ruta.vista === "asistente" ? <AsistenteDe key={ruta.id} id={ruta.id} /> : null}
         {ruta.vista === "edificacion" ? <Edificacion key={ruta.id} id={ruta.id} pestana={ruta.pestana} /> : null}
         {ruta.vista === "edificio" ? <Edificio key={ruta.id} id={ruta.id} pestana={ruta.pestana} /> : null}
+        {ruta.vista === "subestacion" ? <Subestacion key={ruta.id} id={ruta.id} pestana={ruta.pestana} /> : null}
         {ruta.vista === "urbanizacion" ? <Urbanizacion key={ruta.id} id={ruta.id} pestana={ruta.pestana} /> : null}
         {ruta.vista === "red-mt" ? <RedMT key={ruta.id} id={ruta.id} pestana={ruta.pestana} /> : null}
         {ruta.vista === "industria" ? <Industria key={ruta.id} id={ruta.id} pestana={ruta.pestana} /> : null}

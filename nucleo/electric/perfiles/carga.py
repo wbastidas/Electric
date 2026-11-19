@@ -39,6 +39,7 @@ from electric.perfiles.esquema import (
     FilaTipoIndustrial,
     FilaTramoDemanda,
     FilaTransformador,
+    FilaTransformadorPotencia,
     FilaZonaClimatica,
     MetaPerfil,
     RefTabla,
@@ -75,6 +76,7 @@ from electric.perfiles.esquema import (
     TablaTiposIndustriales,
     TablaTramosDemanda,
     TablaTransformadores,
+    TablaTransformadoresPotencia,
     TablaZonasClimaticas,
 )
 
@@ -350,6 +352,12 @@ class Perfil:
             if fila.uso == uso:
                 return fila, self._ref(tabla, uso)
         return None
+
+    def transformadores_potencia(
+        self,
+    ) -> tuple[tuple[FilaTransformadorPotencia, ...], TablaTransformadoresPotencia]:
+        tabla = self._tabla("transformadores_potencia", TablaTransformadoresPotencia)
+        return tabla.filas, tabla
 
     def coincidencia(self, usuarios: int) -> tuple[Decimal, RefTabla]:
         tabla = self._tabla("coincidencia", TablaCoincidencia)

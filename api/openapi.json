@@ -3199,6 +3199,326 @@
           }
         }
       }
+    },
+    "/api/v1/subestaciones": {
+      "get": {
+        "tags": [
+          "subestaciones"
+        ],
+        "summary": "Listar",
+        "operationId": "listar_api_v1_subestaciones_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SubestacionResumen"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Api V1 Subestaciones Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "subestaciones"
+        ],
+        "summary": "Crear",
+        "operationId": "crear_api_v1_subestaciones_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BorradorSubestacion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubestacionDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/subestaciones/{id}": {
+      "get": {
+        "tags": [
+          "subestaciones"
+        ],
+        "summary": "Leer",
+        "operationId": "leer_api_v1_subestaciones__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubestacionDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "subestaciones"
+        ],
+        "summary": "Guardar",
+        "operationId": "guardar_api_v1_subestaciones__id__put",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuardarSubestacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubestacionDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "subestaciones"
+        ],
+        "summary": "Borrar",
+        "operationId": "borrar_api_v1_subestaciones__id__delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/subestaciones/{id}/calculo": {
+      "get": {
+        "tags": [
+          "subestaciones"
+        ],
+        "summary": "Calcular",
+        "operationId": "calcular_api_v1_subestaciones__id__calculo_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculoSubestacion"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/subestaciones/{id}/{plano}.{formato}": {
+      "get": {
+        "tags": [
+          "subestaciones"
+        ],
+        "summary": "Descargar Plano",
+        "operationId": "descargar_plano_api_v1_subestaciones__id___plano___formato__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "plano",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "unifilar",
+                "malla"
+              ],
+              "type": "string",
+              "title": "Plano"
+            }
+          },
+          {
+            "name": "formato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "dxf",
+                "png",
+                "pdf"
+              ],
+              "type": "string",
+              "title": "Formato"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/dxf": {},
+              "image/png": {},
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ejemplos/subestacion": {
+      "post": {
+        "tags": [
+          "subestaciones"
+        ],
+        "summary": "Crear Ejemplo",
+        "description": "Crea una subestación de ejemplo de 8,5 MVA.",
+        "operationId": "crear_ejemplo_api_v1_ejemplos_subestacion_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubestacionDetalle"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4190,6 +4510,174 @@
         "title": "BorradorRedMT",
         "description": "Extensión en edición: puede no tener arranque ni postes todavía."
       },
+      "BorradorSubestacion": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "perfil": {
+            "type": "string",
+            "title": "Perfil",
+            "default": "cnel-ep"
+          },
+          "propietario": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Propietario",
+            "default": ""
+          },
+          "demanda_mva": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 200.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demanda Mva"
+          },
+          "fp": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fp",
+            "default": "0.92"
+          },
+          "tension_at_kv": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tension At Kv"
+          },
+          "tension_mt_kv": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tension Mt Kv"
+          },
+          "scc_at_mva": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scc At Mva"
+          },
+          "alimentadores": {
+            "type": "integer",
+            "maximum": 16.0,
+            "minimum": 1.0,
+            "title": "Alimentadores",
+            "default": 4
+          },
+          "largo_malla_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 500.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Largo Malla M",
+            "default": "40"
+          },
+          "ancho_malla_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 500.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Ancho Malla M",
+            "default": "30"
+          },
+          "resistividad_ohm_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resistividad Ohm M"
+          },
+          "tiempo_falla_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 3.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tiempo Falla S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre"
+        ],
+        "title": "BorradorSubestacion"
+      },
       "BorradorUrbanizacion": {
         "properties": {
           "nombre": {
@@ -4673,6 +5161,143 @@
           "aviso"
         ],
         "title": "CalculoRedMT"
+      },
+      "CalculoSubestacion": {
+        "properties": {
+          "estado": {
+            "type": "string",
+            "enum": [
+              "listo",
+              "incompleto"
+            ],
+            "title": "Estado"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "aviso": {
+            "type": "string",
+            "title": "Aviso"
+          },
+          "pendientes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Pendientes",
+            "default": []
+          },
+          "transformador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transformador"
+          },
+          "z_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Z Pct"
+          },
+          "tension_at_kv": {
+            "type": "number",
+            "title": "Tension At Kv",
+            "default": 0
+          },
+          "tension_mt_kv": {
+            "type": "number",
+            "title": "Tension Mt Kv",
+            "default": 0
+          },
+          "scc_at_mva": {
+            "type": "number",
+            "title": "Scc At Mva",
+            "default": 0
+          },
+          "scc_supuesta": {
+            "type": "boolean",
+            "title": "Scc Supuesta",
+            "default": true
+          },
+          "corriente_at_a": {
+            "type": "number",
+            "title": "Corriente At A",
+            "default": 0
+          },
+          "corriente_mt_a": {
+            "type": "number",
+            "title": "Corriente Mt A",
+            "default": 0
+          },
+          "icc_at_ka": {
+            "type": "number",
+            "title": "Icc At Ka",
+            "default": 0
+          },
+          "icc_mt_ka": {
+            "type": "number",
+            "title": "Icc Mt Ka",
+            "default": 0
+          },
+          "corriente_alimentador_a": {
+            "type": "number",
+            "title": "Corriente Alimentador A",
+            "default": 0
+          },
+          "equipos": {
+            "items": {
+              "$ref": "#/components/schemas/EquipoOut"
+            },
+            "type": "array",
+            "title": "Equipos",
+            "default": []
+          },
+          "malla": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MallaOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resultados": {
+            "items": {
+              "$ref": "#/components/schemas/ResultadoOut"
+            },
+            "type": "array",
+            "title": "Resultados",
+            "default": []
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "estado",
+          "revision",
+          "aviso"
+        ],
+        "title": "CalculoSubestacion"
       },
       "CalculoUrbanizacion": {
         "properties": {
@@ -6027,6 +6652,25 @@
         ],
         "title": "EntradaBitacora"
       },
+      "EquipoOut": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "especificacion": {
+            "type": "string",
+            "title": "Especificacion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre",
+          "especificacion"
+        ],
+        "title": "EquipoOut"
+      },
       "EscenarioOut": {
         "properties": {
           "id": {
@@ -6526,6 +7170,24 @@
         ],
         "title": "GuardarRedMT"
       },
+      "GuardarSubestacion": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/BorradorSubestacion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "datos"
+        ],
+        "title": "GuardarSubestacion"
+      },
       "GuardarUrbanizacion": {
         "properties": {
           "revision": {
@@ -6871,6 +7533,110 @@
           "puntos"
         ],
         "title": "LineaFondo"
+      },
+      "MallaOut": {
+        "properties": {
+          "largo_m": {
+            "type": "number",
+            "title": "Largo M"
+          },
+          "ancho_m": {
+            "type": "number",
+            "title": "Ancho M"
+          },
+          "separacion_m": {
+            "type": "number",
+            "title": "Separacion M"
+          },
+          "conductores_x": {
+            "type": "integer",
+            "title": "Conductores X"
+          },
+          "conductores_y": {
+            "type": "integer",
+            "title": "Conductores Y"
+          },
+          "varillas": {
+            "type": "integer",
+            "title": "Varillas"
+          },
+          "longitud_conductor_m": {
+            "type": "number",
+            "title": "Longitud Conductor M"
+          },
+          "calibre": {
+            "type": "string",
+            "title": "Calibre"
+          },
+          "calibre_minimo_kcmil": {
+            "type": "number",
+            "title": "Calibre Minimo Kcmil"
+          },
+          "resistencia_ohm": {
+            "type": "number",
+            "title": "Resistencia Ohm"
+          },
+          "limite_resistencia_ohm": {
+            "type": "number",
+            "title": "Limite Resistencia Ohm"
+          },
+          "resistencia_cumple": {
+            "type": "boolean",
+            "title": "Resistencia Cumple"
+          },
+          "corriente_malla_a": {
+            "type": "number",
+            "title": "Corriente Malla A"
+          },
+          "gpr_v": {
+            "type": "number",
+            "title": "Gpr V"
+          },
+          "tension_malla_v": {
+            "type": "number",
+            "title": "Tension Malla V"
+          },
+          "tension_paso_v": {
+            "type": "number",
+            "title": "Tension Paso V"
+          },
+          "contacto_tolerable_v": {
+            "type": "number",
+            "title": "Contacto Tolerable V"
+          },
+          "paso_tolerable_v": {
+            "type": "number",
+            "title": "Paso Tolerable V"
+          },
+          "cumple": {
+            "type": "boolean",
+            "title": "Cumple"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "largo_m",
+          "ancho_m",
+          "separacion_m",
+          "conductores_x",
+          "conductores_y",
+          "varillas",
+          "longitud_conductor_m",
+          "calibre",
+          "calibre_minimo_kcmil",
+          "resistencia_ohm",
+          "limite_resistencia_ohm",
+          "resistencia_cumple",
+          "corriente_malla_a",
+          "gpr_v",
+          "tension_malla_v",
+          "tension_paso_v",
+          "contacto_tolerable_v",
+          "paso_tolerable_v",
+          "cumple"
+        ],
+        "title": "MallaOut"
       },
       "Manzana": {
         "properties": {
@@ -9091,6 +9857,80 @@
           "descripcion"
         ],
         "title": "SistemaOut"
+      },
+      "SubestacionDetalle": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "creado": {
+            "type": "string",
+            "title": "Creado"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/BorradorSubestacion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "revision",
+          "creado",
+          "actualizado",
+          "datos"
+        ],
+        "title": "SubestacionDetalle"
+      },
+      "SubestacionResumen": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "propietario": {
+            "type": "string",
+            "title": "Propietario"
+          },
+          "demanda_mva": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demanda Mva"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "propietario",
+          "demanda_mva",
+          "actualizado"
+        ],
+        "title": "SubestacionResumen"
       },
       "SubtableroOut": {
         "properties": {

@@ -372,7 +372,7 @@ export function PaginaRedesMT() {
         <h1>Redes de media tensión</h1>
         <p className="tenue">
           Extensión de red: trazado sobre el mapa o por coordenadas, estructuras, caída de tensión, cortocircuito,
-          protección, planimetría DXF, unifilar y KML. Urbanizaciones: transformadores por sector, red de BT y alumbrado.
+          protección, planimetría DXF, unifilar y KML. Urbanizaciones: transformadores por sector, red de BT y alumbrado. Subestaciones 69/13,8 kV.
         </p>
       </div>
       <section className="tarjeta">
@@ -433,6 +433,7 @@ export function PaginaRedesMT() {
         ) : null}
       </section>
       <Urbanizaciones />
+      <Subestaciones />
     </div>
   );
 }
@@ -479,6 +480,63 @@ function Urbanizaciones() {
                   <td><a href={`#/urbanizaciones/${r.id}`}>{r.nombre}</a></td>
                   <td>{r.propietario || "—"}</td>
                   <td>{r.lotes}</td>
+                  <td>{fecha(r.actualizado)}</td>
+                  <td className="derecha">
+                    <button className="discreto" onClick={() => {
+                      if (window.confirm(`¿Borrar "${r.nombre}"? No se puede deshacer.`)) borrar.mutate(r.id);
+                    }}>Borrar</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+function Subestaciones() {
+  const consultas = useQueryClient();
+  const lista = useQuery({ queryKey: ["subestaciones"], queryFn: api.subestaciones });
+  const [nombre, setNombre] = useState("");
+  const abrirS = (id: string) => {
+    consultas.invalidateQueries({ queryKey: ["subestaciones"] });
+    window.location.hash = `#/subestaciones/${id}`;
+  };
+  const crear = useMutation({ mutationFn: (n: string) => api.crearSubestacion(n), onSuccess: (r) => abrirS(r.id) });
+  const ejemplo = useMutation({ mutationFn: api.ejemploSubestacion, onSuccess: (r) => abrirS(r.id) });
+  const borrar = useMutation({
+    mutationFn: api.borrarSubestacion,
+    onSuccess: () => consultas.invalidateQueries({ queryKey: ["subestaciones"] }),
+  });
+  return (
+    <section className="tarjeta">
+      <h2>Subestaciones 69/13,8 kV</h2>
+      <form
+        className="fila-formulario"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (nombre.trim()) crear.mutate(nombre.trim());
+        }}
+      >
+        <Campo etiqueta="Nombre">
+          <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Subestación Planta Norte" />
+        </Campo>
+        <button className="primario" type="submit" disabled={!nombre.trim() || crear.isPending}>Nueva subestación</button>
+        <button type="button" disabled={ejemplo.isPending} onClick={() => ejemplo.mutate()}>Abrir el ejemplo</button>
+      </form>
+      {crear.isError ? <MensajeError error={crear.error} /> : null}
+      {ejemplo.isError ? <MensajeError error={ejemplo.error} /> : null}
+      {lista.data?.length ? (
+        <div className="tabla-ancha">
+          <table>
+            <thead><tr><th>Subestación</th><th>Propietario</th><th>Demanda</th><th>Último cambio</th><th /></tr></thead>
+            <tbody>
+              {lista.data.map((r) => (
+                <tr key={r.id}>
+                  <td><a href={`#/subestaciones/${r.id}`}>{r.nombre}</a></td>
+                  <td>{r.propietario || "—"}</td>
+                  <td>{r.demanda_mva ? `${r.demanda_mva} MVA` : "—"}</td>
                   <td>{fecha(r.actualizado)}</td>
                   <td className="derecha">
                     <button className="discreto" onClick={() => {

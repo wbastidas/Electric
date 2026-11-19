@@ -1004,6 +1004,97 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/subestaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar */
+        get: operations["listar_api_v1_subestaciones_get"];
+        put?: never;
+        /** Crear */
+        post: operations["crear_api_v1_subestaciones_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/subestaciones/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Leer */
+        get: operations["leer_api_v1_subestaciones__id__get"];
+        /** Guardar */
+        put: operations["guardar_api_v1_subestaciones__id__put"];
+        post?: never;
+        /** Borrar */
+        delete: operations["borrar_api_v1_subestaciones__id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/subestaciones/{id}/calculo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Calcular */
+        get: operations["calcular_api_v1_subestaciones__id__calculo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/subestaciones/{id}/{plano}.{formato}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Descargar Plano */
+        get: operations["descargar_plano_api_v1_subestaciones__id___plano___formato__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ejemplos/subestacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Crear Ejemplo
+         * @description Crea una subestación de ejemplo de 8,5 MVA.
+         */
+        post: operations["crear_ejemplo_api_v1_ejemplos_subestacion_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1405,6 +1496,53 @@ export interface components {
              */
             postes: components["schemas"]["PosteNuevo"][];
         };
+        /** BorradorSubestacion */
+        BorradorSubestacion: {
+            /** Nombre */
+            nombre: string;
+            /**
+             * Perfil
+             * @default cnel-ep
+             */
+            perfil: string;
+            /**
+             * Propietario
+             * @default
+             */
+            propietario: string;
+            /** Demanda Mva */
+            demanda_mva?: number | string | null;
+            /**
+             * Fp
+             * @default 0.92
+             */
+            fp: number | string;
+            /** Tension At Kv */
+            tension_at_kv?: number | string | null;
+            /** Tension Mt Kv */
+            tension_mt_kv?: number | string | null;
+            /** Scc At Mva */
+            scc_at_mva?: number | string | null;
+            /**
+             * Alimentadores
+             * @default 4
+             */
+            alimentadores: number;
+            /**
+             * Largo Malla M
+             * @default 40
+             */
+            largo_malla_m: number | string;
+            /**
+             * Ancho Malla M
+             * @default 30
+             */
+            ancho_malla_m: number | string;
+            /** Resistividad Ohm M */
+            resistividad_ohm_m?: number | string | null;
+            /** Tiempo Falla S */
+            tiempo_falla_s?: number | string | null;
+        };
         /** BorradorUrbanizacion */
         BorradorUrbanizacion: {
             /** Nombre */
@@ -1667,6 +1805,88 @@ export interface components {
              * @default []
              */
             vanos: components["schemas"]["VanoOut"][];
+            /**
+             * Resultados
+             * @default []
+             */
+            resultados: components["schemas"]["ResultadoOut"][];
+            /**
+             * Avisos
+             * @default []
+             */
+            avisos: string[];
+        };
+        /** CalculoSubestacion */
+        CalculoSubestacion: {
+            /**
+             * Estado
+             * @enum {string}
+             */
+            estado: "listo" | "incompleto";
+            /** Revision */
+            revision: number;
+            /** Aviso */
+            aviso: string;
+            /**
+             * Pendientes
+             * @default []
+             */
+            pendientes: string[];
+            /** Transformador */
+            transformador?: string | null;
+            /** Z Pct */
+            z_pct?: number | null;
+            /**
+             * Tension At Kv
+             * @default 0
+             */
+            tension_at_kv: number;
+            /**
+             * Tension Mt Kv
+             * @default 0
+             */
+            tension_mt_kv: number;
+            /**
+             * Scc At Mva
+             * @default 0
+             */
+            scc_at_mva: number;
+            /**
+             * Scc Supuesta
+             * @default true
+             */
+            scc_supuesta: boolean;
+            /**
+             * Corriente At A
+             * @default 0
+             */
+            corriente_at_a: number;
+            /**
+             * Corriente Mt A
+             * @default 0
+             */
+            corriente_mt_a: number;
+            /**
+             * Icc At Ka
+             * @default 0
+             */
+            icc_at_ka: number;
+            /**
+             * Icc Mt Ka
+             * @default 0
+             */
+            icc_mt_ka: number;
+            /**
+             * Corriente Alimentador A
+             * @default 0
+             */
+            corriente_alimentador_a: number;
+            /**
+             * Equipos
+             * @default []
+             */
+            equipos: components["schemas"]["EquipoOut"][];
+            malla?: components["schemas"]["MallaOut"] | null;
             /**
              * Resultados
              * @default []
@@ -2187,6 +2407,13 @@ export interface components {
             /** Resumen */
             resumen: string;
         };
+        /** EquipoOut */
+        EquipoOut: {
+            /** Nombre */
+            nombre: string;
+            /** Especificacion */
+            especificacion: string;
+        };
         /**
          * EscenarioOut
          * @description Un escenario del proyecto, resumido para compararlo con los demás.
@@ -2366,6 +2593,12 @@ export interface components {
             revision: number;
             datos: components["schemas"]["BorradorRedMT"];
         };
+        /** GuardarSubestacion */
+        GuardarSubestacion: {
+            /** Revision */
+            revision: number;
+            datos: components["schemas"]["BorradorSubestacion"];
+        };
         /** GuardarUrbanizacion */
         GuardarUrbanizacion: {
             /** Revision */
@@ -2494,6 +2727,47 @@ export interface components {
                 number,
                 number
             ][];
+        };
+        /** MallaOut */
+        MallaOut: {
+            /** Largo M */
+            largo_m: number;
+            /** Ancho M */
+            ancho_m: number;
+            /** Separacion M */
+            separacion_m: number;
+            /** Conductores X */
+            conductores_x: number;
+            /** Conductores Y */
+            conductores_y: number;
+            /** Varillas */
+            varillas: number;
+            /** Longitud Conductor M */
+            longitud_conductor_m: number;
+            /** Calibre */
+            calibre: string;
+            /** Calibre Minimo Kcmil */
+            calibre_minimo_kcmil: number;
+            /** Resistencia Ohm */
+            resistencia_ohm: number;
+            /** Limite Resistencia Ohm */
+            limite_resistencia_ohm: number;
+            /** Resistencia Cumple */
+            resistencia_cumple: boolean;
+            /** Corriente Malla A */
+            corriente_malla_a: number;
+            /** Gpr V */
+            gpr_v: number;
+            /** Tension Malla V */
+            tension_malla_v: number;
+            /** Tension Paso V */
+            tension_paso_v: number;
+            /** Contacto Tolerable V */
+            contacto_tolerable_v: number;
+            /** Paso Tolerable V */
+            paso_tolerable_v: number;
+            /** Cumple */
+            cumple: boolean;
         };
         /** Manzana */
         Manzana: {
@@ -3296,6 +3570,31 @@ export interface components {
             id: string;
             /** Descripcion */
             descripcion: string;
+        };
+        /** SubestacionDetalle */
+        SubestacionDetalle: {
+            /** Id */
+            id: string;
+            /** Revision */
+            revision: number;
+            /** Creado */
+            creado: string;
+            /** Actualizado */
+            actualizado: string;
+            datos: components["schemas"]["BorradorSubestacion"];
+        };
+        /** SubestacionResumen */
+        SubestacionResumen: {
+            /** Id */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Propietario */
+            propietario: string;
+            /** Demanda Mva */
+            demanda_mva: number | null;
+            /** Actualizado */
+            actualizado: string;
         };
         /** SubtableroOut */
         SubtableroOut: {
@@ -5912,6 +6211,240 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UrbanizacionDetalle"];
+                };
+            };
+        };
+    };
+    listar_api_v1_subestaciones_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubestacionResumen"][];
+                };
+            };
+        };
+    };
+    crear_api_v1_subestaciones_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BorradorSubestacion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubestacionDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    leer_api_v1_subestaciones__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubestacionDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    guardar_api_v1_subestaciones__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuardarSubestacion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubestacionDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    borrar_api_v1_subestaciones__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    calcular_api_v1_subestaciones__id__calculo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalculoSubestacion"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descargar_plano_api_v1_subestaciones__id___plano___formato__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                plano: "unifilar" | "malla";
+                formato: "dxf" | "png" | "pdf";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/dxf": unknown;
+                    "image/png": unknown;
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_ejemplo_api_v1_ejemplos_subestacion_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubestacionDetalle"];
                 };
             };
         };
