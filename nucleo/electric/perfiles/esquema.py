@@ -288,8 +288,14 @@ class FilaCapaSIG(Dato):
     """Capa del geoportal y el nombre de cada campo que se usa."""
 
     capa: Literal["postes", "tramos_mt", "transformadores", "protecciones"]
+    #: URL de la capa; si falta, se busca en el servicio por las palabras.
     url: str | None = None
+    #: Palabras con que se reconoce la capa por su nombre en el servicio.
+    palabras: tuple[str, ...] = ()
+    #: Campo preferido para cada dato.
     campos: dict[str, str]
+    #: Otros nombres posibles de cada campo, en orden de preferencia.
+    alternativos: dict[str, tuple[str, ...]] = Field(default_factory=dict)
 
 
 # --- Tablas --------------------------------------------------------------
@@ -445,6 +451,8 @@ class TablaEstructurasMT(TablaBase):
 
 class TablaSIG(TablaBase):
     tipo: Literal["sig"]
+    #: URL del MapServer con todas las capas.
+    servicio: str | None = None
     filas: tuple[FilaCapaSIG, ...]
 
 

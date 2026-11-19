@@ -1724,6 +1724,50 @@
         }
       }
     },
+    "/api/v1/red-mt/geoportal": {
+      "get": {
+        "tags": [
+          "redes-mt"
+        ],
+        "summary": "Diagnosticar Geoportal",
+        "description": "Qué capas y campos del geoportal se reconocen, o por qué no se pudo conectar.",
+        "operationId": "diagnosticar_geoportal_api_v1_red_mt_geoportal_get",
+        "parameters": [
+          {
+            "name": "perfil",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "cnel-ep",
+              "title": "Perfil"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiagnosticoGeoportal"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/redes-mt": {
       "get": {
         "tags": [
@@ -3347,6 +3391,67 @@
         "title": "CambiarCircuito",
         "description": "Pasa un punto a otro circuito del mismo tipo, o a uno nuevo con `circuito=\"nuevo\"`."
       },
+      "CapaGeoportal": {
+        "properties": {
+          "capa": {
+            "type": "string",
+            "title": "Capa"
+          },
+          "nombre": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nombre"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "campos": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Campos"
+          },
+          "disponibles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Disponibles"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "capa",
+          "nombre",
+          "url",
+          "campos",
+          "disponibles"
+        ],
+        "title": "CapaGeoportal"
+      },
       "CargaEspecial": {
         "properties": {
           "id": {
@@ -3934,6 +4039,67 @@
           "transformador"
         ],
         "title": "DecisionOut"
+      },
+      "DiagnosticoGeoportal": {
+        "properties": {
+          "servicio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Servicio"
+          },
+          "conectado": {
+            "type": "boolean",
+            "title": "Conectado"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "capas_servicio": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Capas Servicio",
+            "default": []
+          },
+          "capas": {
+            "items": {
+              "$ref": "#/components/schemas/CapaGeoportal"
+            },
+            "type": "array",
+            "title": "Capas",
+            "default": []
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "servicio",
+          "conectado"
+        ],
+        "title": "DiagnosticoGeoportal"
       },
       "DisenoOut": {
         "properties": {

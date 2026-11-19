@@ -144,6 +144,23 @@ class OpcionesMT(Esquema):
     geoportal_configurado: bool
 
 
+class CapaGeoportal(Esquema):
+    capa: str
+    nombre: str | None
+    url: str | None
+    campos: dict[str, str | None]
+    disponibles: list[str]
+
+
+class DiagnosticoGeoportal(Esquema):
+    servicio: str | None
+    conectado: bool
+    error: str | None = None
+    capas_servicio: list[str] = []
+    capas: list[CapaGeoportal] = []
+    avisos: list[str] = []
+
+
 class Existente(Esquema):
     red: RedExistente
     avisos: list[str]
@@ -226,7 +243,37 @@ def opciones_mt(perfiles: PerfilesDep, perfil: Annotated[str, Query()] = "cnel-e
             for c in p.conductores_mt()
         ],
         estructuras=[OpcionMT(id=t.id, nombre=t.nombre) for t in tipos],
-        geoportal_configurado=all(c.url for c in p.capas_sig()) and bool(p.capas_sig()),
+        geoportal_configurado=bool(p.servicio_sig()) or any(c.url for c in p.capas_sig()),
+    )
+
+
+@rutas.get("/red-mt/geoportal")
+def diagnosticar_geoportal(
+    perfiles: PerfilesDep, perfil: Annotated[str, Query()] = "cnel-ep"
+) -> DiagnosticoGeoportal:
+    """Qué capas y campos del geoportal se reconocen, o por qué no se pudo conectar."""
+    from electric.mt.sig import descubrir
+
+    p = _perfil(perfiles, perfil)
+    try:
+        hallazgo = descubrir(p)
+    except ErrorSIG as error:
+        return DiagnosticoGeoportal(servicio=p.servicio_sig(), conectado=False, error=str(error))
+    return DiagnosticoGeoportal(
+        servicio=hallazgo.servicio,
+        conectado=True,
+        capas_servicio=[f"{i} · {n}" for i, n in hallazgo.capas_servicio],
+        capas=[
+            CapaGeoportal(
+                capa=c.capa,
+                nombre=c.nombre,
+                url=c.url,
+                campos=c.campos,
+                disponibles=list(c.disponibles),
+            )
+            for c in hallazgo.capas
+        ],
+        avisos=list(hallazgo.avisos),
     )
 
 

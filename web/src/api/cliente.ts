@@ -30,6 +30,7 @@ export type CalculoRedMT = S["CalculoRedMT"];
 export type OpcionesMT = S["OpcionesMT"];
 export type RedExistente = S["RedExistente"];
 export type ExistenteOut = S["Existente"];
+export type DiagnosticoGeoportal = S["DiagnosticoGeoportal"];
 export type EdificacionDetalle = S["EdificacionDetalle"];
 export type EdificacionResumen = S["EdificacionResumen"];
 export type CalculoEdificacion = S["CalculoEdificacion"];
@@ -129,6 +130,7 @@ export const api = {
   borrarRedMT: (id: string) => pedir<void>(`/redes-mt/${id}`, { method: "DELETE" }),
   calculoRedMT: (id: string) => pedir<CalculoRedMT>(`/redes-mt/${id}/calculo`),
   opcionesMT: () => pedir<OpcionesMT>("/red-mt/opciones"),
+  diagnosticoGeoportal: () => pedir<DiagnosticoGeoportal>("/red-mt/geoportal"),
   existenteGeoportal: (id: string, lat: number, lon: number, radio: number) =>
     pedir<ExistenteOut>(
       `/redes-mt/${id}/existente/geoportal?${new URLSearchParams({

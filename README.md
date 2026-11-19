@@ -150,11 +150,14 @@ Entrega la planimetría DXF/PDF con la tabla de estructuras y la red existente e
 gris, el unifilar de MT y un KML para Google Earth o un SIG.
 
 La red existente (postes con estructura, tramos de MT, transformadores y
-protecciones) se lee del geoportal de CNEL por sus servicios ArcGIS REST, con
-las capas y los campos configurados en la tabla `sig` del perfil. Ese cliente
-**no está probado contra el geoportal real**: las direcciones de las capas y los
-nombres de los campos son supuestos, y el servidor necesita acceso a
-geoportal.cnelep.gob.ec. Mientras tanto se puede cargar desde un GeoJSON
+protecciones) se lee del geoportal de CNEL, servicio
+`https://geoportal.cnelep.gob.ec/arcgis/rest/services/REP/CNELEPN/MapServer`
+(transformadores en la capa 9). Las demás capas se reconocen por su nombre en
+la lista del servicio y los campos por sus nombres posibles, todo en la tabla
+`sig` del perfil. «Diagnóstico de la conexión» en la pestaña Red existente (o
+`electric sig-diagnostico --lat … --lon …`) muestra lo que se reconoció. Ese
+cliente **no está probado contra el geoportal real**: el servidor necesita
+acceso a geoportal.cnelep.gob.ec. Mientras tanto se puede cargar desde un GeoJSON
 exportado del SIG. Ejemplo: `ejemplos/red-mt` y `electric red-mt extension.json`.
 
 ### Industrias: cuadro de cargas y transformador

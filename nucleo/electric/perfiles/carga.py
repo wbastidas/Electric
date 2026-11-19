@@ -339,6 +339,11 @@ class Perfil:
         tabla = self._tabla("estructuras_mt", TablaEstructurasMT)
         return tabla.filas, self._ref(tabla, "tipos de estructura")
 
+    def servicio_sig(self) -> str | None:
+        if "sig" not in self.tablas:
+            return None
+        return self._tabla("sig", TablaSIG).servicio
+
     def capas_sig(self) -> tuple[FilaCapaSIG, ...]:
         if "sig" not in self.tablas:
             return ()

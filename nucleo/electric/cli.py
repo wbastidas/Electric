@@ -375,6 +375,32 @@ def _red_mt(args: argparse.Namespace) -> int:
     return 0
 
 
+def _sig_diagnostico(args: argparse.Namespace) -> int:
+    from electric.mt.sig import consultar_geoportal, descubrir
+
+    perfil = cargar_perfil(_carpeta_perfiles(args.perfiles) / args.perfil)
+    hallazgo = descubrir(perfil)
+    print(f"Servicio: {hallazgo.servicio}")
+    print(f"Capas del servicio: {', '.join(f'{i} {n}' for i, n in hallazgo.capas_servicio)}")
+    for capa in hallazgo.capas:
+        print(f"\n{capa.capa}: {capa.nombre or 'no encontrada'} {capa.url or ''}")
+        for dato, campo in capa.campos.items():
+            print(f"  {dato:<12} → {campo or 'NO ENCONTRADO'}")
+        if capa.disponibles:
+            print(f"  campos de la capa: {', '.join(capa.disponibles)}")
+    for aviso in hallazgo.avisos:
+        print(f"- {aviso}")
+    if args.lat and args.lon:
+        red, avisos = consultar_geoportal(perfil, Decimal(args.lat), Decimal(args.lon), args.radio)
+        print(
+            f"\nAlrededor del punto: {len(red.postes)} postes, {len(red.tramos)} tramos, "
+            f"{len(red.transformadores)} transformadores, {len(red.protecciones)} protecciones"
+        )
+        for aviso in avisos:
+            print(f"- {aviso}")
+    return 0
+
+
 def _validar_perfil(args: argparse.Namespace) -> int:
     perfil = cargar_perfil(Path(args.carpeta))
     print(f"Perfil {perfil.meta.id} {perfil.meta.version}: válido, {len(perfil.tablas)} tablas")
@@ -556,6 +582,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     m.add_argument("--perfiles", help="carpeta que contiene los perfiles")
     m.add_argument("--salida", help="carpeta para la planimetría, el unifilar y el KML")
     m.set_defaults(funcion=_red_mt)
+
+    g = comandos.add_parser("sig-diagnostico", help="capas y campos que se reconocen del geoportal")
+    g.add_argument("--perfil", default="cnel-ep")
+    g.add_argument("--perfiles", help="carpeta que contiene los perfiles")
+    g.add_argument("--lat", help="latitud para probar una consulta")
+    g.add_argument("--lon", help="longitud para probar una consulta")
+    g.add_argument("--radio", type=int, default=300, help="radio de la consulta en metros")
+    g.set_defaults(funcion=_sig_diagnostico)
 
     p = comandos.add_parser("validar-perfil", help="valida un perfil y lista sus tablas")
     p.add_argument("carpeta", help="carpeta del perfil")

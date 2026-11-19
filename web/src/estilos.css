@@ -1112,3 +1112,13 @@ textarea {
     height: 360px;
   }
 }
+details.diagnostico {
+  margin: 0.75rem 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed var(--borde);
+  border-radius: 8px;
+}
+details.diagnostico summary {
+  cursor: pointer;
+  font-weight: 600;
+}

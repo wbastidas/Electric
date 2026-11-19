@@ -157,13 +157,91 @@ def test_featureset_de_arcgis() -> None:
         leer_featureset(json.dumps({"error": {"code": 400}}))
 
 
-def test_consulta_al_geoportal_sin_url_configurada(perfil_cnel: Perfil) -> None:
+def _servicio_simulado(llamadas: list[str]):  # type: ignore[no-untyped-def]
+    """Respuestas con la forma de ArcGIS REST para probar la lógica (no son datos de CNEL)."""
+    base = "https://geoportal.cnelep.gob.ec/arcgis/rest/services/REP/CNELEPN/MapServer"
+    capas = {
+        "layers": [
+            {"id": 3, "name": "Postes"},
+            {"id": 5, "name": "Red Baja Tensión"},
+            {"id": 6, "name": "Red Media Tensión"},
+            {"id": 9, "name": "Transformadores"},
+            {"id": 11, "name": "Seccionadores"},
+        ]
+    }
+    campos = {
+        3: [{"name": "COD_POSTE"}, {"name": "ARMADO", "alias": "Estructura"}, {"name": "ALIM"}],
+        6: [{"name": "OBJECTID"}, {"name": "CALIBRE"}, {"name": "FASE"}],
+        9: [{"name": "CODIGO"}, {"name": "KVA"}, {"name": "NUM_CLIENTES"}],
+        11: [{"name": "CODIGO"}, {"name": "TIPO"}],
+    }
+    rasgos = {
+        3: [
+            {
+                "attributes": {"COD_POSTE": "P-1", "ARMADO": "UP-1"},
+                "geometry": {"x": -79.9, "y": -2.17},
+            }
+        ],
+        6: [
+            {
+                "attributes": {"OBJECTID": 7, "CALIBRE": "2/0"},
+                "geometry": {"paths": [[[-79.9, -2.17], [-79.899, -2.17]]]},
+            }
+        ],
+        9: [
+            {"attributes": {"CODIGO": "TR-1", "KVA": 50}, "geometry": {"x": -79.8995, "y": -2.1701}}
+        ],
+        11: [],
+    }
+
+    def leer(url: str) -> str:
+        llamadas.append(url)
+        if url == f"{base}?f=json":
+            return json.dumps(capas)
+        numero = int(url.split("MapServer/")[1].split("/")[0].split("?")[0])
+        if "/query?" in url:
+            return json.dumps({"features": rasgos[numero]})
+        return json.dumps({"name": next(c["name"] for c in capas["layers"] if c["id"] == numero),
+                           "fields": campos[numero]})  # fmt: skip
+
+    return leer
+
+
+def test_reconoce_capas_y_campos_del_servicio(perfil_cnel: Perfil) -> None:
+    from electric.mt.sig import descubrir
+
+    llamadas: list[str] = []
+    hallazgo = descubrir(perfil_cnel, _servicio_simulado(llamadas))
+    capas = {c.capa: c for c in hallazgo.capas}
+    assert capas["transformadores"].url and capas["transformadores"].url.endswith("/9")
+    assert capas["postes"].url and capas["postes"].url.endswith("/3")
+    # La de baja tensión no se toma como red de media tensión.
+    assert capas["tramos_mt"].nombre == "Red Media Tensión"
+    assert capas["protecciones"].nombre == "Seccionadores"
+    assert capas["postes"].campos["id"] == "COD_POSTE"
+    assert capas["postes"].campos["estructura"] == "ARMADO"
+    assert capas["transformadores"].campos["kva"] == "KVA"
+    assert capas["transformadores"].campos["clientes"] == "NUM_CLIENTES"
+    assert any("no se encontraron los campos" in a for a in hallazgo.avisos)
+
+
+def test_consulta_con_el_servicio_simulado(perfil_cnel: Perfil) -> None:
+    llamadas: list[str] = []
+    red, _ = consultar_geoportal(
+        perfil_cnel, D("-2.17"), D("-79.9"), 250, leer=_servicio_simulado(llamadas)
+    )
+    assert [p.id for p in red.postes] == ["P-1"] and red.postes[0].estructura == "UP-1"
+    assert red.tramos[0].conductor == "2/0"
+    assert red.transformadores[0].kva == D(50)
+    assert any("/9/query?" in u and "distance=250" in u for u in llamadas)
+
+
+def test_geoportal_que_no_responde(perfil_cnel: Perfil) -> None:
+    def caido(url: str) -> str:
+        raise ErrorSIG("no se pudo conectar con el geoportal: rechazado")
+
+    with pytest.raises(ErrorSIG, match="conectar"):
+        consultar_geoportal(perfil_cnel, D("-2.17"), D("-79.9"), leer=caido)
     capa = perfil_cnel.capas_sig()[0]
     with pytest.raises(ErrorSIG, match="URL"):
         url_consulta(capa, D("-2.17"), D("-79.9"), 300)
-    with pytest.raises(ErrorSIG):
-        consultar_geoportal(perfil_cnel, D("-2.17"), D("-79.9"))
-    con_url = capa.model_copy(update={"url": "https://ejemplo.invalido/arcgis/rest/services/x/0"})
-    url = url_consulta(con_url, D("-2.17"), D("-79.9"), 250)
-    assert url.startswith("https://ejemplo.invalido/arcgis/rest/services/x/0/query?")
-    assert "distance=250" in url and "outSR=4326" in url

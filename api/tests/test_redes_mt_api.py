@@ -26,7 +26,7 @@ def cliente(tmp_path: Path) -> Iterator[TestClient]:
 def test_red_mt_paso_a_paso(cliente: TestClient) -> None:
     opciones = cliente.get(f"{BASE}/red-mt/opciones").json()
     assert "ACSR 1/0 AWG" in {c["id"] for c in opciones["conductores"]}
-    assert opciones["geoportal_configurado"] is False
+    assert opciones["geoportal_configurado"] is True
 
     red = cliente.post(f"{BASE}/redes-mt", json={"nombre": "Extensión barrio norte"}).json()
     id = red["id"]
@@ -58,12 +58,20 @@ def test_red_mt_paso_a_paso(cliente: TestClient) -> None:
     assert conflicto.status_code == 409
 
 
-def test_red_existente(cliente: TestClient) -> None:
+def test_red_existente(cliente: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     id = cliente.post(f"{BASE}/ejemplos/red-mt").json()["id"]
-    # Sin URL de capas configuradas, el geoportal responde con un problema claro.
+    # Sin acceso al geoportal, la consulta responde con un problema claro.
+    import electric.mt.sig as sig
+
+    def sin_red(url: str, tiempo_s: float = 20) -> str:
+        raise sig.ErrorSIG("no se pudo conectar con el geoportal: rechazado")
+
+    monkeypatch.setattr(sig, "leer_url", sin_red)
     respuesta = cliente.post(f"{BASE}/redes-mt/{id}/existente/geoportal?lat=-2.17&lon=-79.9")
     assert respuesta.status_code == 502
     assert "GeoJSON" in respuesta.json()["detail"]
+    diagnostico = cliente.get(f"{BASE}/red-mt/geoportal").json()
+    assert diagnostico["conectado"] is False and "conectar" in diagnostico["error"]
     geojson = {
         "type": "FeatureCollection",
         "features": [

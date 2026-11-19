@@ -1,27 +1,55 @@
 id: cnel-ep/sig
 tipo: sig
-version: 0.1.0
-vigente_desde: 2026-11-01
+version: 0.2.0
+vigente_desde: 2026-11-19
 fuente:
   norma: Geoportal de CNEL EP (servicios ArcGIS REST)
   numeral: null
-  url: https://geoportal.cnelep.gob.ec/cnel/
+  url: https://geoportal.cnelep.gob.ec/arcgis/rest/services/REP/CNELEPN/MapServer
 estado: por_verificar
 nota: >-
-  Correspondencia entre las capas y campos del geoportal y los datos que usa la
-  plataforma. Las URL de capa y los nombres de campo son supuestos: no se pudo
-  consultar el servicio desde el entorno de desarrollo. Hay que confirmarlos
-  con el geoportal real y corregirlos aquí, sin tocar el código.
+  Servicio y capa de transformadores (9) indicados por el usuario. Las demás
+  capas se buscan por nombre en la lista del servicio y los campos por sus
+  nombres posibles; el diagnóstico del geoportal muestra lo que se encontró.
+  Sin probar contra el servicio real: el entorno de desarrollo no tiene acceso.
+servicio: https://geoportal.cnelep.gob.ec/arcgis/rest/services/REP/CNELEPN/MapServer
 filas:
   - capa: postes
     url: null
+    palabras: [poste, estructura, apoyo]
     campos: {id: CODIGO, estructura: ESTRUCTURA, material: MATERIAL, altura: ALTURA, alimentador: ALIMENTADOR}
+    alternativos:
+      id: [CODIGO, COD_POSTE, CODIGOPOSTE, NUMERO, ID_POSTE, OBJECTID]
+      estructura: [ESTRUCTURA, TIPO_ESTRUCTURA, ESTRUCTURA_MT, ARMADO, UNIDAD_PROPIEDAD, UP]
+      material: [MATERIAL, TIPO_POSTE, CLASE]
+      altura: [ALTURA, LONGITUD, ALTURA_POSTE]
+      alimentador: [ALIMENTADOR, ALIM, COD_ALIMENTADOR, CIRCUITO]
   - capa: tramos_mt
     url: null
+    palabras: [media tension, medio voltaje, primario, tramo mt, red mt, linea mt, mt]
     campos: {id: CODIGO, conductor: CONDUCTOR, fases: FASES, alimentador: ALIMENTADOR, tension: VOLTAJE}
+    alternativos:
+      id: [CODIGO, COD_TRAMO, OBJECTID]
+      conductor: [CONDUCTOR, CALIBRE, TIPO_CONDUCTOR, CONDUCTOR_FASE]
+      fases: [FASES, FASE, NUM_FASES, CONFIGURACION]
+      alimentador: [ALIMENTADOR, ALIM, COD_ALIMENTADOR, CIRCUITO]
+      tension: [VOLTAJE, TENSION, NIVEL_TENSION, KV]
   - capa: transformadores
-    url: null
+    url: https://geoportal.cnelep.gob.ec/arcgis/rest/services/REP/CNELEPN/MapServer/9
+    palabras: [transformador]
     campos: {id: CODIGO, kva: POTENCIA, fases: FASES, clientes: CLIENTES, alimentador: ALIMENTADOR}
+    alternativos:
+      id: [CODIGO, COD_TRAFO, CODIGOTRAFO, NUMERO, OBJECTID]
+      kva: [POTENCIA, KVA, POTENCIA_KVA, CAPACIDAD, POT_NOMINAL]
+      fases: [FASES, FASE, NUM_FASES, TIPO]
+      clientes: [CLIENTES, NUM_CLIENTES, NUMERO_CLIENTES, ABONADOS]
+      alimentador: [ALIMENTADOR, ALIM, COD_ALIMENTADOR, CIRCUITO]
   - capa: protecciones
     url: null
+    palabras: [seccionador, proteccion, fusible, reconectador, interruptor]
     campos: {id: CODIGO, tipo: TIPO, capacidad: CAPACIDAD, alimentador: ALIMENTADOR}
+    alternativos:
+      id: [CODIGO, COD_EQUIPO, OBJECTID]
+      tipo: [TIPO, TIPO_EQUIPO, CLASE]
+      capacidad: [CAPACIDAD, CORRIENTE, AMPERAJE, FUSIBLE, TIRAFUSIBLE]
+      alimentador: [ALIMENTADOR, ALIM, COD_ALIMENTADOR, CIRCUITO]

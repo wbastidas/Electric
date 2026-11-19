@@ -629,10 +629,11 @@ function Existente({
         </p>
         {!geoportal ? (
           <Aviso tipo="alerta">
-            Faltan las direcciones de las capas del geoportal en el perfil (tabla «sig»), y el servidor necesita acceso
-            a geoportal.cnelep.gob.ec. Mientras tanto, cargue la red desde un archivo.
+            Falta la dirección del servicio del geoportal en el perfil (tabla «sig»). Mientras tanto, cargue la red
+            desde un archivo.
           </Aviso>
         ) : null}
+        <Diagnostico />
         <div className="fila-formulario">
           <Campo etiqueta="Radio de búsqueda (m)">
             <input type="number" min={20} max={3000} value={radio} onChange={(e) => setRadio(Number(e.target.value))} />
@@ -697,5 +698,66 @@ function Existente({
         )}
       </section>
     </div>
+  );
+}
+
+function Diagnostico() {
+  const diagnostico = useMutation({ mutationFn: api.diagnosticoGeoportal });
+  const d = diagnostico.data;
+  return (
+    <details className="diagnostico">
+      <summary>Diagnóstico de la conexión</summary>
+      <p className="tenue">
+        Muestra qué capas y campos del geoportal reconoce la plataforma. El servidor necesita acceso a
+        geoportal.cnelep.gob.ec.
+      </p>
+      <button disabled={diagnostico.isPending} onClick={() => diagnostico.mutate()}>
+        {diagnostico.isPending ? "Probando…" : "Probar la conexión"}
+      </button>
+      {diagnostico.isError ? <MensajeError error={diagnostico.error} /> : null}
+      {d && !d.conectado ? (
+        <Aviso tipo="error">
+          <strong>No se pudo conectar.</strong> {d.error}
+        </Aviso>
+      ) : null}
+      {d?.conectado ? (
+        <>
+          <p className="tenue">Capas del servicio: {d.capas_servicio.join(", ") || "ninguna"}</p>
+          <div className="tabla-ancha">
+            <table>
+              <thead>
+                <tr>
+                  <th>Dato</th>
+                  <th>Capa reconocida</th>
+                  <th>Campos</th>
+                </tr>
+              </thead>
+              <tbody>
+                {d.capas.map((c) => (
+                  <tr key={c.capa} className={c.url ? "" : "dudoso"}>
+                    <td>{c.capa.replace("_", " ")}</td>
+                    <td>{c.nombre ?? "no encontrada"}</td>
+                    <td>
+                      {Object.entries(c.campos)
+                        .map(([dato, campo]) => `${dato}: ${campo ?? "—"}`)
+                        .join(" · ")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {d.avisos.length ? (
+            <Aviso tipo="alerta">
+              <ul>
+                {d.avisos.map((a) => (
+                  <li key={a}>{a}</li>
+                ))}
+              </ul>
+            </Aviso>
+          ) : null}
+        </>
+      ) : null}
+    </details>
   );
 }

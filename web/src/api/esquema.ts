@@ -560,6 +560,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/red-mt/geoportal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Diagnosticar Geoportal
+         * @description Qué capas y campos del geoportal se reconocen, o por qué no se pudo conectar.
+         */
+        get: operations["diagnosticar_geoportal_api_v1_red_mt_geoportal_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/redes-mt": {
         parameters: {
             query?: never;
@@ -1237,6 +1257,21 @@ export interface components {
             /** Circuito */
             circuito: string;
         };
+        /** CapaGeoportal */
+        CapaGeoportal: {
+            /** Capa */
+            capa: string;
+            /** Nombre */
+            nombre: string | null;
+            /** Url */
+            url: string | null;
+            /** Campos */
+            campos: {
+                [key: string]: string | null;
+            };
+            /** Disponibles */
+            disponibles: string[];
+        };
         /**
          * CargaEspecial
          * @description Equipo declarado con circuito propio (ducha, cocina, A/C…).
@@ -1419,6 +1454,30 @@ export interface components {
             /** Comprobaciones */
             comprobaciones: components["schemas"]["ComprobacionOut"][];
             transformador: components["schemas"]["TransformadorOut"] | null;
+        };
+        /** DiagnosticoGeoportal */
+        DiagnosticoGeoportal: {
+            /** Servicio */
+            servicio: string | null;
+            /** Conectado */
+            conectado: boolean;
+            /** Error */
+            error?: string | null;
+            /**
+             * Capas Servicio
+             * @default []
+             */
+            capas_servicio: string[];
+            /**
+             * Capas
+             * @default []
+             */
+            capas: components["schemas"]["CapaGeoportal"][];
+            /**
+             * Avisos
+             * @default []
+             */
+            avisos: string[];
         };
         /** DisenoOut */
         DisenoOut: {
@@ -3852,6 +3911,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OpcionesMT"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    diagnosticar_geoportal_api_v1_red_mt_geoportal_get: {
+        parameters: {
+            query?: {
+                perfil?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiagnosticoGeoportal"];
                 };
             };
             /** @description Validation Error */
