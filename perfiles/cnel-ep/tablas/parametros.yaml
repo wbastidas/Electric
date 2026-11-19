@@ -77,3 +77,10 @@ filas:
   - {clave: distancia_transformador_defecto_m, valor: 15, unidad: m, nota: Supuesto si no se indica la distancia del transformador al centro de medición.}
   - {clave: medidores_por_modulo, valor: 12, nota: Propuesta - medidores por módulo del centro de medición; confirmar con el manual de acometidas de CNEL.}
   - {clave: carga_generador_max, valor: 0.8, nota: Práctica habitual - carga del generador como fracción de su potencia standby.}
+  - {clave: flujo_luminaria_lm, valor: 4000, unidad: lm, nota: Propuesta - panel LED de 60 × 60 cm; reemplazar por la luminaria elegida.}
+  - {clave: potencia_luminaria_w, valor: 36, unidad: W, nota: Propuesta - potencia del panel LED de referencia.}
+  - {clave: coeficiente_utilizacion, valor: 0.6, nota: 'Supuesto - local de proporciones medias y reflectancias claras; se calcula con la luminaria y el local reales.'}
+  - {clave: factor_mantenimiento, valor: 0.8, nota: Práctica habitual para ambientes limpios.}
+  - {clave: tomas_por_puesto, valor: 2, nota: Propuesta - tomacorrientes por puesto de trabajo.}
+  - {clave: va_por_toma, valor: 180, unidad: VA, nota: Práctica habitual (NEC 220.14) - carga por salida de tomacorriente general.}
+  - {clave: factor_demanda_tomas, valor: 0.5, nota: 'Propuesta - factor de demanda de tomacorrientes de oficinas y locales sobre los primeros 10 kVA.'}

@@ -65,6 +65,7 @@ def test_ejemplo_y_datos_invalidos(cliente: TestClient) -> None:
     assert ejemplo.status_code == 201
     c = cliente.get(f"{BASE}/edificios/{ejemplo.json()['id']}/calculo").json()
     assert c["estado"] == "listo" and c["transformador"]["kva"] > 0
+    assert c["iluminacion"][0]["luminarias"] > 0
     e = cliente.post(f"{BASE}/edificios", json={"nombre": "Sin área"}).json()
     datos = {**e["datos"], "unidades": [{"id": "L", "uso": "local", "pisos": [0]}]}
     cliente.put(f"{BASE}/edificios/{e['id']}", json={"revision": 1, "datos": datos})

@@ -47,3 +47,4 @@ tablas:
   - tablas/demanda_usuarios.yaml
   - tablas/coincidencia.yaml
   - tablas/generadores.yaml
+  - tablas/niveles_iluminacion.yaml

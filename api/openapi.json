@@ -3928,6 +3928,14 @@
               }
             ]
           },
+          "iluminacion": {
+            "items": {
+              "$ref": "#/components/schemas/IluminacionOut"
+            },
+            "type": "array",
+            "title": "Iluminacion",
+            "default": []
+          },
           "resultados": {
             "items": {
               "$ref": "#/components/schemas/ResultadoOut"
@@ -5851,6 +5859,85 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "IluminacionOut": {
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "uso": {
+            "type": "string",
+            "title": "Uso"
+          },
+          "area_m2": {
+            "type": "number",
+            "title": "Area M2"
+          },
+          "lux": {
+            "type": "number",
+            "title": "Lux"
+          },
+          "luminarias": {
+            "type": "integer",
+            "title": "Luminarias"
+          },
+          "potencia_w": {
+            "type": "number",
+            "title": "Potencia W"
+          },
+          "w_m2": {
+            "type": "number",
+            "title": "W M2"
+          },
+          "lux_logrado": {
+            "type": "number",
+            "title": "Lux Logrado"
+          },
+          "circuitos_luz": {
+            "type": "integer",
+            "title": "Circuitos Luz"
+          },
+          "puestos": {
+            "type": "integer",
+            "title": "Puestos"
+          },
+          "tomas": {
+            "type": "integer",
+            "title": "Tomas"
+          },
+          "circuitos_tomas": {
+            "type": "integer",
+            "title": "Circuitos Tomas"
+          },
+          "demanda_detallada_kva": {
+            "type": "number",
+            "title": "Demanda Detallada Kva"
+          },
+          "demanda_densidad_kva": {
+            "type": "number",
+            "title": "Demanda Densidad Kva"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tipo",
+          "uso",
+          "area_m2",
+          "lux",
+          "luminarias",
+          "potencia_w",
+          "w_m2",
+          "lux_logrado",
+          "circuitos_luz",
+          "puestos",
+          "tomas",
+          "circuitos_tomas",
+          "demanda_detallada_kva",
+          "demanda_densidad_kva"
+        ],
+        "title": "IluminacionOut"
       },
       "IndustriaDetalle": {
         "properties": {

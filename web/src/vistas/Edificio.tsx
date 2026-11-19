@@ -92,6 +92,7 @@ export function Edificio({ id, pestana }: { id: string; pestana?: string }) {
     { id: "unidades", titulo: "Unidades y servicios", marca: unidades || null },
     { id: "demanda", titulo: "Demanda y transformador" },
     { id: "medicion", titulo: "Centro de medición", marca: listo?.medidores ?? null },
+    ...(listo?.iluminacion.length ? [{ id: "iluminacion", titulo: "Iluminación y tomas" }] : []),
     { id: "unifilar", titulo: "Unifilar" },
     ...(listo?.camara ? [{ id: "camara", titulo: "Cámara MT", marca: listo.camara.cumple ? null : "✗", alerta: !listo.camara.cumple }] : []),
     { id: "memoria", titulo: "Memoria de cálculo", marca: listo?.resultados.length ?? null },
@@ -125,6 +126,7 @@ export function Edificio({ id, pestana }: { id: string; pestana?: string }) {
       ) : null}
       {listo && activa === "demanda" ? <Demanda c={listo} /> : null}
       {listo && activa === "medicion" ? <Medicion c={listo} /> : null}
+      {listo && activa === "iluminacion" ? <Iluminacion c={listo} /> : null}
       {listo && activa === "unifilar" ? (
         <section className="tarjeta">
           <h2>Diagrama unifilar</h2>
@@ -511,6 +513,43 @@ function Medicion({ c }: { c: CalculoEdificio }) {
         </table>
       </div>
       <p className="tenue">Alimentadores al 125 % de la corriente y caída menor a la mitad del margen de alimentadores (1 %).</p>
+    </section>
+  );
+}
+
+function Iluminacion({ c }: { c: CalculoEdificio }) {
+  return (
+    <section className="tarjeta">
+      <h2>Iluminación y tomacorrientes de locales y oficinas</h2>
+      <p className="tenue">
+        Método de lúmenes: N = E × A ÷ (Φ × CU × FM) con un panel LED de referencia. Tomacorrientes por puestos de trabajo.
+        La demanda de cada unidad es la mayor entre esta carga detallada y la densidad de carga de la tabla.
+      </p>
+      <div className="tabla-ancha">
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo</th><th className="num">Área (m²)</th><th className="num">Nivel (lx)</th><th className="num">Luminarias</th>
+              <th className="num">Logrado (lx)</th><th className="num">W</th><th className="num">W/m²</th><th className="num">Circ. luz</th>
+              <th className="num">Puestos</th><th className="num">Tomas</th><th className="num">Circ. tomas</th>
+              <th className="num">Detallada (kVA)</th><th className="num">Densidad (kVA)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {c.iluminacion.map((i) => (
+              <tr key={i.tipo}>
+                <td>{i.tipo}</td><td className="num">{num(i.area_m2)}</td><td className="num">{num(i.lux, 0)}</td>
+                <td className="num">{i.luminarias}</td><td className="num">{num(i.lux_logrado, 0)}</td><td className="num">{num(i.potencia_w, 0)}</td>
+                <td className="num">{num(i.w_m2, 1)}</td><td className="num">{i.circuitos_luz}</td><td className="num">{i.puestos || "—"}</td>
+                <td className="num">{i.tomas}</td><td className="num">{i.circuitos_tomas}</td>
+                <td className={`num ${i.demanda_detallada_kva >= i.demanda_densidad_kva ? "fuerte" : ""}`}>{num(i.demanda_detallada_kva, 2)}</td>
+                <td className={`num ${i.demanda_densidad_kva > i.demanda_detallada_kva ? "fuerte" : ""}`}>{num(i.demanda_densidad_kva, 2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="tenue">Luminaria, coeficiente de utilización y factor de mantenimiento son supuestos del perfil: reemplácelos con la luminaria y el local reales.</p>
     </section>
   );
 }

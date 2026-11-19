@@ -151,6 +151,23 @@ class GeneradorOut(Esquema):
     transferencia_a: float | None
 
 
+class IluminacionOut(Esquema):
+    tipo: str
+    uso: str
+    area_m2: float
+    lux: float
+    luminarias: int
+    potencia_w: float
+    w_m2: float
+    lux_logrado: float
+    circuitos_luz: int
+    puestos: int
+    tomas: int
+    circuitos_tomas: int
+    demanda_detallada_kva: float
+    demanda_densidad_kva: float
+
+
 class CalculoEdificio(Esquema):
     estado: Literal["listo", "incompleto"]
     revision: int
@@ -170,6 +187,7 @@ class CalculoEdificio(Esquema):
     transformador: TransformadorEdificioOut | None = None
     camara: CamaraOut | None = None
     generador: GeneradorOut | None = None
+    iluminacion: list[IluminacionOut] = []
     resultados: list[ResultadoOut] = []
     avisos: list[str] = []
 
@@ -431,6 +449,25 @@ def calcular(id: str, sesion: SesionDep, perfiles: PerfilesDep) -> CalculoEdific
             if c.generador
             else None
         ),
+        iluminacion=[
+            IluminacionOut(
+                tipo=i.tipo,
+                uso=i.uso,
+                area_m2=_f(i.area_m2),
+                lux=_f(i.lux),
+                luminarias=i.luminarias,
+                potencia_w=_f(i.potencia_w),
+                w_m2=_f(i.w_m2),
+                lux_logrado=_f(i.lux_logrado),
+                circuitos_luz=i.circuitos_luz,
+                puestos=i.puestos,
+                tomas=i.tomas,
+                circuitos_tomas=i.circuitos_tomas,
+                demanda_detallada_kva=_f(i.demanda_detallada_kva),
+                demanda_densidad_kva=_f(i.demanda_densidad_kva),
+            )
+            for i in c.iluminacion
+        ],
         resultados=[resultado_a_salida(r, perfil) for r in c.resultados],
         avisos=list(c.avisos),
     )

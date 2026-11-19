@@ -46,6 +46,27 @@ class UnidadCalculada:
 
 
 @dataclass(frozen=True)
+class IluminacionTipo:
+    """Iluminación por método de lúmenes y tomacorrientes por puestos de un local u oficina."""
+
+    tipo: str
+    uso: str
+    area_m2: Decimal
+    lux: Decimal
+    luminarias: int
+    potencia_w: Decimal
+    w_m2: Decimal
+    lux_logrado: Decimal
+    circuitos_luz: int
+    puestos: int
+    tomas: int
+    circuitos_tomas: int
+    #: Demanda por cargas (luz + tomas con su factor) frente a la de densidad de la tabla.
+    demanda_detallada_kva: Decimal
+    demanda_densidad_kva: Decimal
+
+
+@dataclass(frozen=True)
 class GrupoDemanda:
     nombre: str
     usuarios: int
@@ -97,6 +118,7 @@ class EdificioCalculado:
     medidores: int
     modulos: int
     generador: Generador | None
+    iluminacion: tuple[IluminacionTipo, ...]
     resultados: tuple[Resultado, ...]
     avisos: tuple[str, ...]
 
@@ -132,6 +154,7 @@ class _Calculo:
         self.vf = self.sistema.v_fase_neutro
         self.resultados: list[Resultado] = []
         self.avisos: list[str] = []
+        self.iluminacion: list[IluminacionTipo] = []
 
     def p(self, clave: str, rastro: Rastro) -> Decimal:
         return rastro.usar(self.perfil.parametro(clave))
@@ -170,13 +193,22 @@ class _Calculo:
                 raise DatoInvalido(f"{tipo.id}: indique el área útil o la demanda de la unidad")
             if fila.va_m2 is None:
                 raise DatoInvalido(f"el uso {tipo.uso} no tiene densidad de carga en VA/m²")
-            valor = tipo.area_m2 * fila.va_m2 * fila.factor_demanda / MIL
+            densidad = tipo.area_m2 * fila.va_m2 * fila.factor_demanda / MIL
+            valor = densidad
             formula = "Demanda = área × densidad de carga × factor de demanda"
             entradas = {
                 "area_m2": tipo.area_m2,
                 "va_m2": fila.va_m2,
                 "factor_demanda": fila.factor_demanda,
             }
+            luz = self.iluminar(tipo, tipo.area_m2, densidad)
+            if luz is not None and luz.demanda_detallada_kva > densidad:
+                valor = luz.demanda_detallada_kva
+                formula = (
+                    "Mayor entre la densidad de carga y la carga detallada "
+                    "(iluminación + tomacorrientes × factor de demanda)"
+                )
+                entradas["detallada_kva"] = luz.demanda_detallada_kva
         self.resultados.append(
             _resultado(
                 "demanda_unidad",
@@ -190,6 +222,79 @@ class _Calculo:
             )  # fmt: skip
         )
         return valor
+
+    def iluminar(
+        self, tipo: TipoUnidad, area: Decimal, densidad: Decimal
+    ) -> IluminacionTipo | None:
+        consulta = self.perfil.nivel_luz(tipo.uso)
+        if consulta is None:
+            return None
+        rastro = Rastro()
+        nivel = rastro.usar(consulta)
+        flujo = self.p("flujo_luminaria_lm", rastro)
+        potencia = self.p("potencia_luminaria_w", rastro)
+        cu = self.p("coeficiente_utilizacion", rastro)
+        fm = self.p("factor_mantenimiento", rastro)
+        rastro.supuesto(
+            f"luminaria de {_t(flujo, 0)} lm y {_t(potencia, 0)} W, CU {_t(cu, 2)}, FM {_t(fm, 2)}"
+        )
+        n = max(1, math.ceil(nivel.lux * area / (flujo * cu * fm)))
+        logrado = Decimal(n) * flujo * cu * fm / area
+        watts = Decimal(n) * potencia
+        circuitos_luz = math.ceil(n / int(self.p("puntos_max_iluminacion", rastro)))
+        puestos = math.ceil(area / nivel.area_por_puesto_m2) if nivel.area_por_puesto_m2 else 0
+        tomas = max(2, puestos * int(self.p("tomas_por_puesto", rastro)))
+        va_toma = self.p("va_por_toma", rastro)
+        fd_tomas = self.p("factor_demanda_tomas", rastro)
+        circuitos_tomas = math.ceil(tomas / int(self.p("salidas_max_tomacorrientes", rastro)))
+        fp = self.p("factor_potencia", rastro)
+        detallada = (watts / fp + Decimal(tomas) * va_toma * fd_tomas) / MIL
+        luz = IluminacionTipo(
+            tipo=tipo.id,
+            uso=tipo.uso,
+            area_m2=area,
+            lux=nivel.lux,
+            luminarias=n,
+            potencia_w=watts,
+            w_m2=watts / area,
+            lux_logrado=logrado,
+            circuitos_luz=circuitos_luz,
+            puestos=puestos,
+            tomas=tomas,
+            circuitos_tomas=circuitos_tomas,
+            demanda_detallada_kva=detallada,
+            demanda_densidad_kva=densidad,
+        )
+        self.iluminacion.append(luz)
+        self.resultados.append(
+            _resultado(
+                "iluminacion",
+                tipo.id,
+                f"Iluminación de {tipo.id}",
+                Decimal(n),
+                "luminarias",
+                "N = E × A ÷ (Φ × CU × FM), redondeado hacia arriba (método de lúmenes)",
+                rastro,
+                entradas={
+                    "lux": nivel.lux,
+                    "area_m2": area,
+                    "flujo_lm": flujo,
+                    "cu": cu,
+                    "fm": fm,
+                },  # fmt: skip
+                detalle={
+                    "potencia_w": watts,
+                    "w_m2": watts / area,
+                    "lux_logrado": logrado,
+                    "circuitos_luz": Decimal(circuitos_luz),
+                    "puestos": Decimal(puestos),
+                    "tomas": Decimal(tomas),
+                    "circuitos_tomas": Decimal(circuitos_tomas),
+                    "demanda_detallada_kva": detallada,
+                },
+            )
+        )
+        return luz
 
     # -- alimentador de una unidad -----------------------------------------
 
@@ -452,6 +557,7 @@ class _Calculo:
             medidores=medidores,
             modulos=modulos,
             generador=generador,
+            iluminacion=tuple(self.iluminacion),
             resultados=tuple(self.resultados),
             avisos=tuple(self.avisos),
         )

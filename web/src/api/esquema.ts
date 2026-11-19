@@ -1405,6 +1405,11 @@ export interface components {
             camara?: components["schemas"]["CamaraOut"] | null;
             generador?: components["schemas"]["GeneradorOut"] | null;
             /**
+             * Iluminacion
+             * @default []
+             */
+            iluminacion: components["schemas"]["IluminacionOut"][];
+            /**
              * Resultados
              * @default []
              */
@@ -2101,6 +2106,37 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** IluminacionOut */
+        IluminacionOut: {
+            /** Tipo */
+            tipo: string;
+            /** Uso */
+            uso: string;
+            /** Area M2 */
+            area_m2: number;
+            /** Lux */
+            lux: number;
+            /** Luminarias */
+            luminarias: number;
+            /** Potencia W */
+            potencia_w: number;
+            /** W M2 */
+            w_m2: number;
+            /** Lux Logrado */
+            lux_logrado: number;
+            /** Circuitos Luz */
+            circuitos_luz: number;
+            /** Puestos */
+            puestos: number;
+            /** Tomas */
+            tomas: number;
+            /** Circuitos Tomas */
+            circuitos_tomas: number;
+            /** Demanda Detallada Kva */
+            demanda_detallada_kva: number;
+            /** Demanda Densidad Kva */
+            demanda_densidad_kva: number;
         };
         /** IndustriaDetalle */
         IndustriaDetalle: {

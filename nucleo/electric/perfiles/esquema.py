@@ -275,6 +275,16 @@ class FilaDemandaUsuario(Dato):
     descripcion: str = ""
 
 
+class FilaNivelLuz(Dato):
+    """Iluminancia media de diseño y densidad de puestos de trabajo por uso."""
+
+    uso: str
+    lux: Decimal = Field(gt=0)
+    #: Área por puesto de trabajo, para los tomacorrientes; vacío si no aplica.
+    area_por_puesto_m2: Decimal | None = Field(default=None, gt=0)
+    descripcion: str = ""
+
+
 class FilaCoincidencia(Dato):
     """Factor de coincidencia para un número de usuarios; vacío en la última fila."""
 
@@ -489,6 +499,11 @@ class TablaDemandaUsuarios(TablaBase):
     filas: tuple[FilaDemandaUsuario, ...]
 
 
+class TablaNivelesLuz(TablaBase):
+    tipo: Literal["niveles_iluminacion"]
+    filas: tuple[FilaNivelLuz, ...]
+
+
 class TablaCoincidencia(TablaBase):
     tipo: Literal["coincidencia"]
     filas: tuple[FilaCoincidencia, ...]
@@ -542,6 +557,7 @@ Tabla = Annotated[
     | TablaCamaras
     | TablaDemandaUsuarios
     | TablaCoincidencia
+    | TablaNivelesLuz
     | TablaRedondeo,
     Field(discriminator="tipo"),
 ]

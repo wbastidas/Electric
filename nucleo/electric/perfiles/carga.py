@@ -32,6 +32,7 @@ from electric.perfiles.esquema import (
     FilaFactorDemanda,
     FilaMedidor,
     FilaMinimoCalibre,
+    FilaNivelLuz,
     FilaNivelServicio,
     FilaPlantilla,
     FilaSistema,
@@ -62,6 +63,7 @@ from electric.perfiles.esquema import (
     TablaFactoresTemperatura,
     TablaMedidores,
     TablaMinimosCalibre,
+    TablaNivelesLuz,
     TablaNivelesServicio,
     TablaParametros,
     TablaPlantillas,
@@ -339,6 +341,15 @@ class Perfil:
         if "demanda_usuarios" not in self.tablas:
             return ()
         return self._tabla("demanda_usuarios", TablaDemandaUsuarios).filas
+
+    def nivel_luz(self, uso: str) -> tuple[FilaNivelLuz, RefTabla] | None:
+        if "niveles_iluminacion" not in self.tablas:
+            return None
+        tabla = self._tabla("niveles_iluminacion", TablaNivelesLuz)
+        for fila in tabla.filas:
+            if fila.uso == uso:
+                return fila, self._ref(tabla, uso)
+        return None
 
     def coincidencia(self, usuarios: int) -> tuple[Decimal, RefTabla]:
         tabla = self._tabla("coincidencia", TablaCoincidencia)

@@ -1,0 +1,17 @@
+id: cnel-ep/niveles-iluminacion
+tipo: niveles_iluminacion
+version: 0.1.0
+vigente_desde: 2026-11-19
+fuente:
+  norma: Valores de práctica habitual (EN 12464-1 / IES); confirmar con la NEC-SB-IE y la ordenanza local
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Iluminancia media mantenida para el método de lúmenes y área por puesto de
+  trabajo para estimar los tomacorrientes de locales y oficinas.
+unidades: {lux: lx, area_por_puesto_m2: m2}
+filas:
+  - {uso: oficina, lux: 500, area_por_puesto_m2: 8, descripcion: Oficina con trabajo en pantalla}
+  - {uso: local, lux: 300, area_por_puesto_m2: 20, descripcion: Local comercial - área de ventas}
+  - {uso: bodega, lux: 150, area_por_puesto_m2: null, descripcion: Bodega o depósito}

@@ -114,3 +114,19 @@ def test_datos_invalidos(perfil_cnel: Perfil) -> None:
         _torre(unidades=[TipoUnidad(id="A", pisos=(1,)), TipoUnidad(id="A", pisos=(2,))])
     with pytest.raises(DatoInvalido, match="trifásico"):
         calcular_edificio(_torre(sistema="monofasico_trifilar_120_240"), perfil_cnel)
+
+
+def test_iluminacion_de_oficinas(perfil_cnel: Perfil) -> None:
+    oficinas = _torre(
+        unidades=[TipoUnidad(id="Oficina", uso="oficina", area_m2=D(120), pisos=(1, 2), fases=3)],
+        servicios=[],
+    )
+    c = calcular_edificio(oficinas, perfil_cnel)
+    luz = c.iluminacion[0]
+    # 500 lx × 120 m² ÷ (4000 lm × 0,6 × 0,8) = 31,25 → 32 paneles.
+    assert luz.luminarias == 32 and luz.potencia_w == D(32 * 36)
+    assert luz.lux_logrado >= D(500) and luz.circuitos_luz == 3
+    # 120 ÷ 8 = 15 puestos × 2 tomas = 30 tomas en 3 circuitos.
+    assert luz.puestos == 15 and luz.tomas == 30 and luz.circuitos_tomas == 3
+    demanda = c.resultado("demanda_unidad", "Oficina").decimal
+    assert demanda == max(luz.demanda_detallada_kva, luz.demanda_densidad_kva)
