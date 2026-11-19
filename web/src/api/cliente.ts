@@ -39,6 +39,11 @@ export type IndustriaResumen = S["IndustriaResumen"];
 export type AnalisisIndustrial = S["AnalisisOut"];
 export type OpcionesIndustriales = S["OpcionesIndustriales"];
 export type Cercanos = S["Cercanos"];
+export type BorradorEdificio = S["BorradorEdificio"];
+export type EdificioDetalle = S["EdificioDetalle"];
+export type EdificioResumen = S["EdificioResumen"];
+export type CalculoEdificio = S["CalculoEdificio"];
+export type OpcionesEdificio = S["OpcionesEdificio"];
 
 /** Lo mínimo para crear un proyecto; el servidor completa el resto. */
 export type BorradorNuevo = Partial<Borrador> & Pick<Borrador, "nombre" | "perfil">;
@@ -172,6 +177,18 @@ export const api = {
   ejemploPisos: () => pedir<EdificacionDetalle>("/ejemplos/vivienda-2-pisos", { method: "POST" }),
   urlUnifilarEdificacion: (id: string, formato: "dxf" | "png" | "pdf", marca: string) =>
     `/api/v1/edificaciones/${id}/unifilar.${formato}?r=${encodeURIComponent(marca)}`,
+  edificios: () => pedir<EdificioResumen[]>("/edificios"),
+  edificio: (id: string) => pedir<EdificioDetalle>(`/edificios/${id}`),
+  crearEdificio: (datos: Partial<BorradorEdificio> & { nombre: string }) =>
+    pedir<EdificioDetalle>("/edificios", { method: "POST", body: JSON.stringify(datos) }),
+  guardarEdificio: (id: string, revision: number, datos: BorradorEdificio) =>
+    pedir<EdificioDetalle>(`/edificios/${id}`, { method: "PUT", body: JSON.stringify({ revision, datos }) }),
+  borrarEdificio: (id: string) => pedir<void>(`/edificios/${id}`, { method: "DELETE" }),
+  calculoEdificio: (id: string) => pedir<CalculoEdificio>(`/edificios/${id}/calculo`),
+  opcionesEdificio: () => pedir<OpcionesEdificio>("/edificio/opciones"),
+  ejemploEdificio: () => pedir<EdificioDetalle>("/ejemplos/edificio", { method: "POST" }),
+  urlPlanoEdificio: (id: string, plano: "unifilar" | "camara", formato: "dxf" | "png" | "pdf", r: number) =>
+    `/api/v1/edificios/${id}/${plano}.${formato}?r=${r}`,
   industrias: () => pedir<IndustriaResumen[]>("/industrias"),
   industria: (id: string) => pedir<IndustriaDetalle>(`/industrias/${id}`),
   crearIndustria: (datos: Partial<BorradorIndustria> & { nombre: string }) =>

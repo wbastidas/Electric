@@ -44,3 +44,6 @@ tablas:
   - tablas/sig_cnel.yaml
   - tablas/camaras.yaml
   - tablas/relaciones_tc.yaml
+  - tablas/demanda_usuarios.yaml
+  - tablas/coincidencia.yaml
+  - tablas/generadores.yaml

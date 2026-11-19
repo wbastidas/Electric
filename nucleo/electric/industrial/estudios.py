@@ -102,6 +102,52 @@ class Estudios:
         return next(p for p in self.cortocircuito if p.punto == nombre)
 
 
+def elegir_conductor(
+    perfil: Perfil,
+    corriente: Decimal,
+    ampacidad_min: Decimal,
+    longitud: Decimal,
+    fp: Decimal,
+    limite: Decimal,
+    uso: str,
+    trifasico: bool,
+    tension: Decimal,
+    rastro: Rastro,
+    k: Decimal | None = None,
+) -> Conductor | None:
+    """Menor conductor, con paralelos, que cumple ampacidad y caída de tensión.
+
+    `k` es el factor de la caída (√3 trifásico, 2 monofásico) si no sale de `trifasico`.
+    """
+    filas, tabla = perfil.conductores()
+    paralelos = int(rastro.usar(perfil.parametro("conductores_paralelo_max")))
+    minimo = rastro.usar(perfil.minimo_calibre(uso)).calibre
+    desde = next(n for n, f in enumerate(filas) if f.calibre == minimo)
+    seno = (UNO - fp * fp).sqrt()
+    k = k if k is not None else (RAIZ3 if trifasico else Decimal(2))
+    for n in range(1, paralelos + 1):
+        # Los paralelos solo desde 1/0 AWG, como pide la práctica habitual.
+        candidatas: list[FilaConductor] = [
+            f for f in filas[desde:] if n == 1 or f.seccion_mm2 >= Decimal("53.5")
+        ]
+        for fila in candidatas:
+            if fila.ampacidad * n < ampacidad_min:
+                continue
+            z = fila.r_ohm_km * fp + fila.x_ohm_km * seno
+            caida = k * corriente * longitud / MIL * z / n / tension * CIEN
+            if caida <= limite:
+                rastro.anotar(perfil._ref(tabla, fila.calibre))
+                return Conductor(
+                    calibre=fila.calibre,
+                    paralelos=n,
+                    caida_pct=caida,
+                    longitud_m=longitud,
+                    r_ohm=fila.r_ohm_km * longitud / MIL / n,
+                    x_ohm=fila.x_ohm_km * longitud / MIL / n,
+                )
+    return None
+
+
 class _Estudio:
     def __init__(self, analisis: AnalisisIndustrial, perfil: Perfil) -> None:
         self.analisis = analisis
@@ -133,34 +179,10 @@ class _Estudio:
         tension: Decimal,
         rastro: Rastro,
     ) -> Conductor | None:
-        """Menor conductor, con paralelos, que cumple ampacidad y caída de tensión."""
-        filas, tabla = self.perfil.conductores()
-        paralelos = int(self.p("conductores_paralelo_max", rastro))
-        minimo = rastro.usar(self.perfil.minimo_calibre(uso)).calibre
-        desde = next(n for n, f in enumerate(filas) if f.calibre == minimo)
-        seno = (UNO - fp * fp).sqrt()
-        k = RAIZ3 if trifasico else Decimal(2)
-        for n in range(1, paralelos + 1):
-            # Los paralelos solo desde 1/0 AWG, como pide la práctica habitual.
-            candidatas: list[FilaConductor] = [
-                f for f in filas[desde:] if n == 1 or f.seccion_mm2 >= Decimal("53.5")
-            ]
-            for fila in candidatas:
-                if fila.ampacidad * n < ampacidad_min:
-                    continue
-                z = fila.r_ohm_km * fp + fila.x_ohm_km * seno
-                caida = k * corriente * longitud / MIL * z / n / tension * CIEN
-                if caida <= limite:
-                    rastro.anotar(self.perfil._ref(tabla, fila.calibre))
-                    return Conductor(
-                        calibre=fila.calibre,
-                        paralelos=n,
-                        caida_pct=caida,
-                        longitud_m=longitud,
-                        r_ohm=fila.r_ohm_km * longitud / MIL / n,
-                        x_ohm=fila.x_ohm_km * longitud / MIL / n,
-                    )
-        return None
+        return elegir_conductor(
+            self.perfil, corriente, ampacidad_min, longitud, fp, limite, uso, trifasico,
+            tension, rastro,
+        )  # fmt: skip
 
     def agregar(self, resultado: Resultado) -> None:
         self.resultados.append(resultado)

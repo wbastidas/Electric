@@ -4,11 +4,11 @@ import { api } from "./api/cliente";
 import { Asistente } from "./vistas/Asistente";
 import { MensajeError } from "./vistas/comunes";
 import { Edificacion } from "./vistas/Edificacion";
+import { Edificio } from "./vistas/Edificio";
 import { Editor } from "./vistas/Editor";
 import { Industria } from "./vistas/Industria";
 import { Inicio } from "./vistas/Inicio";
-import { PaginaIndustrias, PaginaPisos, PaginaRedesMT, Viviendas } from "./vistas/Lista";
-import { Pronto } from "./vistas/Pronto";
+import { PaginaIndustrias, PaginaNoResidencial, PaginaPisos, PaginaRedesMT, Viviendas } from "./vistas/Lista";
 import { RedMT } from "./vistas/RedMT";
 
 type Modulo = "inicio" | "viviendas" | "pisos" | "industrias" | "no-residencial" | "redes-mt";
@@ -17,7 +17,7 @@ type Ruta =
   | { vista: "modulo"; modulo: Modulo }
   | { vista: "nuevo" }
   | { vista: "proyecto" | "asistente"; id: string }
-  | { vista: "industria" | "edificacion" | "red-mt"; id: string; pestana?: string };
+  | { vista: "industria" | "edificacion" | "red-mt" | "edificio"; id: string; pestana?: string };
 
 const MODULOS: Modulo[] = ["viviendas", "pisos", "industrias", "no-residencial", "redes-mt"];
 
@@ -28,6 +28,8 @@ const leerRuta = (): Ruta => {
   if (asistente) return { vista: "asistente", id: asistente[1] };
   const edificacion = hash.match(/^#\/edificaciones\/([^/]+)(?:\/([\w-]+))?$/);
   if (edificacion) return { vista: "edificacion", id: edificacion[1], pestana: edificacion[2] };
+  const edificio = hash.match(/^#\/edificios\/([^/]+)(?:\/([\w-]+))?$/);
+  if (edificio) return { vista: "edificio", id: edificio[1], pestana: edificio[2] };
   const redMT = hash.match(/^#\/redes-mt\/([^/]+)(?:\/([\w-]+))?$/);
   if (redMT) return { vista: "red-mt", id: redMT[1], pestana: redMT[2] };
   const industria = hash.match(/^#\/industrias\/([^/]+)(?:\/([\w-]+))?$/);
@@ -44,6 +46,7 @@ const moduloDe = (ruta: Ruta): Modulo => {
   if (ruta.vista === "industria") return "industrias";
   if (ruta.vista === "edificacion") return "pisos";
   if (ruta.vista === "red-mt") return "redes-mt";
+  if (ruta.vista === "edificio") return "no-residencial";
   return "viviendas";
 };
 
@@ -52,7 +55,7 @@ const MENU: { modulo: Modulo; titulo: string; icono: string; pronto?: boolean }[
   { modulo: "viviendas", titulo: "Viviendas", icono: "▭" },
   { modulo: "pisos", titulo: "Varios pisos", icono: "☰" },
   { modulo: "industrias", titulo: "Industrias", icono: "⚙" },
-  { modulo: "no-residencial", titulo: "No residencial", icono: "▦", pronto: true },
+  { modulo: "no-residencial", titulo: "No residencial", icono: "▦" },
   { modulo: "redes-mt", titulo: "Redes MT", icono: "⚡" },
 ];
 
@@ -103,6 +106,7 @@ export function App() {
         {ruta.vista === "proyecto" ? <Editor key={ruta.id} id={ruta.id} /> : null}
         {ruta.vista === "asistente" ? <AsistenteDe key={ruta.id} id={ruta.id} /> : null}
         {ruta.vista === "edificacion" ? <Edificacion key={ruta.id} id={ruta.id} pestana={ruta.pestana} /> : null}
+        {ruta.vista === "edificio" ? <Edificio key={ruta.id} id={ruta.id} pestana={ruta.pestana} /> : null}
         {ruta.vista === "red-mt" ? <RedMT key={ruta.id} id={ruta.id} pestana={ruta.pestana} /> : null}
         {ruta.vista === "industria" ? <Industria key={ruta.id} id={ruta.id} pestana={ruta.pestana} /> : null}
         {ruta.vista === "nuevo" ? <Asistente key="nuevo" /> : null}
@@ -111,7 +115,7 @@ export function App() {
         {ruta.vista === "modulo" && ruta.modulo === "pisos" ? <PaginaPisos /> : null}
         {ruta.vista === "modulo" && ruta.modulo === "industrias" ? <PaginaIndustrias /> : null}
         {ruta.vista === "modulo" && ruta.modulo === "redes-mt" ? <PaginaRedesMT /> : null}
-        {ruta.vista === "modulo" && ruta.modulo === "no-residencial" ? <Pronto modulo="no-residencial" /> : null}
+        {ruta.vista === "modulo" && ruta.modulo === "no-residencial" ? <PaginaNoResidencial /> : null}
       </main>
     </div>
   );

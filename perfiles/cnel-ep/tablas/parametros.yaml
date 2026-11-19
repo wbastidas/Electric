@@ -71,3 +71,9 @@ filas:
   - {clave: varilla_tierra_m, valor: 1.8, unidad: m, nota: Varilla de puesta a tierra (RC-14).}
   - {clave: margen_malla_m, valor: 1.0, unidad: m, nota: Propuesta - la malla sobresale este margen alrededor de la cámara.}
   - {clave: factor_tc, valor: 1.25, nota: Propuesta - corriente primaria del TC sobre la nominal del transformador.}
+  - {clave: factor_demanda_servicios_generales, valor: 0.8, nota: 'Propuesta - factor de demanda de los servicios generales de un edificio (ascensores, bombas, áreas comunes).'}
+  - {clave: altura_piso_m, valor: 3.0, unidad: m, nota: Supuesto - altura entre pisos para la longitud de los alimentadores verticales.}
+  - {clave: recorrido_horizontal_m, valor: 10, unidad: m, nota: Supuesto - recorrido horizontal en cada piso del centro de medición o la montante al tablero de la unidad.}
+  - {clave: distancia_transformador_defecto_m, valor: 15, unidad: m, nota: Supuesto si no se indica la distancia del transformador al centro de medición.}
+  - {clave: medidores_por_modulo, valor: 12, nota: Propuesta - medidores por módulo del centro de medición; confirmar con el manual de acometidas de CNEL.}
+  - {clave: carga_generador_max, valor: 0.8, nota: Práctica habitual - carga del generador como fracción de su potencia standby.}

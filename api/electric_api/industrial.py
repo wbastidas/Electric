@@ -622,29 +622,7 @@ def analizar_industria(id: str, sesion: SesionDep, perfiles: PerfilesDep) -> Ana
     analisis, estudios, coordinacion, camara = resultado
     salida = analisis_a_salida(analisis, estudios, coordinacion, perfil, fila.revision)
     if camara is not None:
-        m = camara.malla
-        salida.camara = CamaraOut(
-            kva=_f(camara.kva),
-            tension_kv=_f(camara.tension_kv),
-            corriente_primaria_a=_f(camara.corriente_primaria_a),
-            fusible=camara.fusible,
-            tc=camara.tc,
-            tp=camara.tp,
-            celdas=[[t, d] for t, d in camara.celdas],
-            dimensiones=(
-                f"{camara.dimensiones.largo_m} × {camara.dimensiones.ancho_m} × "
-                f"{camara.dimensiones.alto_m} m".replace(".", ",")
-                if camara.dimensiones
-                else None
-            ),
-            malla=f"{m.largo_m:.1f} × {m.ancho_m:.1f} m cada {m.separacion_m:.1f} m, "
-            f"{m.varillas} varillas".replace(".", ","),
-            resistencia_ohm=round(m.resistencia_ohm, 2),
-            limite_ohm=m.limite_ohm,
-            cumple=m.cumple,
-            resistividad_ohm_m=_f(camara.resistividad_ohm_m),
-            avisos=list(camara.avisos),
-        )
+        salida.camara = camara_a_salida(camara)
         salida.resultados += [resultado_a_salida(r, perfil) for r in camara.resultados]
         salida.avisos += list(camara.avisos)
     return salida
@@ -732,6 +710,32 @@ def transformadores_del_geoportal(
             )
         )
     return Cercanos(transformadores=salida, avisos=avisos)
+
+
+def camara_a_salida(camara: Camara) -> CamaraOut:
+    m = camara.malla
+    return CamaraOut(
+        kva=_f(camara.kva),
+        tension_kv=_f(camara.tension_kv),
+        corriente_primaria_a=_f(camara.corriente_primaria_a),
+        fusible=camara.fusible,
+        tc=camara.tc,
+        tp=camara.tp,
+        celdas=[[t, d] for t, d in camara.celdas],
+        dimensiones=(
+            f"{camara.dimensiones.largo_m} × {camara.dimensiones.ancho_m} × "
+            f"{camara.dimensiones.alto_m} m".replace(".", ",")
+            if camara.dimensiones
+            else None
+        ),
+        malla=f"{m.largo_m:.1f} × {m.ancho_m:.1f} m cada {m.separacion_m:.1f} m, "
+        f"{m.varillas} varillas".replace(".", ","),
+        resistencia_ohm=round(m.resistencia_ohm, 2),
+        limite_ohm=m.limite_ohm,
+        cumple=m.cumple,
+        resistividad_ohm_m=_f(camara.resistividad_ohm_m),
+        avisos=list(camara.avisos),
+    )
 
 
 TIPOS = {

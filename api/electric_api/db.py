@@ -130,6 +130,19 @@ class RedMTBD(Base):
     actualizado: Mapped[str] = mapped_column(String(32))
 
 
+class EdificioBD(Base):
+    """Edificio de departamentos, locales y oficinas con centro de medición."""
+
+    __tablename__ = "edificios"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    nombre: Mapped[str] = mapped_column(String(200))
+    revision: Mapped[int] = mapped_column(Integer)
+    datos: Mapped[str] = mapped_column(Text)
+    creado: Mapped[str] = mapped_column(String(32))
+    actualizado: Mapped[str] = mapped_column(String(32))
+
+
 class IndustriaBD(Base):
     """Proyecto industrial: cuadro de cargas, ubicación y transformador existente."""
 

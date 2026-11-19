@@ -262,6 +262,26 @@ class FilaEstrato(Dato):
     descripcion: str = ""
 
 
+class FilaDemandaUsuario(Dato):
+    """Demanda de diseño de un usuario (sin diversificar) para edificios y urbanizaciones."""
+
+    id: str
+    #: Demanda máxima unitaria por usuario, para departamentos y lotes.
+    kva: Decimal | None = Field(default=None, gt=0)
+    #: Densidad de carga para locales y oficinas, sobre el área útil.
+    va_m2: Decimal | None = Field(default=None, gt=0)
+    #: Factor de demanda que se aplica a la densidad de carga.
+    factor_demanda: Decimal = Field(default=Decimal(1), gt=0, le=1)
+    descripcion: str = ""
+
+
+class FilaCoincidencia(Dato):
+    """Factor de coincidencia para un número de usuarios; vacío en la última fila."""
+
+    usuarios_max: int | None = Field(default=None, ge=1)
+    factor: Decimal = Field(gt=0, le=1)
+
+
 # --- Media tensión --------------------------------------------------------
 
 
@@ -378,6 +398,7 @@ class TablaSerie(TablaBase):
         "capacidad_interruptiva_ka",
         "fusibles_mt",
         "relaciones_tc",
+        "generadores_kva",
     ]
     filas: tuple[Decimal, ...]
 
@@ -463,6 +484,16 @@ class TablaEstructurasMT(TablaBase):
     filas: tuple[FilaEstructuraMT, ...]
 
 
+class TablaDemandaUsuarios(TablaBase):
+    tipo: Literal["demanda_usuarios"]
+    filas: tuple[FilaDemandaUsuario, ...]
+
+
+class TablaCoincidencia(TablaBase):
+    tipo: Literal["coincidencia"]
+    filas: tuple[FilaCoincidencia, ...]
+
+
 class TablaCamaras(TablaBase):
     tipo: Literal["camaras"]
     filas: tuple[FilaCamara, ...]
@@ -509,6 +540,8 @@ Tabla = Annotated[
     | TablaEstructurasMT
     | TablaSIG
     | TablaCamaras
+    | TablaDemandaUsuarios
+    | TablaCoincidencia
     | TablaRedondeo,
     Field(discriminator="tipo"),
 ]

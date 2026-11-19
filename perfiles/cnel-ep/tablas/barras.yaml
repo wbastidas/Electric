@@ -8,6 +8,6 @@ fuente:
   numeral: null
   url: null
 estado: por_verificar
-nota: Confirmar con el catálogo homologado (RD-06).
+nota: Confirmar con el catálogo homologado (RD-06). Desde 400 A, barras de centros de medición y tableros generales.
 unidades: {valor: A}
-filas: [100, 125, 150, 200, 225]
+filas: [100, 125, 150, 200, 225, 400, 600, 800, 1000, 1200, 1600, 2000, 2500, 3000, 4000]

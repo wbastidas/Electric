@@ -1142,3 +1142,14 @@ dl.datos-camara dd {
 .geoportal-cercanos tr.elegida td { background: color-mix(in srgb, var(--acento, #2563eb) 12%, transparent); }
 .geoportal-cercanos td.mal { color: #b91c1c; font-weight: 600; }
 .geoportal-cercanos td button { padding: 0.15rem 0.6rem; }
+
+/* Edificios */
+.chip-tipo { background: var(--acento-suave); color: var(--acento); border-radius: 999px; padding: 0.15rem 0.7rem; font-size: 0.85rem; }
+input.invalido { border-color: var(--rojo-texto); background: var(--rojo-fondo); }
+table.editable input:not([type="checkbox"]), table.editable select { width: 100%; min-width: 4.5rem; padding: 0.25rem 0.4rem; }
+table.editable td { padding: 0.25rem 0.35rem; }
+tr.seleccionable { cursor: pointer; }
+tr.seleccionable:hover td { background: var(--acento-suave); }
+td.mal { color: var(--rojo-texto); font-weight: 600; }
+table.editable td:first-child input { min-width: 9.5rem; }
+table.editable select { min-width: 6.5rem; }

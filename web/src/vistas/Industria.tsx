@@ -224,7 +224,9 @@ export function Industria({ id, pestana }: { id: string; pestana?: string }) {
       {analisis.data?.estado === "incompleto" && activa !== "datos" ? (
         <Aviso tipo="nota">{analisis.data.pendientes.join(" ")}</Aviso>
       ) : null}
-      {listo?.camara && activa === "camara" ? <TarjetaCamara id={id} analisis={listo} /> : null}
+      {listo?.camara && activa === "camara" ? (
+        <TarjetaCamara camara={listo.camara} url={(f) => api.urlCamara(id, f, listo.revision)} aviso={listo.aviso} />
+      ) : null}
       {listo && activa !== "datos" && activa !== "cuadro" && activa !== "camara" ? (
         <Resultados
           vista={activa as Vista}
@@ -693,9 +695,17 @@ function ResumenIndustria({ analisis }: { analisis: AnalisisIndustrial }) {
   );
 }
 
-function TarjetaCamara({ id, analisis }: { id: string; analisis: AnalisisIndustrial }) {
-  const c = analisis.camara;
-  if (!c) return null;
+export function TarjetaCamara({
+  camara: c,
+  url,
+  aviso,
+  dondeResistividad = "«Datos y ubicación»",
+}: {
+  camara: NonNullable<AnalisisIndustrial["camara"]>;
+  url: (formato: "dxf" | "png" | "pdf") => string;
+  aviso: string;
+  dondeResistividad?: string;
+}) {
   return (
     <>
       <div className="columnas dos">
@@ -741,7 +751,7 @@ function TarjetaCamara({ id, analisis }: { id: string; analisis: AnalisisIndustr
           <p>{c.malla}</p>
           <p className="tenue">
             Resistividad del suelo {num(c.resistividad_ohm_m, 0)} Ω·m. Fórmula de Sverak (IEEE 80) con la malla a 0,6 m.
-            Mida la resistividad en sitio y escríbala en «Datos y ubicación».
+            Mida la resistividad en sitio y escríbala en {dondeResistividad}.
           </p>
           {c.avisos.length ? (
             <Aviso tipo="alerta">
@@ -757,15 +767,15 @@ function TarjetaCamara({ id, analisis }: { id: string; analisis: AnalisisIndustr
       <section className="tarjeta">
         <h2>Plano de la cámara</h2>
         <div className="acciones izquierda">
-          <a className="boton" href={api.urlCamara(id, "dxf", analisis.revision)}>
+          <a className="boton" href={url("dxf")}>
             Descargar DXF
           </a>
-          <a className="boton" href={api.urlCamara(id, "pdf", analisis.revision)} target="_blank" rel="noreferrer">
+          <a className="boton" href={url("pdf")} target="_blank" rel="noreferrer">
             Abrir PDF
           </a>
         </div>
-        <img className="unifilar" src={api.urlCamara(id, "png", analisis.revision)} alt="Planta de la cámara de transformación" />
-        <p className="tenue">{analisis.aviso}</p>
+        <img className="unifilar" src={url("png")} alt="Planta de la cámara de transformación" />
+        <p className="tenue">{aviso}</p>
       </section>
     </>
   );

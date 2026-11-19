@@ -1,0 +1,22 @@
+{
+  "nombre": "Edificio Las Acacias (ejemplo)",
+  "propietario": "Ejemplo",
+  "direccion": "Guayaquil",
+  "tipo": "departamentos",
+  "sistema": "trifasico_127_220",
+  "nivel_medidores": 0,
+  "altura_piso_m": "2.9",
+  "distancia_transformador_m": "12",
+  "unidades": [
+    {"id": "Tipo A (3 dorm.)", "uso": "departamento", "estrato": "B", "fases": 2, "pisos": [1, 2, 3, 4, 5, 6], "por_piso": 2},
+    {"id": "Tipo B (2 dorm.)", "uso": "departamento", "estrato": "C", "fases": 2, "pisos": [1, 2, 3, 4, 5, 6], "por_piso": 2},
+    {"id": "Local comercial", "uso": "local", "area_m2": "65", "fases": 3, "pisos": [0], "por_piso": 2}
+  ],
+  "servicios": [
+    {"descripcion": "Ascensor", "kw": "7.5", "motor": true},
+    {"descripcion": "Bomba de agua", "kw": "3.7", "cantidad": 2, "motor": true},
+    {"descripcion": "Iluminación de áreas comunes", "kw": "3", "fp": "0.95"},
+    {"descripcion": "Portón y cámaras", "kw": "1", "fp": "0.9", "respaldo": true}
+  ],
+  "respaldo": "servicios_generales"
+}

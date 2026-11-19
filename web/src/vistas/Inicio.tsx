@@ -17,6 +17,7 @@ export function Inicio() {
   const consultas = useQueryClient();
   const proyectos = useQuery({ queryKey: ["proyectos"], queryFn: api.proyectos });
   const edificaciones = useQuery({ queryKey: ["edificaciones"], queryFn: api.edificaciones });
+  const edificios = useQuery({ queryKey: ["edificios"], queryFn: api.edificios });
   const industrias = useQuery({ queryKey: ["industrias"], queryFn: api.industrias });
   const redes = useQuery({ queryKey: ["redes-mt"], queryFn: api.redesMT });
 
@@ -92,10 +93,10 @@ export function Inicio() {
           <span className="modulo-nombre">Industrias</span>
           <span className="tenue">Cuadro de cargas, transformador y protecciones</span>
         </a>
-        <a className="modulo pronto" href="#/no-residencial">
-          <span className="modulo-cifra">—</span>
+        <a className="modulo" href="#/no-residencial">
+          <span className="modulo-cifra">{cuenta(edificios.data?.length)}</span>
           <span className="modulo-nombre">No residencial</span>
-          <span className="tenue">Locales, oficinas, edificios: en desarrollo</span>
+          <span className="tenue">Departamentos, locales, oficinas y comercios</span>
         </a>
         <a className="modulo" href="#/redes-mt">
           <span className="modulo-cifra">{cuenta(redes.data?.length)}</span>

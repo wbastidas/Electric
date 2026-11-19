@@ -435,3 +435,105 @@ export function PaginaRedesMT() {
     </div>
   );
 }
+
+const TIPOS_NR: Record<string, string> = {
+  departamentos: "Edificio de departamentos",
+  locales_oficinas: "Locales y oficinas",
+  comercial: "Comercial grande",
+};
+
+export function PaginaNoResidencial() {
+  const consultas = useQueryClient();
+  const edificios = useQuery({ queryKey: ["edificios"], queryFn: api.edificios });
+  const [nombre, setNombre] = useState("");
+  const [tipo, setTipo] = useState<"departamentos" | "locales_oficinas" | "comercial">("departamentos");
+  const abrirEdificio = (id: string) => {
+    consultas.invalidateQueries({ queryKey: ["edificios"] });
+    window.location.hash = `#/edificios/${id}/unidades`;
+  };
+  const crear = useMutation({
+    mutationFn: () =>
+      api.crearEdificio({
+        nombre: nombre.trim(),
+        tipo,
+        respaldo: tipo === "comercial" ? "total" : "ninguno",
+      }),
+    onSuccess: (r) => abrirEdificio(r.id),
+  });
+  const ejemplo = useMutation({ mutationFn: api.ejemploEdificio, onSuccess: (r) => abrirEdificio(r.id) });
+  const borrar = useMutation({
+    mutationFn: api.borrarEdificio,
+    onSuccess: () => consultas.invalidateQueries({ queryKey: ["edificios"] }),
+  });
+  return (
+    <div className="pagina">
+      <div className="titulo-modulo">
+        <h1>Proyectos no residenciales</h1>
+        <p className="tenue">
+          Edificios de departamentos, locales y oficinas, y comercios grandes: demanda con factor de coincidencia, nivel de
+          servicio, transformador o cámara, centro de medición, alimentadores por unidad, generador con transferencia y
+          unifilar. Las naves industriales se diseñan en <a href="#/industrias">Industrias</a>.
+        </p>
+      </div>
+      <section className="tarjeta">
+        <h2>Nuevo proyecto</h2>
+        <form
+          className="fila-formulario"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (nombre.trim()) crear.mutate();
+          }}
+        >
+          <Campo etiqueta="Nombre">
+            <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Edificio Las Acacias" />
+          </Campo>
+          <Campo etiqueta="Tipo">
+            <select value={tipo} onChange={(e) => setTipo(e.target.value as typeof tipo)}>
+              {Object.entries(TIPOS_NR).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </select>
+          </Campo>
+          <button className="primario" type="submit" disabled={!nombre.trim() || crear.isPending}>
+            Crear
+          </button>
+          <button type="button" disabled={ejemplo.isPending} onClick={() => ejemplo.mutate()}>
+            Abrir el ejemplo de departamentos
+          </button>
+        </form>
+        {crear.isError ? <MensajeError error={crear.error} /> : null}
+        {ejemplo.isError ? <MensajeError error={ejemplo.error} /> : null}
+        {edificios.data?.length ? (
+          <div className="tabla-ancha">
+            <table>
+              <thead>
+                <tr><th>Proyecto</th><th>Tipo</th><th>Propietario</th><th>Unidades</th><th>Último cambio</th><th /></tr>
+              </thead>
+              <tbody>
+                {edificios.data.map((r) => (
+                  <tr key={r.id}>
+                    <td><a href={`#/edificios/${r.id}`}>{r.nombre}</a></td>
+                    <td>{TIPOS_NR[r.tipo] ?? r.tipo}</td>
+                    <td>{r.propietario || "—"}</td>
+                    <td>{r.unidades}</td>
+                    <td>{fecha(r.actualizado)}</td>
+                    <td className="derecha">
+                      <button
+                        className="discreto"
+                        onClick={() => {
+                          if (window.confirm(`¿Borrar "${r.nombre}"? No se puede deshacer.`)) borrar.mutate(r.id);
+                        }}
+                      >
+                        Borrar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+      </section>
+    </div>
+  );
+}

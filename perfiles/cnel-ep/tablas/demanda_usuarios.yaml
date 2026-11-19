@@ -1,0 +1,25 @@
+id: cnel-ep/demanda-usuarios
+tipo: demanda_usuarios
+version: 0.1.0
+vigente_desde: 2026-11-19
+fuente:
+  norma: Propuesta; reemplazar por la demanda máxima unitaria de diseño de CNEL EP
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Demanda máxima unitaria (DMU) por usuario sin diversificar, para edificios de
+  departamentos y urbanizaciones, y densidad de carga para locales y oficinas.
+  Valores de práctica habitual en distribuidoras del Ecuador; no son del
+  documento oficial de CNEL. Un departamento puede usar en su lugar la demanda
+  calculada de su diseño.
+unidades: {kva: kVA, va_m2: VA/m²}
+filas:
+  - {id: A, kva: 8.0, descripcion: Residencial consumo alto}
+  - {id: B, kva: 5.5, descripcion: Residencial consumo medio alto}
+  - {id: C, kva: 3.6, descripcion: Residencial consumo medio}
+  - {id: D, kva: 2.4, descripcion: Residencial consumo bajo}
+  - {id: E, kva: 1.6, descripcion: Residencial popular}
+  - {id: local, va_m2: 60, factor_demanda: 0.8, descripcion: Local comercial}
+  - {id: oficina, va_m2: 50, factor_demanda: 0.7, descripcion: Oficina}
+  - {id: bodega, va_m2: 15, factor_demanda: 0.8, descripcion: Bodega o depósito}

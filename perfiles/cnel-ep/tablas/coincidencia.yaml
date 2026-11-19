@@ -1,0 +1,30 @@
+id: cnel-ep/coincidencia
+tipo: coincidencia
+version: 0.1.0
+vigente_desde: 2026-11-19
+fuente:
+  norma: Propuesta; reemplazar por la tabla de factores de coincidencia de CNEL EP
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Factor de coincidencia de la demanda de un grupo de usuarios del mismo tipo:
+  demanda del grupo = N × DMU × factor. Curva de práctica habitual, por verificar.
+unidades: {}
+filas:
+  - {usuarios_max: 1, factor: 1.0}
+  - {usuarios_max: 2, factor: 0.89}
+  - {usuarios_max: 3, factor: 0.81}
+  - {usuarios_max: 4, factor: 0.75}
+  - {usuarios_max: 5, factor: 0.71}
+  - {usuarios_max: 6, factor: 0.67}
+  - {usuarios_max: 8, factor: 0.62}
+  - {usuarios_max: 10, factor: 0.58}
+  - {usuarios_max: 15, factor: 0.52}
+  - {usuarios_max: 20, factor: 0.48}
+  - {usuarios_max: 30, factor: 0.43}
+  - {usuarios_max: 40, factor: 0.41}
+  - {usuarios_max: 50, factor: 0.39}
+  - {usuarios_max: 75, factor: 0.36}
+  - {usuarios_max: 100, factor: 0.34}
+  - {factor: 0.32}

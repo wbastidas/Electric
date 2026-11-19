@@ -2381,6 +2381,369 @@
           }
         }
       }
+    },
+    "/api/v1/edificio/opciones": {
+      "get": {
+        "tags": [
+          "edificios"
+        ],
+        "summary": "Opciones Edificio",
+        "operationId": "opciones_edificio_api_v1_edificio_opciones_get",
+        "parameters": [
+          {
+            "name": "perfil",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "cnel-ep",
+              "title": "Perfil"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpcionesEdificio"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/edificios": {
+      "get": {
+        "tags": [
+          "edificios"
+        ],
+        "summary": "Listar Edificios",
+        "operationId": "listar_edificios_api_v1_edificios_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EdificioResumen"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Edificios Api V1 Edificios Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "edificios"
+        ],
+        "summary": "Crear Edificio",
+        "operationId": "crear_edificio_api_v1_edificios_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BorradorEdificio"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EdificioDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/edificios/{id}": {
+      "get": {
+        "tags": [
+          "edificios"
+        ],
+        "summary": "Leer Edificio",
+        "operationId": "leer_edificio_api_v1_edificios__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EdificioDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "edificios"
+        ],
+        "summary": "Guardar Edificio",
+        "operationId": "guardar_edificio_api_v1_edificios__id__put",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuardarEdificio"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EdificioDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "edificios"
+        ],
+        "summary": "Borrar Edificio",
+        "operationId": "borrar_edificio_api_v1_edificios__id__delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/edificios/{id}/calculo": {
+      "get": {
+        "tags": [
+          "edificios"
+        ],
+        "summary": "Calcular",
+        "operationId": "calcular_api_v1_edificios__id__calculo_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculoEdificio"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/edificios/{id}/{plano}.{formato}": {
+      "get": {
+        "tags": [
+          "edificios"
+        ],
+        "summary": "Descargar Plano",
+        "operationId": "descargar_plano_api_v1_edificios__id___plano___formato__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "plano",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "unifilar",
+                "camara"
+              ],
+              "type": "string",
+              "title": "Plano"
+            }
+          },
+          {
+            "name": "formato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "dxf",
+                "png",
+                "pdf"
+              ],
+              "type": "string",
+              "title": "Formato"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/dxf": {},
+              "image/png": {},
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ejemplos/edificio": {
+      "post": {
+        "tags": [
+          "edificios"
+        ],
+        "summary": "Crear Ejemplo Edificio",
+        "description": "Crea el edificio de departamentos de ejemplo del repositorio.",
+        "operationId": "crear_ejemplo_edificio_api_v1_ejemplos_edificio_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EdificioDetalle"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2967,6 +3330,148 @@
         "title": "Borrador",
         "description": "Proyecto en edición.\n\nTiene los mismos campos que el proyecto del núcleo, pero admite estar\nincompleto: lo que falta se devuelve como lista de pendientes al calcular."
       },
+      "BorradorEdificio": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "perfil": {
+            "type": "string",
+            "title": "Perfil",
+            "default": "cnel-ep"
+          },
+          "propietario": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Propietario",
+            "default": ""
+          },
+          "direccion": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Direccion",
+            "default": ""
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "departamentos",
+              "locales_oficinas",
+              "comercial"
+            ],
+            "title": "Tipo",
+            "default": "departamentos"
+          },
+          "sistema": {
+            "type": "string",
+            "title": "Sistema",
+            "default": "trifasico_127_220"
+          },
+          "nivel_medidores": {
+            "type": "integer",
+            "title": "Nivel Medidores",
+            "default": 0
+          },
+          "altura_piso_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Altura Piso M"
+          },
+          "recorrido_horizontal_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recorrido Horizontal M"
+          },
+          "distancia_transformador_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distancia Transformador M"
+          },
+          "unidades": {
+            "items": {
+              "$ref": "#/components/schemas/TipoUnidad"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "title": "Unidades",
+            "default": []
+          },
+          "servicios": {
+            "items": {
+              "$ref": "#/components/schemas/CargaGeneral"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "title": "Servicios",
+            "default": []
+          },
+          "respaldo": {
+            "type": "string",
+            "enum": [
+              "ninguno",
+              "servicios_generales",
+              "total"
+            ],
+            "title": "Respaldo",
+            "default": "ninguno"
+          },
+          "resistividad_ohm_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resistividad Ohm M"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre"
+        ],
+        "title": "BorradorEdificio",
+        "description": "Edificio en edición; puede no tener unidades todavía."
+      },
       "BorradorIndustria": {
         "properties": {
           "nombre": {
@@ -3295,6 +3800,159 @@
           "aviso"
         ],
         "title": "CalculoEdificacion"
+      },
+      "CalculoEdificio": {
+        "properties": {
+          "estado": {
+            "type": "string",
+            "enum": [
+              "listo",
+              "incompleto"
+            ],
+            "title": "Estado"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "aviso": {
+            "type": "string",
+            "title": "Aviso"
+          },
+          "pendientes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Pendientes",
+            "default": []
+          },
+          "demanda_kva": {
+            "type": "number",
+            "title": "Demanda Kva",
+            "default": 0
+          },
+          "demanda_kw": {
+            "type": "number",
+            "title": "Demanda Kw",
+            "default": 0
+          },
+          "nivel": {
+            "type": "string",
+            "title": "Nivel",
+            "default": ""
+          },
+          "nivel_id": {
+            "type": "string",
+            "title": "Nivel Id",
+            "default": ""
+          },
+          "medicion": {
+            "type": "string",
+            "title": "Medicion",
+            "default": ""
+          },
+          "medidores": {
+            "type": "integer",
+            "title": "Medidores",
+            "default": 0
+          },
+          "modulos": {
+            "type": "integer",
+            "title": "Modulos",
+            "default": 0
+          },
+          "grupos": {
+            "items": {
+              "$ref": "#/components/schemas/GrupoOut"
+            },
+            "type": "array",
+            "title": "Grupos",
+            "default": []
+          },
+          "unidades": {
+            "items": {
+              "$ref": "#/components/schemas/UnidadOut"
+            },
+            "type": "array",
+            "title": "Unidades",
+            "default": []
+          },
+          "servicios": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ServiciosOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "principal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PrincipalOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "transformador": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TransformadorEdificioOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "camara": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CamaraOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "generador": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GeneradorOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resultados": {
+            "items": {
+              "$ref": "#/components/schemas/ResultadoOut"
+            },
+            "type": "array",
+            "title": "Resultados",
+            "default": []
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "estado",
+          "revision",
+          "aviso"
+        ],
+        "title": "CalculoEdificio"
       },
       "CalculoRedMT": {
         "properties": {
@@ -3771,6 +4429,66 @@
         ],
         "title": "CargaEspecial",
         "description": "Equipo declarado con circuito propio (ducha, cocina, A/C…)."
+      },
+      "CargaGeneral": {
+        "properties": {
+          "descripcion": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Descripcion"
+          },
+          "kw": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Kw"
+          },
+          "cantidad": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Cantidad",
+            "default": 1
+          },
+          "fp": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fp",
+            "default": "0.85"
+          },
+          "motor": {
+            "type": "boolean",
+            "title": "Motor",
+            "default": false
+          },
+          "respaldo": {
+            "type": "boolean",
+            "title": "Respaldo",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "descripcion",
+          "kw"
+        ],
+        "title": "CargaGeneral",
+        "description": "Carga de servicios generales del edificio."
       },
       "CargaOut": {
         "properties": {
@@ -4461,6 +5179,78 @@
         ],
         "title": "EdificacionResumen"
       },
+      "EdificioDetalle": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "creado": {
+            "type": "string",
+            "title": "Creado"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/BorradorEdificio"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "revision",
+          "creado",
+          "actualizado",
+          "datos"
+        ],
+        "title": "EdificioDetalle"
+      },
+      "EdificioResumen": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "propietario": {
+            "type": "string",
+            "title": "Propietario"
+          },
+          "unidades": {
+            "type": "integer",
+            "title": "Unidades"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "tipo",
+          "propietario",
+          "unidades",
+          "actualizado"
+        ],
+        "title": "EdificioResumen"
+      },
       "Editar": {
         "properties": {
           "revision": {
@@ -4900,6 +5690,83 @@
         "title": "Fondo",
         "description": "Plano del arquitecto como primitivas simples, para dibujarlo de referencia."
       },
+      "GeneradorOut": {
+        "properties": {
+          "alcance": {
+            "type": "string",
+            "title": "Alcance"
+          },
+          "carga_kva": {
+            "type": "number",
+            "title": "Carga Kva"
+          },
+          "kva": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kva"
+          },
+          "transferencia_a": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transferencia A"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "alcance",
+          "carga_kva",
+          "kva",
+          "transferencia_a"
+        ],
+        "title": "GeneradorOut"
+      },
+      "GrupoOut": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "usuarios": {
+            "type": "integer",
+            "title": "Usuarios"
+          },
+          "suma_kva": {
+            "type": "number",
+            "title": "Suma Kva"
+          },
+          "factor": {
+            "type": "number",
+            "title": "Factor"
+          },
+          "demanda_kva": {
+            "type": "number",
+            "title": "Demanda Kva"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre",
+          "usuarios",
+          "suma_kva",
+          "factor",
+          "demanda_kva"
+        ],
+        "title": "GrupoOut"
+      },
       "Guardar": {
         "properties": {
           "revision": {
@@ -4917,6 +5784,24 @@
           "datos"
         ],
         "title": "Guardar"
+      },
+      "GuardarEdificio": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/BorradorEdificio"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "datos"
+        ],
+        "title": "GuardarEdificio"
       },
       "GuardarIndustria": {
         "properties": {
@@ -5476,6 +6361,49 @@
         ],
         "title": "OpcionUso"
       },
+      "OpcionUsuario": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "kva": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kva"
+          },
+          "va_m2": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Va M2"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "kva",
+          "va_m2"
+        ],
+        "title": "OpcionUsuario"
+      },
       "OpcionZona": {
         "properties": {
           "id": {
@@ -5499,6 +6427,31 @@
           "aire"
         ],
         "title": "OpcionZona"
+      },
+      "OpcionesEdificio": {
+        "properties": {
+          "usuarios": {
+            "items": {
+              "$ref": "#/components/schemas/OpcionUsuario"
+            },
+            "type": "array",
+            "title": "Usuarios"
+          },
+          "sistemas": {
+            "items": {
+              "$ref": "#/components/schemas/OpcionUsuario"
+            },
+            "type": "array",
+            "title": "Sistemas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "usuarios",
+          "sistemas"
+        ],
+        "title": "OpcionesEdificio"
       },
       "OpcionesIndustriales": {
         "properties": {
@@ -6255,6 +7208,92 @@
         "type": "object",
         "title": "Preferencias",
         "description": "Criterios del diseño automático; cada escenario tiene los suyos."
+      },
+      "PrincipalOut": {
+        "properties": {
+          "corriente_a": {
+            "type": "number",
+            "title": "Corriente A"
+          },
+          "breaker_a": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breaker A"
+          },
+          "conductor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conductor"
+          },
+          "caida_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caida Pct"
+          },
+          "longitud_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitud M"
+          },
+          "barra_a": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barra A"
+          },
+          "icc_ka": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icc Ka"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "corriente_a",
+          "breaker_a",
+          "conductor",
+          "caida_pct",
+          "longitud_m",
+          "barra_a",
+          "icc_ka"
+        ],
+        "title": "PrincipalOut"
       },
       "ProteccionSIG": {
         "properties": {
@@ -7024,6 +8063,59 @@
         ],
         "title": "Revision"
       },
+      "ServiciosOut": {
+        "properties": {
+          "instalada_kva": {
+            "type": "number",
+            "title": "Instalada Kva"
+          },
+          "demanda_kva": {
+            "type": "number",
+            "title": "Demanda Kva"
+          },
+          "corriente_a": {
+            "type": "number",
+            "title": "Corriente A"
+          },
+          "breaker_a": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breaker A"
+          },
+          "medidor": {
+            "type": "string",
+            "title": "Medidor"
+          },
+          "conductor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conductor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "instalada_kva",
+          "demanda_kva",
+          "corriente_a",
+          "breaker_a",
+          "medidor",
+          "conductor"
+        ],
+        "title": "ServiciosOut"
+      },
       "SistemaOut": {
         "properties": {
           "id": {
@@ -7328,6 +8420,95 @@
         ],
         "title": "TextoFondo"
       },
+      "TipoUnidad": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "uso": {
+            "type": "string",
+            "enum": [
+              "departamento",
+              "local",
+              "oficina",
+              "bodega"
+            ],
+            "title": "Uso",
+            "default": "departamento"
+          },
+          "estrato": {
+            "type": "string",
+            "title": "Estrato",
+            "default": "C"
+          },
+          "area_m2": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area M2"
+          },
+          "demanda_kva": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demanda Kva"
+          },
+          "fases": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ],
+            "title": "Fases",
+            "default": 2
+          },
+          "pisos": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Pisos"
+          },
+          "por_piso": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Por Piso",
+            "default": 1
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "pisos"
+        ],
+        "title": "TipoUnidad",
+        "description": "Un tipo de unidad que se repite en uno o varios pisos."
+      },
       "TramoSIG": {
         "properties": {
           "id": {
@@ -7510,6 +8691,30 @@
           "existente"
         ],
         "title": "TransformadorCercanoOut"
+      },
+      "TransformadorEdificioOut": {
+        "properties": {
+          "kva": {
+            "type": "number",
+            "title": "Kva"
+          },
+          "montaje": {
+            "type": "string",
+            "title": "Montaje"
+          },
+          "z_pct": {
+            "type": "number",
+            "title": "Z Pct"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kva",
+          "montaje",
+          "z_pct"
+        ],
+        "title": "TransformadorEdificioOut"
       },
       "TransformadorExistente": {
         "properties": {
@@ -7807,6 +9012,96 @@
         ],
         "title": "Ubicacion",
         "description": "Posición de un punto, una carga especial o el tablero."
+      },
+      "UnidadOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "uso": {
+            "type": "string",
+            "title": "Uso"
+          },
+          "piso": {
+            "type": "integer",
+            "title": "Piso"
+          },
+          "fases": {
+            "type": "integer",
+            "title": "Fases"
+          },
+          "demanda_kva": {
+            "type": "number",
+            "title": "Demanda Kva"
+          },
+          "corriente_a": {
+            "type": "number",
+            "title": "Corriente A"
+          },
+          "breaker_a": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breaker A"
+          },
+          "medidor": {
+            "type": "string",
+            "title": "Medidor"
+          },
+          "conductor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conductor"
+          },
+          "longitud_m": {
+            "type": "number",
+            "title": "Longitud M"
+          },
+          "caida_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caida Pct"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "tipo",
+          "uso",
+          "piso",
+          "fases",
+          "demanda_kva",
+          "corriente_a",
+          "breaker_a",
+          "medidor",
+          "conductor",
+          "longitud_m",
+          "caida_pct"
+        ],
+        "title": "UnidadOut"
       },
       "ValidationError": {
         "properties": {

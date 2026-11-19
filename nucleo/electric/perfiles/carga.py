@@ -24,6 +24,7 @@ from electric.perfiles.esquema import (
     FilaCarga,
     FilaConductor,
     FilaConductorMT,
+    FilaDemandaUsuario,
     FilaDucto,
     FilaEstiloLuz,
     FilaEstrato,
@@ -47,8 +48,10 @@ from electric.perfiles.esquema import (
     TablaCamaras,
     TablaCargas,
     TablaCircuitosMinimos,
+    TablaCoincidencia,
     TablaConductores,
     TablaConductoresMT,
+    TablaDemandaUsuarios,
     TablaDuctos,
     TablaEstilosLuz,
     TablaEstratos,
@@ -322,6 +325,27 @@ class Perfil:
         if "demanda_estratos" not in self.tablas:
             return ()
         return self._tabla("demanda_estratos", TablaEstratos).filas
+
+    # -- edificios y urbanizaciones -------------------------------------
+
+    def demanda_usuario(self, id: str) -> tuple[FilaDemandaUsuario, RefTabla]:
+        tabla = self._tabla("demanda_usuarios", TablaDemandaUsuarios)
+        for fila in tabla.filas:
+            if fila.id == id:
+                return fila, self._ref(tabla, id)
+        raise FilaNoEncontrada(tabla.id, f"el tipo de usuario '{id}'")
+
+    def demandas_usuario(self) -> tuple[FilaDemandaUsuario, ...]:
+        if "demanda_usuarios" not in self.tablas:
+            return ()
+        return self._tabla("demanda_usuarios", TablaDemandaUsuarios).filas
+
+    def coincidencia(self, usuarios: int) -> tuple[Decimal, RefTabla]:
+        tabla = self._tabla("coincidencia", TablaCoincidencia)
+        for fila in tabla.filas:
+            if fila.usuarios_max is None or usuarios <= fila.usuarios_max:
+                return fila.factor, self._ref(tabla, f"{usuarios} usuarios")
+        raise FilaNoEncontrada(tabla.id, f"{usuarios} usuarios")
 
     # -- media tensión (tablas opcionales) -------------------------------
 
