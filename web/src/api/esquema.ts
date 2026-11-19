@@ -913,6 +913,97 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/urbanizaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar */
+        get: operations["listar_api_v1_urbanizaciones_get"];
+        put?: never;
+        /** Crear */
+        post: operations["crear_api_v1_urbanizaciones_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/urbanizaciones/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Leer */
+        get: operations["leer_api_v1_urbanizaciones__id__get"];
+        /** Guardar */
+        put: operations["guardar_api_v1_urbanizaciones__id__put"];
+        post?: never;
+        /** Borrar */
+        delete: operations["borrar_api_v1_urbanizaciones__id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/urbanizaciones/{id}/calculo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Calcular */
+        get: operations["calcular_api_v1_urbanizaciones__id__calculo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/urbanizaciones/{id}/plano.{formato}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Descargar Plano */
+        get: operations["descargar_plano_api_v1_urbanizaciones__id__plano__formato__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ejemplos/urbanizacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Crear Ejemplo
+         * @description Crea la lotización de ejemplo del repositorio.
+         */
+        post: operations["crear_ejemplo_api_v1_ejemplos_urbanizacion_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1022,7 +1113,7 @@ export interface components {
              * Circuitos
              * @default []
              */
-            circuitos: components["schemas"]["CircuitoOut"][];
+            circuitos: components["schemas"]["electric_api__industrial__CircuitoOut"][];
             /**
              * Cortocircuito
              * @default []
@@ -1314,6 +1405,58 @@ export interface components {
              */
             postes: components["schemas"]["PosteNuevo"][];
         };
+        /** BorradorUrbanizacion */
+        BorradorUrbanizacion: {
+            /** Nombre */
+            nombre: string;
+            /**
+             * Perfil
+             * @default cnel-ep
+             */
+            perfil: string;
+            /**
+             * Propietario
+             * @default
+             */
+            propietario: string;
+            /**
+             * Estrato
+             * @default C
+             */
+            estrato: string;
+            /**
+             * Sistema
+             * @default monofasico_trifilar_120_240
+             */
+            sistema: string;
+            /**
+             * Fases Transformador
+             * @default 1
+             * @enum {integer}
+             */
+            fases_transformador: 1 | 3;
+            /** Kva Max Transformador */
+            kva_max_transformador?: number | string | null;
+            /**
+             * Ancho Calle M
+             * @default 10
+             */
+            ancho_calle_m: number | string;
+            /** Separacion Luminarias M */
+            separacion_luminarias_m?: number | string | null;
+            /** Potencia Luminaria W */
+            potencia_luminaria_w?: number | string | null;
+            /**
+             * Manzanas
+             * @default []
+             */
+            manzanas: components["schemas"]["Manzana"][];
+            /**
+             * Comunales
+             * @default []
+             */
+            comunales: components["schemas"]["CargaComunal"][];
+        };
         /** CalculoEdificacion */
         CalculoEdificacion: {
             /**
@@ -1535,6 +1678,83 @@ export interface components {
              */
             avisos: string[];
         };
+        /** CalculoUrbanizacion */
+        CalculoUrbanizacion: {
+            /**
+             * Estado
+             * @enum {string}
+             */
+            estado: "listo" | "incompleto";
+            /** Revision */
+            revision: number;
+            /** Aviso */
+            aviso: string;
+            /**
+             * Pendientes
+             * @default []
+             */
+            pendientes: string[];
+            /**
+             * Lotes
+             * @default 0
+             */
+            lotes: number;
+            /**
+             * Calles
+             * @default 0
+             */
+            calles: number;
+            /**
+             * Dmu Kva
+             * @default 0
+             */
+            dmu_kva: number;
+            /**
+             * Demanda Kva
+             * @default 0
+             */
+            demanda_kva: number;
+            /**
+             * Alumbrado Kva
+             * @default 0
+             */
+            alumbrado_kva: number;
+            /**
+             * Luminarias
+             * @default 0
+             */
+            luminarias: number;
+            /**
+             * Kva Instalados
+             * @default 0
+             */
+            kva_instalados: number;
+            /**
+             * Corriente Mt A
+             * @default 0
+             */
+            corriente_mt_a: number;
+            /**
+             * Tension Mt Kv
+             * @default 0
+             */
+            tension_mt_kv: number;
+            /**
+             * Sectores
+             * @default []
+             */
+            sectores: components["schemas"]["SectorOut"][];
+            /**
+             * Resultados
+             * @default []
+             */
+            resultados: components["schemas"]["ResultadoOut"][];
+            /**
+             * Avisos
+             * @default []
+             */
+            avisos: string[];
+        };
         /** Calculos */
         Calculos: {
             /**
@@ -1646,6 +1866,21 @@ export interface components {
             disponibles: string[];
         };
         /**
+         * CargaComunal
+         * @description Casa comunal, bombeo de agua potable, etc., en la calle indicada.
+         */
+        CargaComunal: {
+            /** Descripcion */
+            descripcion: string;
+            /** Kva */
+            kva: number | string;
+            /**
+             * Calle
+             * @default 0
+             */
+            calle: number;
+        };
+        /**
          * CargaEspecial
          * @description Equipo declarado con circuito propio (ducha, cocina, A/C…).
          */
@@ -1737,23 +1972,6 @@ export interface components {
              * @default false
              */
             zona_humeda: boolean;
-        };
-        /** CircuitoOut */
-        CircuitoOut: {
-            /** Maquina */
-            maquina: string;
-            /** Tablero */
-            tablero: string;
-            /** Polos */
-            polos: number;
-            /** Corriente A */
-            corriente_a: number;
-            /** Breaker A */
-            breaker_a: number | null;
-            /** Conductor */
-            conductor: string | null;
-            /** Caida Pct */
-            caida_pct: number | null;
         };
         /** ComprobacionOut */
         ComprobacionOut: {
@@ -2148,6 +2366,12 @@ export interface components {
             revision: number;
             datos: components["schemas"]["BorradorRedMT"];
         };
+        /** GuardarUrbanizacion */
+        GuardarUrbanizacion: {
+            /** Revision */
+            revision: number;
+            datos: components["schemas"]["BorradorUrbanizacion"];
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -2270,6 +2494,23 @@ export interface components {
                 number,
                 number
             ][];
+        };
+        /** Manzana */
+        Manzana: {
+            /** Id */
+            id: string;
+            /** Lotes */
+            lotes: number;
+            /**
+             * Frente M
+             * @default 10
+             */
+            frente_m: number | string;
+            /**
+             * Fondo M
+             * @default 20
+             */
+            fondo_m: number | string;
         };
         /**
          * Maquina
@@ -3015,6 +3256,25 @@ export interface components {
             /** Revision */
             revision: number;
         };
+        /** SectorOut */
+        SectorOut: {
+            /** Id */
+            id: string;
+            /** Calle */
+            calle: number;
+            /** Lotes */
+            lotes: number;
+            /** Luminarias */
+            luminarias: number;
+            /** Comunal Kva */
+            comunal_kva: number;
+            /** Demanda Kva */
+            demanda_kva: number;
+            /** Kva */
+            kva: number | null;
+            /** Circuitos */
+            circuitos: components["schemas"]["electric_api__urbanizaciones__CircuitoOut"][];
+        };
         /** ServiciosOut */
         ServiciosOut: {
             /** Instalada Kva */
@@ -3338,6 +3598,31 @@ export interface components {
             /** Caida Pct */
             caida_pct: number | null;
         };
+        /** UrbanizacionDetalle */
+        UrbanizacionDetalle: {
+            /** Id */
+            id: string;
+            /** Revision */
+            revision: number;
+            /** Creado */
+            creado: string;
+            /** Actualizado */
+            actualizado: string;
+            datos: components["schemas"]["BorradorUrbanizacion"];
+        };
+        /** UrbanizacionResumen */
+        UrbanizacionResumen: {
+            /** Id */
+            id: string;
+            /** Nombre */
+            nombre: string;
+            /** Propietario */
+            propietario: string;
+            /** Lotes */
+            lotes: number;
+            /** Actualizado */
+            actualizado: string;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -3374,6 +3659,38 @@ export interface components {
             caida_acumulada_pct: number;
             /** Excede */
             excede: boolean;
+        };
+        /** CircuitoOut */
+        electric_api__industrial__CircuitoOut: {
+            /** Maquina */
+            maquina: string;
+            /** Tablero */
+            tablero: string;
+            /** Polos */
+            polos: number;
+            /** Corriente A */
+            corriente_a: number;
+            /** Breaker A */
+            breaker_a: number | null;
+            /** Conductor */
+            conductor: string | null;
+            /** Caida Pct */
+            caida_pct: number | null;
+        };
+        /** CircuitoOut */
+        electric_api__urbanizaciones__CircuitoOut: {
+            /** Lado */
+            lado: string;
+            /** Lotes */
+            lotes: number;
+            /** Longitud M */
+            longitud_m: number;
+            /** Corriente A */
+            corriente_a: number;
+            /** Conductor */
+            conductor: string | null;
+            /** Caida Pct */
+            caida_pct: number | null;
         };
     };
     responses: never;
@@ -5362,6 +5679,239 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EdificioDetalle"];
+                };
+            };
+        };
+    };
+    listar_api_v1_urbanizaciones_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UrbanizacionResumen"][];
+                };
+            };
+        };
+    };
+    crear_api_v1_urbanizaciones_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BorradorUrbanizacion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UrbanizacionDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    leer_api_v1_urbanizaciones__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UrbanizacionDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    guardar_api_v1_urbanizaciones__id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuardarUrbanizacion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UrbanizacionDetalle"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    borrar_api_v1_urbanizaciones__id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    calcular_api_v1_urbanizaciones__id__calculo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalculoUrbanizacion"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descargar_plano_api_v1_urbanizaciones__id__plano__formato__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                formato: "dxf" | "png" | "pdf";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/dxf": unknown;
+                    "image/png": unknown;
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_ejemplo_api_v1_ejemplos_urbanizacion_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UrbanizacionDetalle"];
                 };
             };
         };

@@ -1,0 +1,13 @@
+{
+  "nombre": "Lotización Los Ceibos (ejemplo)",
+  "propietario": "Ejemplo",
+  "estrato": "C",
+  "sistema": "monofasico_trifilar_120_240",
+  "fases_transformador": 1,
+  "manzanas": [
+    {"id": "A", "lotes": 24, "frente_m": "10", "fondo_m": "20"},
+    {"id": "B", "lotes": 24, "frente_m": "10", "fondo_m": "20"},
+    {"id": "C", "lotes": 16, "frente_m": "12", "fondo_m": "20"}
+  ],
+  "comunales": [{"descripcion": "Casa comunal", "kva": "10", "calle": 1}]
+}

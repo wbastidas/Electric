@@ -2892,6 +2892,313 @@
           }
         }
       }
+    },
+    "/api/v1/urbanizaciones": {
+      "get": {
+        "tags": [
+          "urbanizaciones"
+        ],
+        "summary": "Listar",
+        "operationId": "listar_api_v1_urbanizaciones_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UrbanizacionResumen"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Api V1 Urbanizaciones Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "urbanizaciones"
+        ],
+        "summary": "Crear",
+        "operationId": "crear_api_v1_urbanizaciones_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BorradorUrbanizacion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UrbanizacionDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/urbanizaciones/{id}": {
+      "get": {
+        "tags": [
+          "urbanizaciones"
+        ],
+        "summary": "Leer",
+        "operationId": "leer_api_v1_urbanizaciones__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UrbanizacionDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "urbanizaciones"
+        ],
+        "summary": "Guardar",
+        "operationId": "guardar_api_v1_urbanizaciones__id__put",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuardarUrbanizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UrbanizacionDetalle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "urbanizaciones"
+        ],
+        "summary": "Borrar",
+        "operationId": "borrar_api_v1_urbanizaciones__id__delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/urbanizaciones/{id}/calculo": {
+      "get": {
+        "tags": [
+          "urbanizaciones"
+        ],
+        "summary": "Calcular",
+        "operationId": "calcular_api_v1_urbanizaciones__id__calculo_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculoUrbanizacion"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/urbanizaciones/{id}/plano.{formato}": {
+      "get": {
+        "tags": [
+          "urbanizaciones"
+        ],
+        "summary": "Descargar Plano",
+        "operationId": "descargar_plano_api_v1_urbanizaciones__id__plano__formato__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "formato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "dxf",
+                "png",
+                "pdf"
+              ],
+              "type": "string",
+              "title": "Formato"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/dxf": {},
+              "image/png": {},
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ejemplos/urbanizacion": {
+      "post": {
+        "tags": [
+          "urbanizaciones"
+        ],
+        "summary": "Crear Ejemplo",
+        "description": "Crea la lotización de ejemplo del repositorio.",
+        "operationId": "crear_ejemplo_api_v1_ejemplos_urbanizacion_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UrbanizacionDetalle"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3167,7 +3474,7 @@
           },
           "circuitos": {
             "items": {
-              "$ref": "#/components/schemas/CircuitoOut"
+              "$ref": "#/components/schemas/electric_api__industrial__CircuitoOut"
             },
             "type": "array",
             "title": "Circuitos",
@@ -3883,6 +4190,128 @@
         "title": "BorradorRedMT",
         "description": "Extensión en edición: puede no tener arranque ni postes todavía."
       },
+      "BorradorUrbanizacion": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "perfil": {
+            "type": "string",
+            "title": "Perfil",
+            "default": "cnel-ep"
+          },
+          "propietario": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Propietario",
+            "default": ""
+          },
+          "estrato": {
+            "type": "string",
+            "title": "Estrato",
+            "default": "C"
+          },
+          "sistema": {
+            "type": "string",
+            "title": "Sistema",
+            "default": "monofasico_trifilar_120_240"
+          },
+          "fases_transformador": {
+            "type": "integer",
+            "enum": [
+              1,
+              3
+            ],
+            "title": "Fases Transformador",
+            "default": 1
+          },
+          "kva_max_transformador": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kva Max Transformador"
+          },
+          "ancho_calle_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Ancho Calle M",
+            "default": "10"
+          },
+          "separacion_luminarias_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Separacion Luminarias M"
+          },
+          "potencia_luminaria_w": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Potencia Luminaria W"
+          },
+          "manzanas": {
+            "items": {
+              "$ref": "#/components/schemas/Manzana"
+            },
+            "type": "array",
+            "maxItems": 60,
+            "title": "Manzanas",
+            "default": []
+          },
+          "comunales": {
+            "items": {
+              "$ref": "#/components/schemas/CargaComunal"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Comunales",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre"
+        ],
+        "title": "BorradorUrbanizacion"
+      },
       "CalculoEdificacion": {
         "properties": {
           "estado": {
@@ -4245,6 +4674,111 @@
         ],
         "title": "CalculoRedMT"
       },
+      "CalculoUrbanizacion": {
+        "properties": {
+          "estado": {
+            "type": "string",
+            "enum": [
+              "listo",
+              "incompleto"
+            ],
+            "title": "Estado"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "aviso": {
+            "type": "string",
+            "title": "Aviso"
+          },
+          "pendientes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Pendientes",
+            "default": []
+          },
+          "lotes": {
+            "type": "integer",
+            "title": "Lotes",
+            "default": 0
+          },
+          "calles": {
+            "type": "integer",
+            "title": "Calles",
+            "default": 0
+          },
+          "dmu_kva": {
+            "type": "number",
+            "title": "Dmu Kva",
+            "default": 0
+          },
+          "demanda_kva": {
+            "type": "number",
+            "title": "Demanda Kva",
+            "default": 0
+          },
+          "alumbrado_kva": {
+            "type": "number",
+            "title": "Alumbrado Kva",
+            "default": 0
+          },
+          "luminarias": {
+            "type": "integer",
+            "title": "Luminarias",
+            "default": 0
+          },
+          "kva_instalados": {
+            "type": "number",
+            "title": "Kva Instalados",
+            "default": 0
+          },
+          "corriente_mt_a": {
+            "type": "number",
+            "title": "Corriente Mt A",
+            "default": 0
+          },
+          "tension_mt_kv": {
+            "type": "number",
+            "title": "Tension Mt Kv",
+            "default": 0
+          },
+          "sectores": {
+            "items": {
+              "$ref": "#/components/schemas/SectorOut"
+            },
+            "type": "array",
+            "title": "Sectores",
+            "default": []
+          },
+          "resultados": {
+            "items": {
+              "$ref": "#/components/schemas/ResultadoOut"
+            },
+            "type": "array",
+            "title": "Resultados",
+            "default": []
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "estado",
+          "revision",
+          "aviso"
+        ],
+        "title": "CalculoUrbanizacion"
+      },
       "Calculos": {
         "properties": {
           "estado": {
@@ -4536,6 +5070,42 @@
         ],
         "title": "CapaGeoportal"
       },
+      "CargaComunal": {
+        "properties": {
+          "descripcion": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Descripcion"
+          },
+          "kva": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Kva"
+          },
+          "calle": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Calle",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "descripcion",
+          "kva"
+        ],
+        "title": "CargaComunal",
+        "description": "Casa comunal, bombeo de agua potable, etc., en la calle indicada."
+      },
       "CargaEspecial": {
         "properties": {
           "id": {
@@ -4806,71 +5376,6 @@
           "longitud_m"
         ],
         "title": "Circuito"
-      },
-      "CircuitoOut": {
-        "properties": {
-          "maquina": {
-            "type": "string",
-            "title": "Maquina"
-          },
-          "tablero": {
-            "type": "string",
-            "title": "Tablero"
-          },
-          "polos": {
-            "type": "integer",
-            "title": "Polos"
-          },
-          "corriente_a": {
-            "type": "number",
-            "title": "Corriente A"
-          },
-          "breaker_a": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Breaker A"
-          },
-          "conductor": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Conductor"
-          },
-          "caida_pct": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Caida Pct"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "maquina",
-          "tablero",
-          "polos",
-          "corriente_a",
-          "breaker_a",
-          "conductor",
-          "caida_pct"
-        ],
-        "title": "CircuitoOut"
       },
       "ComprobacionOut": {
         "properties": {
@@ -6021,6 +6526,24 @@
         ],
         "title": "GuardarRedMT"
       },
+      "GuardarUrbanizacion": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/BorradorUrbanizacion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "datos"
+        ],
+        "title": "GuardarUrbanizacion"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -6348,6 +6871,57 @@
           "puntos"
         ],
         "title": "LineaFondo"
+      },
+      "Manzana": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Id"
+          },
+          "lotes": {
+            "type": "integer",
+            "maximum": 400.0,
+            "minimum": 1.0,
+            "title": "Lotes"
+          },
+          "frente_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Frente M",
+            "default": "10"
+          },
+          "fondo_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 200.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Fondo M",
+            "default": "20"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "lotes"
+        ],
+        "title": "Manzana"
       },
       "Maquina": {
         "properties": {
@@ -8387,6 +8961,65 @@
         ],
         "title": "Revision"
       },
+      "SectorOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "calle": {
+            "type": "integer",
+            "title": "Calle"
+          },
+          "lotes": {
+            "type": "integer",
+            "title": "Lotes"
+          },
+          "luminarias": {
+            "type": "integer",
+            "title": "Luminarias"
+          },
+          "comunal_kva": {
+            "type": "number",
+            "title": "Comunal Kva"
+          },
+          "demanda_kva": {
+            "type": "number",
+            "title": "Demanda Kva"
+          },
+          "kva": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kva"
+          },
+          "circuitos": {
+            "items": {
+              "$ref": "#/components/schemas/electric_api__urbanizaciones__CircuitoOut"
+            },
+            "type": "array",
+            "title": "Circuitos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "calle",
+          "lotes",
+          "luminarias",
+          "comunal_kva",
+          "demanda_kva",
+          "kva",
+          "circuitos"
+        ],
+        "title": "SectorOut"
+      },
       "ServiciosOut": {
         "properties": {
           "instalada_kva": {
@@ -9427,6 +10060,73 @@
         ],
         "title": "UnidadOut"
       },
+      "UrbanizacionDetalle": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "creado": {
+            "type": "string",
+            "title": "Creado"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          },
+          "datos": {
+            "$ref": "#/components/schemas/BorradorUrbanizacion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "revision",
+          "creado",
+          "actualizado",
+          "datos"
+        ],
+        "title": "UrbanizacionDetalle"
+      },
+      "UrbanizacionResumen": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "propietario": {
+            "type": "string",
+            "title": "Propietario"
+          },
+          "lotes": {
+            "type": "integer",
+            "title": "Lotes"
+          },
+          "actualizado": {
+            "type": "string",
+            "title": "Actualizado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "propietario",
+          "lotes",
+          "actualizado"
+        ],
+        "title": "UrbanizacionResumen"
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -9529,6 +10229,124 @@
           "excede"
         ],
         "title": "VanoOut"
+      },
+      "electric_api__industrial__CircuitoOut": {
+        "properties": {
+          "maquina": {
+            "type": "string",
+            "title": "Maquina"
+          },
+          "tablero": {
+            "type": "string",
+            "title": "Tablero"
+          },
+          "polos": {
+            "type": "integer",
+            "title": "Polos"
+          },
+          "corriente_a": {
+            "type": "number",
+            "title": "Corriente A"
+          },
+          "breaker_a": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breaker A"
+          },
+          "conductor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conductor"
+          },
+          "caida_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caida Pct"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "maquina",
+          "tablero",
+          "polos",
+          "corriente_a",
+          "breaker_a",
+          "conductor",
+          "caida_pct"
+        ],
+        "title": "CircuitoOut"
+      },
+      "electric_api__urbanizaciones__CircuitoOut": {
+        "properties": {
+          "lado": {
+            "type": "string",
+            "title": "Lado"
+          },
+          "lotes": {
+            "type": "integer",
+            "title": "Lotes"
+          },
+          "longitud_m": {
+            "type": "number",
+            "title": "Longitud M"
+          },
+          "corriente_a": {
+            "type": "number",
+            "title": "Corriente A"
+          },
+          "conductor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conductor"
+          },
+          "caida_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caida Pct"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "lado",
+          "lotes",
+          "longitud_m",
+          "corriente_a",
+          "conductor",
+          "caida_pct"
+        ],
+        "title": "CircuitoOut"
       }
     }
   }

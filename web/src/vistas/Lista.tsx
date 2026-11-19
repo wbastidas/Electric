@@ -372,7 +372,7 @@ export function PaginaRedesMT() {
         <h1>Redes de media tensión</h1>
         <p className="tenue">
           Extensión de red: trazado sobre el mapa o por coordenadas, estructuras, caída de tensión, cortocircuito,
-          protección, planimetría DXF, unifilar y KML. Cámaras, urbanizaciones y subestaciones vienen después.
+          protección, planimetría DXF, unifilar y KML. Urbanizaciones: transformadores por sector, red de BT y alumbrado.
         </p>
       </div>
       <section className="tarjeta">
@@ -432,7 +432,66 @@ export function PaginaRedesMT() {
           </div>
         ) : null}
       </section>
+      <Urbanizaciones />
     </div>
+  );
+}
+
+function Urbanizaciones() {
+  const consultas = useQueryClient();
+  const lista = useQuery({ queryKey: ["urbanizaciones"], queryFn: api.urbanizaciones });
+  const [nombre, setNombre] = useState("");
+  const abrirU = (id: string) => {
+    consultas.invalidateQueries({ queryKey: ["urbanizaciones"] });
+    window.location.hash = `#/urbanizaciones/${id}`;
+  };
+  const crear = useMutation({ mutationFn: (n: string) => api.crearUrbanizacion(n), onSuccess: (r) => abrirU(r.id) });
+  const ejemplo = useMutation({ mutationFn: api.ejemploUrbanizacion, onSuccess: (r) => abrirU(r.id) });
+  const borrar = useMutation({
+    mutationFn: api.borrarUrbanizacion,
+    onSuccess: () => consultas.invalidateQueries({ queryKey: ["urbanizaciones"] }),
+  });
+  return (
+    <section className="tarjeta">
+      <h2>Urbanizaciones y lotizaciones</h2>
+      <form
+        className="fila-formulario"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (nombre.trim()) crear.mutate(nombre.trim());
+        }}
+      >
+        <Campo etiqueta="Nombre">
+          <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Lotización Los Ceibos" />
+        </Campo>
+        <button className="primario" type="submit" disabled={!nombre.trim() || crear.isPending}>Nueva urbanización</button>
+        <button type="button" disabled={ejemplo.isPending} onClick={() => ejemplo.mutate()}>Abrir el ejemplo</button>
+      </form>
+      {crear.isError ? <MensajeError error={crear.error} /> : null}
+      {ejemplo.isError ? <MensajeError error={ejemplo.error} /> : null}
+      {lista.data?.length ? (
+        <div className="tabla-ancha">
+          <table>
+            <thead><tr><th>Urbanización</th><th>Promotor</th><th>Lotes</th><th>Último cambio</th><th /></tr></thead>
+            <tbody>
+              {lista.data.map((r) => (
+                <tr key={r.id}>
+                  <td><a href={`#/urbanizaciones/${r.id}`}>{r.nombre}</a></td>
+                  <td>{r.propietario || "—"}</td>
+                  <td>{r.lotes}</td>
+                  <td>{fecha(r.actualizado)}</td>
+                  <td className="derecha">
+                    <button className="discreto" onClick={() => {
+                      if (window.confirm(`¿Borrar "${r.nombre}"? No se puede deshacer.`)) borrar.mutate(r.id);
+                    }}>Borrar</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+    </section>
   );
 }
 

@@ -85,3 +85,8 @@ filas:
   - {clave: va_por_toma, valor: 180, unidad: VA, nota: Práctica habitual (NEC 220.14) - carga por salida de tomacorriente general.}
   - {clave: factor_demanda_tomas, valor: 0.5, nota: 'Propuesta - factor de demanda de tomacorrientes de oficinas y locales sobre los primeros 10 kVA.'}
   - {clave: bajadas_recorrido_m, valor: 4, unidad: m, nota: 'Supuesto - bajada y subida de la bandeja o tubería que se suma al recorrido medido en el plano de la nave.'}
+  - {clave: separacion_luminarias_ap_m, valor: 30, unidad: m, nota: Propuesta - separación de luminarias de alumbrado público en vías locales; confirmar con la norma de AP de CNEL.}
+  - {clave: potencia_luminaria_ap_w, valor: 60, unidad: W, nota: Propuesta - luminaria LED de alumbrado público para vía local.}
+  - {clave: kva_max_transformador_urbanizacion_1f, valor: 50, unidad: kVA, nota: Propuesta - mayor transformador monofásico por sector en urbanizaciones; confirmar con CNEL.}
+  - {clave: kva_max_transformador_urbanizacion_3f, valor: 112.5, unidad: kVA, nota: Propuesta - mayor transformador trifásico por sector en urbanizaciones; confirmar con CNEL.}
+  - {clave: caida_red_bt_max_pct, valor: 4, unidad: '%', nota: Propuesta - caída de tensión máxima de la red secundaria hasta el último lote; confirmar con la regulación de calidad.}
