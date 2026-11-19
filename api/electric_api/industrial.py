@@ -21,6 +21,7 @@ from electric.industrial import (
 )
 from electric.industrial.coordinacion import Coordinacion, coordinar, grafico
 from electric.industrial.estudios import Estudios, estudiar
+from electric.industrial.plano import generar_implantacion, leer_plano_nave
 from electric.industrial.unifilar import generar_unifilar
 from electric.mt.camara import Camara, disenar_camara, generar_plano_camara
 from electric.mt.sig import ErrorSIG, transformadores_cercanos
@@ -32,7 +33,7 @@ from pydantic import Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from electric_api.db import IndustriaBD, ahora
+from electric_api.db import IndustriaBD, PlanoIndustriaBD, ahora
 from electric_api.esquemas import Esquema, ResultadoOut
 from electric_api.problemas import Problema
 from electric_api.servicio import Perfiles, resultado_a_salida
@@ -71,6 +72,10 @@ class BorradorIndustria(Esquema):
     maquinas: list[Maquina] = Field(default=[], max_length=2000)
     #: Metros del tablero principal a cada tablero de distribución.
     distancias_m: dict[str, Decimal] = {}
+    #: Longitud del circuito de cada máquina, leída del plano de la nave.
+    longitudes_maquina_m: dict[str, Decimal] = {}
+    #: Nombre del plano DXF de la nave, si se cargó.
+    plano: str | None = None
     #: Potencia de cortocircuito de la red de CNEL; si falta, la del perfil.
     scc_red_mva: Decimal | None = Field(default=None, gt=0)
     #: Resistividad medida del suelo, para la malla de una cámara de transformación.
@@ -541,6 +546,9 @@ def guardar_industria(
 
 @rutas.delete("/industrias/{id}", status_code=204)
 def borrar_industria(id: str, sesion: SesionDep) -> Response:
+    plano = sesion.get(PlanoIndustriaBD, id)
+    if plano is not None:
+        sesion.delete(plano)
     sesion.delete(_buscar(sesion, id))
     sesion.commit()
     return Response(status_code=204)
@@ -584,6 +592,11 @@ def _estudiar(
             ubicacion=datos.ubicacion,
             existente=datos.existente,
             distancias_m=datos.distancias_m,
+            longitudes_maquina_m={
+                k: v
+                for k, v in datos.longitudes_maquina_m.items()
+                if any(m.id == k for m in datos.maquinas)
+            },
             scc_red_mva=datos.scc_red_mva,
         )
         analisis = analizar(industria, perfil)
@@ -710,6 +723,109 @@ def transformadores_del_geoportal(
             )
         )
     return Cercanos(transformadores=salida, avisos=avisos)
+
+
+class LecturaPlanoOut(Esquema):
+    unidad: str
+    distancias_m: dict[str, float]
+    longitudes_m: dict[str, float]
+    faltan: list[str]
+    avisos: list[str]
+
+
+class PlanoCargado(Esquema):
+    industria: IndustriaDetalle
+    lectura: LecturaPlanoOut
+
+
+@rutas.post("/industrias/{id}/plano")
+def subir_plano(
+    id: str,
+    sesion: SesionDep,
+    perfiles: PerfilesDep,
+    contenido: Annotated[bytes, Body(media_type="application/octet-stream")],
+    revision: Annotated[int, Query()],
+    nombre: Annotated[str, Query(max_length=200)] = "nave.dxf",
+    escala: Annotated[float | None, Query(gt=0, description="metros por unidad de dibujo")] = None,
+) -> PlanoCargado:
+    """Lee del DXF de la nave dónde están los tableros y las máquinas, y guarda los recorridos."""
+    fila = _buscar(sesion, id)
+    _exigir_revision(fila, revision)
+    datos = BorradorIndustria.model_validate_json(fila.datos)
+    if not datos.maquinas:
+        raise Problema(
+            422, "sin_cuadro", "Primero cargue el cuadro de cargas",
+            "Los códigos de tableros y máquinas del plano se buscan en el cuadro de cargas.",
+        )  # fmt: skip
+    perfil = _perfil(perfiles, datos.perfil)
+    try:
+        lectura = leer_plano_nave(contenido, datos.maquinas, perfil, escala)
+    except ErrorElectric as error:
+        raise Problema(422, error.codigo, "No se pudo leer el plano de la nave", str(error)) from (
+            error
+        )
+    if not lectura.distancias_m and not lectura.longitudes_m:
+        raise Problema(
+            422, "plano_sin_codigos", "El plano no tiene los códigos del cuadro",
+            "Marque cada tablero (TP, TD-1…) y cada máquina con su código, como texto o bloque.",
+        )  # fmt: skip
+    plano = sesion.get(PlanoIndustriaBD, id)
+    if plano is None:
+        plano = PlanoIndustriaBD(industria_id=id, nombre=nombre, contenido=contenido)
+        sesion.add(plano)
+    plano.nombre, plano.contenido = nombre, contenido
+    plano.escala = "" if escala is None else str(escala)
+    nuevos = datos.model_copy(
+        update={
+            "distancias_m": {**datos.distancias_m, **lectura.distancias_m},
+            "longitudes_maquina_m": dict(lectura.longitudes_m),
+            "plano": nombre,
+        }
+    )
+    detalle = _guardar(sesion, fila, nuevos)
+    return PlanoCargado(
+        industria=detalle,
+        lectura=LecturaPlanoOut(
+            unidad=lectura.unidad,
+            distancias_m={k: _f(v) for k, v in lectura.distancias_m.items()},
+            longitudes_m={k: _f(v) for k, v in lectura.longitudes_m.items()},
+            faltan=list(lectura.faltan),
+            avisos=list(lectura.avisos),
+        ),
+    )
+
+
+@rutas.get(
+    "/industrias/{id}/implantacion.{formato}",
+    response_class=Response,
+    responses={200: {"content": {"application/dxf": {}, "image/png": {}, "application/pdf": {}}}},
+)
+def descargar_implantacion(
+    id: str, formato: Literal["dxf", "png", "pdf"], sesion: SesionDep, perfiles: PerfilesDep
+) -> Response:
+    fila = _buscar(sesion, id)
+    plano = sesion.get(PlanoIndustriaBD, id)
+    if plano is None:
+        raise Problema(404, "sin_plano", "Esta industria no tiene plano de la nave")
+    datos = BorradorIndustria.model_validate_json(fila.datos)
+    perfil = _perfil(perfiles, datos.perfil)
+    escala = float(plano.escala) if plano.escala else None
+    try:
+        lectura = leer_plano_nave(plano.contenido, datos.maquinas, perfil, escala)
+    except ErrorElectric as error:
+        raise Problema(422, error.codigo, "No se pudo leer el plano de la nave", str(error)) from (
+            error
+        )
+    resultado = _estudiar(datos, perfil)
+    estudios = None if isinstance(resultado, str) else resultado[1]
+    dxf = generar_implantacion(plano.contenido, lectura, datos.maquinas, estudios)
+    contenido = dxf if formato == "dxf" else renderizar(dxf, formato)
+    disposicion = "attachment" if formato == "dxf" else "inline"
+    return Response(
+        contenido,
+        media_type=TIPOS[formato],
+        headers={"Content-Disposition": f'{disposicion}; filename="implantacion.{formato}"'},
+    )
 
 
 def camara_a_salida(camara: Camara) -> CamaraOut:

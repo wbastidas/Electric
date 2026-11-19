@@ -97,6 +97,7 @@ export function Industria({ id, pestana }: { id: string; pestana?: string }) {
       alerta: noSelectivos + fallasTrafo > 0,
     },
     { id: "unifilar", titulo: "Unifilar" },
+    ...(datos.plano ? [{ id: "implantacion", titulo: "Implantación" }] : []),
     ...(listo?.camara ? [{ id: "camara", titulo: "Cámara MT", marca: listo.camara.cumple ? null : "✗", alerta: !listo.camara.cumple }] : []),
   ];
   const activa = elegirPestana(pestana ?? (datos.maquinas.length ? "decision" : "cuadro"), pestanas);
@@ -219,6 +220,32 @@ export function Industria({ id, pestana }: { id: string; pestana?: string }) {
         {listo ? <TablaMaquinas analisis={listo} /> : null}
       </section>
       ) : null}
+      {activa === "cuadro" && datos.maquinas.length ? (
+        <PlanoNave
+          id={id}
+          revision={revision}
+          plano={datos.plano ?? null}
+          cambios={cambios}
+          alCargar={(d) => {
+            setCambios(false);
+            alGuardar(d);
+          }}
+        />
+      ) : null}
+      {activa === "implantacion" && datos.plano ? (
+        <section className="tarjeta">
+          <h2>Implantación de la nave</h2>
+          <p className="tenue">
+            Plano {datos.plano} con los recorridos de alimentadores (rojo) y circuitos de máquinas (verde) en la capa
+            E-ALIM-RECORRIDO, con conductor y longitud.
+          </p>
+          <div className="acciones izquierda">
+            <a className="boton" href={api.urlImplantacion(id, "dxf", revision)}>Descargar DXF</a>
+            <a className="boton" href={api.urlImplantacion(id, "pdf", revision)} target="_blank" rel="noreferrer">Abrir PDF</a>
+          </div>
+          <img className="unifilar" src={api.urlImplantacion(id, "png", revision)} alt="Implantación de la nave" />
+        </section>
+      ) : null}
 
       {analisis.isError ? <MensajeError error={analisis.error} /> : null}
       {analisis.data?.estado === "incompleto" && activa !== "datos" ? (
@@ -244,6 +271,73 @@ export function Industria({ id, pestana }: { id: string; pestana?: string }) {
       ) : null}
       {seleccion ? <Detalle resultado={seleccion} cerrar={() => setSeleccion(null)} /> : null}
     </div>
+  );
+}
+
+/** DXF de la nave: tableros y máquinas marcados con su código del cuadro. */
+function PlanoNave({
+  id,
+  revision,
+  plano,
+  cambios,
+  alCargar,
+}: {
+  id: string;
+  revision: number;
+  plano: string | null;
+  cambios: boolean;
+  alCargar: (d: { revision: number; datos: BorradorIndustria }) => void;
+}) {
+  const [escala, setEscala] = useState("");
+  const subir = useMutation({
+    mutationFn: (archivo: File) => api.subirPlanoNave(id, revision, archivo, escala ? Number(escala) : null),
+    onSuccess: (r) => alCargar(r.industria),
+  });
+  const lectura = subir.data?.lectura;
+  return (
+    <section className="tarjeta">
+      <h2>Plano de la nave (DXF)</h2>
+      <p className="tenue">
+        Marque en el plano cada tablero (TP, TD-1…) y cada máquina con el mismo código del cuadro, como texto o bloque. Las
+        distancias se miden en ángulo recto más las bajadas, y reemplazan las supuestas.
+      </p>
+      <div className="acciones izquierda">
+        <label className="boton primario">
+          {subir.isPending ? "Leyendo…" : plano ? "Reemplazar el plano" : "Cargar el plano DXF"}
+          <input
+            type="file"
+            accept=".dxf"
+            hidden
+            onChange={(e) => {
+              const archivo = e.target.files?.[0];
+              e.target.value = "";
+              if (!archivo) return;
+              if (cambios && !window.confirm("Hay cambios sin guardar; el plano se carga sobre la última versión guardada. ¿Continuar?"))
+                return;
+              subir.mutate(archivo);
+            }}
+          />
+        </label>
+        <Campo etiqueta="Metros por unidad" ayuda="Solo si el DXF no declara unidades (0,001 si está en mm).">
+          <input inputMode="decimal" value={escala} placeholder="automático" onChange={(e) => setEscala(e.target.value)} />
+        </Campo>
+        {plano ? <span className="tenue">Cargado: {plano}</span> : null}
+      </div>
+      {subir.isError ? <MensajeError error={subir.error} /> : null}
+      {lectura ? (
+        <>
+          <p>
+            Unidades del plano: {lectura.unidad}. Alimentadores:{" "}
+            {Object.entries(lectura.distancias_m).map(([t, m]) => `${t} ${num(m, 0)} m`).join(" · ") || "—"}. Circuitos de{" "}
+            {Object.keys(lectura.longitudes_m).length} máquinas.
+          </p>
+          {lectura.faltan.length ? (
+            <Aviso tipo="alerta">No se encontraron en el plano: {lectura.faltan.join(", ")}. Para ellos se usan las distancias supuestas.</Aviso>
+          ) : null}
+          {lectura.avisos.length ? <Aviso tipo="nota">{lectura.avisos.join(" ")}</Aviso> : null}
+        </>
+      ) : null}
+    </section>
   );
 }
 

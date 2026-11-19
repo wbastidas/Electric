@@ -1,0 +1,9 @@
+Código,Descripción,Tipo,Potencia,Tablero
+M-1,Compresor de tornillo,motor,30,TD-1
+M-2,Torno CNC,motor,15,TD-1
+M-3,Fresadora,motor,11,TD-1
+M-4,Prensa hidráulica,motor,22,TD-2
+M-5,Puente grúa,motor,15,TD-2
+S-1,Soldadora,soldadora,12,TD-2
+H-1,Horno de secado,resistiva,25,TD-3
+IL-1,Iluminación de la nave,iluminacion,6,TD-3

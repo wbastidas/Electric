@@ -412,6 +412,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/industrias/{id}/plano": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Subir Plano
+         * @description Lee del DXF de la nave dónde están los tableros y las máquinas, y guarda los recorridos.
+         */
+        post: operations["subir_plano_api_v1_industrias__id__plano_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/industrias/{id}/implantacion.{formato}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Descargar Implantacion */
+        get: operations["descargar_implantacion_api_v1_industrias__id__implantacion__formato__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/industrias/{id}/unifilar.{formato}": {
         parameters: {
             query?: never;
@@ -1210,6 +1247,15 @@ export interface components {
             distancias_m: {
                 [key: string]: number | string;
             };
+            /**
+             * Longitudes Maquina M
+             * @default {}
+             */
+            longitudes_maquina_m: {
+                [key: string]: number | string;
+            };
+            /** Plano */
+            plano?: string | null;
             /** Scc Red Mva */
             scc_red_mva?: number | string | null;
             /** Resistividad Ohm M */
@@ -2185,6 +2231,23 @@ export interface components {
              */
             fijo: boolean;
         };
+        /** LecturaPlanoOut */
+        LecturaPlanoOut: {
+            /** Unidad */
+            unidad: string;
+            /** Distancias M */
+            distancias_m: {
+                [key: string]: number;
+            };
+            /** Longitudes M */
+            longitudes_m: {
+                [key: string]: number;
+            };
+            /** Faltan */
+            faltan: string[];
+            /** Avisos */
+            avisos: string[];
+        };
         /**
          * Liberar
          * @description Quita la fijación: el próximo diseño automático puede volver a ubicarlo.
@@ -2493,6 +2556,11 @@ export interface components {
              * @default []
              */
             banderas: string[];
+        };
+        /** PlanoCargado */
+        PlanoCargado: {
+            industria: components["schemas"]["IndustriaDetalle"];
+            lectura: components["schemas"]["LecturaPlanoOut"];
         };
         /** PlantaRef */
         PlantaRef: {
@@ -4176,6 +4244,80 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Cercanos"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    subir_plano_api_v1_industrias__id__plano_post: {
+        parameters: {
+            query: {
+                revision: number;
+                nombre?: string;
+                /** @description metros por unidad de dibujo */
+                escala?: number | null;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanoCargado"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descargar_implantacion_api_v1_industrias__id__implantacion__formato__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                formato: "dxf" | "png" | "pdf";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/dxf": unknown;
+                    "image/png": unknown;
+                    "application/pdf": unknown;
                 };
             };
             /** @description Validation Error */

@@ -293,13 +293,20 @@ def _alimentadores(e: _Estudio) -> list[Alimentador]:
 def _circuitos(e: _Estudio) -> list[CircuitoMaquina]:
     salida = []
     rastro = Rastro()
-    longitud = e.p("longitud_circuito_maquina_m", rastro)
-    rastro.supuesto(f"circuitos de máquinas de {longitud} m desde su tablero")
+    defecto = e.p("longitud_circuito_maquina_m", rastro)
+    propias = e.analisis.industria.longitudes_maquina_m
+    sin_plano = [f.maquina.id for f in e.analisis.filas if f.maquina.id not in propias]
+    if sin_plano:
+        rastro.supuesto(
+            f"circuitos de {defecto} m desde su tablero para {', '.join(sin_plano[:6])}"
+            + ("…" if len(sin_plano) > 6 else "")
+        )
     rastro.supuesto("breaker de motor de al menos un tercio de su corriente de arranque")
     limite = e.p("caida_ramal_max_pct", rastro)
     factor = e.p("factor_diseno_conductor", rastro)
     factor_motor = e.p("factor_breaker_motor", rastro)
     for fila in e.analisis.filas:
+        longitud = propias.get(fila.maquina.id, defecto)
         corriente = fila.corriente_a
         trifasica = fila.maquina.fases == 3
         if fila.maquina.tipo == "motor":

@@ -157,6 +157,19 @@ class IndustriaBD(Base):
     actualizado: Mapped[str] = mapped_column(String(32))
 
 
+class PlanoIndustriaBD(Base):
+    """DXF de la nave de una industria, para la implantación."""
+
+    __tablename__ = "planos_industria"
+
+    industria_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("industrias.id", ondelete="CASCADE"), primary_key=True
+    )
+    nombre: Mapped[str] = mapped_column(String(200))
+    contenido: Mapped[bytes] = mapped_column(LargeBinary)
+    escala: Mapped[str] = mapped_column(String(32), default="")
+
+
 def crear_motor(url: str) -> Engine:
     if url.startswith("sqlite"):
         opciones: dict[str, object] = {"connect_args": {"check_same_thread": False}}

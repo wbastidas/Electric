@@ -84,3 +84,4 @@ filas:
   - {clave: tomas_por_puesto, valor: 2, nota: Propuesta - tomacorrientes por puesto de trabajo.}
   - {clave: va_por_toma, valor: 180, unidad: VA, nota: Práctica habitual (NEC 220.14) - carga por salida de tomacorriente general.}
   - {clave: factor_demanda_tomas, valor: 0.5, nota: 'Propuesta - factor de demanda de tomacorrientes de oficinas y locales sobre los primeros 10 kVA.'}
+  - {clave: bajadas_recorrido_m, valor: 4, unidad: m, nota: 'Supuesto - bajada y subida de la bandeja o tubería que se suma al recorrido medido en el plano de la nave.'}

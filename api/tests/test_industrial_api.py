@@ -197,3 +197,37 @@ def test_transformadores_del_geoportal(
 
     monkeypatch.setattr(sig, "leer_url", caido)
     assert cliente.get(f"{BASE}/industrias/{id}/geoportal").status_code == 502
+
+
+def test_plano_de_la_nave(cliente: TestClient) -> None:
+    ejemplo = RAIZ / "ejemplos" / "nave-industrial"
+    industria = cliente.post(f"{BASE}/industrias", json={"nombre": "Nave"}).json()
+    id = industria["id"]
+    sin_cuadro = cliente.post(
+        f"{BASE}/industrias/{id}/plano?revision=1",
+        content=(ejemplo / "nave.dxf").read_bytes(),
+        headers={"Content-Type": "application/octet-stream"},
+    )
+    assert sin_cuadro.status_code == 422
+    con_cuadro = cliente.post(
+        f"{BASE}/industrias/{id}/cuadro?revision=1&nombre=cuadro.csv",
+        content=(ejemplo / "cuadro.csv").read_bytes(),
+        headers={"Content-Type": "application/octet-stream"},
+    )
+    assert con_cuadro.status_code == 200, con_cuadro.text
+    r = cliente.post(
+        f"{BASE}/industrias/{id}/plano?revision=2&nombre=nave.dxf",
+        content=(ejemplo / "nave.dxf").read_bytes(),
+        headers={"Content-Type": "application/octet-stream"},
+    )
+    assert r.status_code == 200, r.text
+    cargado = r.json()
+    assert cargado["lectura"]["faltan"] == []
+    assert set(cargado["industria"]["datos"]["distancias_m"]) == {"TD-1", "TD-2", "TD-3"}
+    analisis = cliente.get(f"{BASE}/industrias/{id}/analisis").json()
+    assert analisis["estado"] == "listo"
+    dxf = cliente.get(f"{BASE}/industrias/{id}/implantacion.dxf")
+    assert dxf.status_code == 200 and b"E-ALIM-RECORRIDO" in dxf.content
+    png = cliente.get(f"{BASE}/industrias/{id}/implantacion.png")
+    assert png.content[:4] == b"\x89PNG"
+    assert cliente.delete(f"{BASE}/industrias/{id}").status_code == 204

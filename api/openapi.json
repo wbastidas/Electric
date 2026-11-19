@@ -1219,6 +1219,154 @@
         }
       }
     },
+    "/api/v1/industrias/{id}/plano": {
+      "post": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Subir Plano",
+        "description": "Lee del DXF de la nave dónde están los tableros y las máquinas, y guarda los recorridos.",
+        "operationId": "subir_plano_api_v1_industrias__id__plano_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "revision",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Revision"
+            }
+          },
+          {
+            "name": "nombre",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "default": "nave.dxf",
+              "title": "Nombre"
+            }
+          },
+          {
+            "name": "escala",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "metros por unidad de dibujo",
+              "title": "Escala"
+            },
+            "description": "metros por unidad de dibujo"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "contentMediaType": "application/octet-stream",
+                "title": "Contenido"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanoCargado"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/industrias/{id}/implantacion.{formato}": {
+      "get": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Descargar Implantacion",
+        "operationId": "descargar_implantacion_api_v1_industrias__id__implantacion__formato__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "formato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "dxf",
+                "png",
+                "pdf"
+              ],
+              "type": "string",
+              "title": "Formato"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/dxf": {},
+              "image/png": {},
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/industrias/{id}/unifilar.{formato}": {
       "get": {
         "tags": [
@@ -3561,6 +3709,32 @@
             "type": "object",
             "title": "Distancias M",
             "default": {}
+          },
+          "longitudes_maquina_m": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Longitudes Maquina M",
+            "default": {}
+          },
+          "plano": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plano"
           },
           "scc_red_mva": {
             "anyOf": [
@@ -6076,6 +6250,52 @@
         ],
         "title": "Interruptor"
       },
+      "LecturaPlanoOut": {
+        "properties": {
+          "unidad": {
+            "type": "string",
+            "title": "Unidad"
+          },
+          "distancias_m": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Distancias M"
+          },
+          "longitudes_m": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Longitudes M"
+          },
+          "faltan": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Faltan"
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "unidad",
+          "distancias_m",
+          "longitudes_m",
+          "faltan",
+          "avisos"
+        ],
+        "title": "LecturaPlanoOut"
+      },
       "Liberar": {
         "properties": {
           "op": {
@@ -6916,6 +7136,23 @@
           "ambientes"
         ],
         "title": "Plano"
+      },
+      "PlanoCargado": {
+        "properties": {
+          "industria": {
+            "$ref": "#/components/schemas/IndustriaDetalle"
+          },
+          "lectura": {
+            "$ref": "#/components/schemas/LecturaPlanoOut"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "industria",
+          "lectura"
+        ],
+        "title": "PlanoCargado"
       },
       "PlantaRef": {
         "properties": {

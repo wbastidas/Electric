@@ -39,6 +39,7 @@ export type IndustriaResumen = S["IndustriaResumen"];
 export type AnalisisIndustrial = S["AnalisisOut"];
 export type OpcionesIndustriales = S["OpcionesIndustriales"];
 export type Cercanos = S["Cercanos"];
+export type PlanoCargado = S["PlanoCargado"];
 export type BorradorEdificio = S["BorradorEdificio"];
 export type EdificioDetalle = S["EdificioDetalle"];
 export type EdificioResumen = S["EdificioResumen"];
@@ -202,6 +203,17 @@ export const api = {
       { method: "POST", body: archivo, headers: { "Content-Type": "application/octet-stream" } },
     ),
   analisisIndustria: (id: string) => pedir<AnalisisIndustrial>(`/industrias/${id}/analisis`),
+  subirPlanoNave: (id: string, revision: number, archivo: File, escala: number | null) =>
+    pedir<PlanoCargado>(
+      `/industrias/${id}/plano?${new URLSearchParams({
+        revision: String(revision),
+        nombre: archivo.name,
+        ...(escala ? { escala: String(escala) } : {}),
+      })}`,
+      { method: "POST", body: archivo, headers: { "Content-Type": "application/octet-stream" } },
+    ),
+  urlImplantacion: (id: string, formato: "dxf" | "png" | "pdf", revision: number) =>
+    `/api/v1/industrias/${id}/implantacion.${formato}?r=${revision}`,
   cercanosIndustria: (id: string, radio: number) =>
     pedir<Cercanos>(`/industrias/${id}/geoportal?${new URLSearchParams({ radio: String(radio) })}`),
   opcionesIndustriales: () => pedir<OpcionesIndustriales>("/industrial/opciones"),
