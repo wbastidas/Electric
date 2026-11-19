@@ -6,10 +6,10 @@ perfil, para poder corregirlos sin cambiar el código. Se piden en WGS84
 punto del proyecto.
 
 El servicio es un MapServer: si una capa no tiene URL, se busca por su nombre
-en la lista de capas del servicio, y cada campo se busca entre sus nombres
-posibles (también por alias). El cliente sigue el formato estándar de ArcGIS
-REST, pero no se ha probado contra el geoportal real: desde el entorno de
-desarrollo no se tiene acceso a él.
+en la lista de capas del servicio (una o todas las que coincidan, p. ej. tramos
+aéreos y subterráneos), y cada campo se busca entre sus nombres posibles
+(también por alias). Los campos con dominio codificado (fases 7 → «ABC»,
+voltaje 13800 → «13.8 kV») se traducen con los dominios que publica cada capa.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
@@ -147,6 +147,7 @@ def _elementos(
                     fases=_texto(_campo(atr, capa, "fases")),
                     clientes=int(clientes) if clientes is not None else None,
                     alimentador=alimentador,
+                    cargabilidad_pct=_decimal(_campo(atr, capa, "cargabilidad")),
                 )
             )
         else:
@@ -207,7 +208,17 @@ def leer_geojson(datos: bytes, perfil: Perfil) -> tuple[RedExistente, list[str]]
             "tramos_mt" if geo.get("type") in ("LineString", "MultiLineString") else "postes"
         )
         por_capa.setdefault(capa, []).append((atr, geo))
-    return _armar(perfil, por_capa, "archivo GeoJSON")
+    # Cada campo se busca entre sus nombres posibles, como en el geoportal.
+    capas = []
+    for fila in perfil.capas_sig():
+        presentes = [{"name": k} for k in {k for a, _ in por_capa.get(fila.capa, []) for k in a}]
+        hallados = _resolver_campos(fila, presentes)
+        capas.append(
+            fila.model_copy(
+                update={"campos": {d: c or fila.campos[d] for d, c in hallados.items()}}
+            )
+        )
+    return _armar(perfil, por_capa, "archivo GeoJSON", capas)
 
 
 def url_consulta(capa: FilaCapaSIG, lat: Decimal, lon: Decimal, radio_m: int) -> str:
@@ -275,6 +286,8 @@ class CapaResuelta:
     campos: dict[str, str | None]
     #: Campos que tiene la capa en el servicio.
     disponibles: tuple[str, ...]
+    #: Dominios codificados: campo → {código: nombre}.
+    dominios: dict[str, dict[str, str]] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -296,20 +309,33 @@ def _coincide(palabra: str, nombre: str) -> bool:
     return any(p.startswith(objetivo) for p in texto.split(" "))
 
 
-def _elegir_capa(
+def _elegir_capas(
     capa: FilaCapaSIG, capas: list[tuple[int, str]], usadas: set[int]
-) -> tuple[int, str] | None:
-    libres = [(i, n) for i, n in capas if i not in usadas]
-    if capa.capa == "tramos_mt":
-        # Lo de baja tensión no sirve como red de media tensión.
-        libres = [
-            (i, n) for i, n in libres if not any(_coincide(x, n) for x in ("bt", "baja tension"))
-        ]
+) -> list[tuple[int, str]]:
+    """Capas del servicio para un dato: la primera que coincide, o todas si `todas`."""
+    libres = [
+        (i, n)
+        for i, n in capas
+        if i not in usadas and not any(_coincide(x, n) for x in capa.excluir)
+    ]
+    if capa.todas:
+        return [(i, n) for i, n in libres if any(_coincide(p, n) for p in capa.palabras)]
     for palabra in capa.palabras:
         candidatas = [(i, n) for i, n in libres if _coincide(palabra, n)]
         if candidatas:
-            return candidatas[0]
-    return None
+            return candidatas[:1]
+    return []
+
+
+def _dominios(campos_capa: list[dict[str, Any]]) -> dict[str, dict[str, str]]:
+    salida: dict[str, dict[str, str]] = {}
+    for c in campos_capa:
+        valores = (c.get("domain") or {}).get("codedValues") or []
+        if valores:
+            salida[str(c.get("name"))] = {
+                str(v.get("code")): str(v.get("name")) for v in valores if "code" in v
+            }
+    return salida
 
 
 def _resolver_campos(capa: FilaCapaSIG, campos_capa: list[dict[str, Any]]) -> dict[str, str | None]:
@@ -327,8 +353,13 @@ def _resolver_campos(capa: FilaCapaSIG, campos_capa: list[dict[str, Any]]) -> di
     return salida
 
 
-def descubrir(perfil: Perfil, leer: Lector | None = None) -> Descubrimiento:
-    """Qué capa del servicio corresponde a cada dato y con qué campos."""
+def descubrir(
+    perfil: Perfil, leer: Lector | None = None, solo: set[str] | None = None
+) -> Descubrimiento:
+    """Qué capa del servicio corresponde a cada dato y con qué campos.
+
+    `solo` limita el reconocimiento a esos datos (p. ej. {"transformadores"}).
+    """
     leer = leer or leer_url
     servicio = perfil.servicio_sig()
     avisos: list[str] = []
@@ -346,39 +377,47 @@ def descubrir(perfil: Perfil, leer: Lector | None = None) -> Descubrimiento:
                 usadas.add(int(final))
     resueltas: list[CapaResuelta] = []
     for capa in perfil.capas_sig():
-        url = capa.url
-        nombre = None
-        if url is None and servicio:
-            elegida = _elegir_capa(capa, capas_servicio, usadas)
-            if elegida is not None:
-                usadas.add(elegida[0])
-                url = f"{servicio.rstrip('/')}/{elegida[0]}"
-                nombre = elegida[1]
-        if url is None:
+        if solo is not None and capa.capa not in solo:
+            continue
+        destinos: list[tuple[str, str | None]] = []
+        if capa.url:
+            destinos = [(capa.url, None)]
+        elif servicio:
+            for i, n in _elegir_capas(capa, capas_servicio, usadas):
+                usadas.add(i)
+                destinos.append((f"{servicio.rstrip('/')}/{i}", n))
+        if not destinos:
             avisos.append(
                 f"No se encontró en el servicio la capa de {capa.capa.replace('_', ' ')}."
             )
             resueltas.append(CapaResuelta(capa.capa, None, None, {}, ()))
             continue
-        info = _json(leer(f"{url.rstrip('/')}?f=json"))
-        nombre = nombre or str(info.get("name", "")) or None
-        campos_capa = list(info.get("fields") or [])
-        resueltos = _resolver_campos(capa, campos_capa)
-        faltan = [d for d, c in resueltos.items() if c is None]
-        if faltan:
-            avisos.append(
-                f"Capa «{nombre}»: no se encontraron los campos de {', '.join(faltan)}; "
-                "agréguelos en la tabla sig del perfil."
+        for url, nombre in destinos:
+            info = _json(leer(f"{url.rstrip('/')}?f=json"))
+            nombre = nombre or str(info.get("name", "")) or None
+            campos_capa = list(info.get("fields") or [])
+            resueltos = _resolver_campos(capa, campos_capa)
+            faltan = [
+                d
+                for d, c in resueltos.items()
+                # En protecciones, el tipo de equipo sale del nombre de la capa.
+                if c is None and not (capa.capa == "protecciones" and d == "tipo")
+            ]
+            if faltan:
+                avisos.append(
+                    f"Capa «{nombre}»: no se encontraron los campos de {', '.join(faltan)}; "
+                    "agréguelos en la tabla sig del perfil."
+                )
+            resueltas.append(
+                CapaResuelta(
+                    capa=capa.capa,
+                    url=url,
+                    nombre=nombre,
+                    campos=resueltos,
+                    disponibles=tuple(str(c.get("name")) for c in campos_capa),
+                    dominios=_dominios(campos_capa),
+                )
             )
-        resueltas.append(
-            CapaResuelta(
-                capa=capa.capa,
-                url=url,
-                nombre=nombre,
-                campos=resueltos,
-                disponibles=tuple(str(c.get("name")) for c in campos_capa),
-            )
-        )
     return Descubrimiento(
         servicio=servicio,
         capas=tuple(resueltas),
@@ -393,28 +432,100 @@ def consultar_geoportal(
     lon: Decimal,
     radio_m: int = 300,
     leer: Lector | None = None,
+    solo: set[str] | None = None,
 ) -> tuple[RedExistente, list[str]]:
     """Red existente alrededor de un punto, consultando cada capa reconocida del geoportal."""
     if not perfil.servicio_sig() and not any(c.url for c in perfil.capas_sig()):
         raise ErrorSIG("falta la URL del servicio del geoportal en la tabla sig del perfil")
     leer = leer or leer_url
-    hallazgo = descubrir(perfil, leer)
+    hallazgo = descubrir(perfil, leer, solo)
     avisos = list(hallazgo.avisos)
     por_capa: dict[str, list[tuple[dict[str, Any], dict[str, Any]]]] = {}
     configuradas: dict[str, FilaCapaSIG] = {c.capa: c for c in perfil.capas_sig()}
-    resueltas: list[FilaCapaSIG] = []
+    resueltas: dict[str, FilaCapaSIG] = {}
     for capa in hallazgo.capas:
         if capa.url is None:
             continue
-        fila = configuradas[capa.capa].model_copy(
-            update={
-                "url": capa.url,
-                "campos": {d: c for d, c in capa.campos.items() if c is not None},
-            }
+        campos = {d: c for d, c in capa.campos.items() if c is not None}
+        fila = configuradas[capa.capa].model_copy(update={"url": capa.url, "campos": campos})
+        rasgos = leer_featureset(leer(url_consulta(fila, lat, lon, radio_m)))
+        # Todas las capas de un mismo dato se leen con nombres de campo comunes.
+        normales: dict[str, str] = {}
+        for dato in configuradas[capa.capa].campos:
+            normales[dato] = f"__{dato}"
+        for atr, _geo in rasgos:
+            traducidos: dict[str, Any] = {}
+            for dato, campo in campos.items():
+                valor = atr.get(campo)
+                dominio = capa.dominios.get(campo)
+                if dominio is not None and valor is not None:
+                    clave = _texto(valor)
+                    valor = dominio.get(clave or "", valor)
+                traducidos[dato] = valor
+            if capa.capa == "protecciones" and capa.nombre:
+                # El tipo de equipo es el nombre de la capa (Seccionador Fusible, …).
+                propio = _texto(traducidos.get("tipo"))
+                traducidos["tipo"] = capa.nombre if not propio else f"{capa.nombre} ({propio})"
+            for dato in normales:
+                atr[normales[dato]] = traducidos.get(dato)
+        resueltas[capa.capa] = configuradas[capa.capa].model_copy(
+            update={"url": capa.url, "campos": normales}
         )
-        resueltas.append(fila)
-        por_capa[capa.capa] = leer_featureset(leer(url_consulta(fila, lat, lon, radio_m)))
+        por_capa.setdefault(capa.capa, []).extend(rasgos)
     if not resueltas:
         raise ErrorSIG("no se reconoció ninguna capa del geoportal")
-    red, otros = _armar(perfil, por_capa, "geoportal CNEL", resueltas)
+    red, otros = _armar(perfil, por_capa, "geoportal CNEL", list(resueltas.values()))
     return red, avisos + otros
+
+
+# --- Transformador más cercano a una carga ---------------------------------------------
+
+
+@dataclass(frozen=True)
+class TransformadorCercano:
+    transformador: TransformadorSIG
+    distancia_m: Decimal
+    #: Demanda actual según la cargabilidad del SIG (None si el SIG no la tiene).
+    demanda_kva: Decimal | None
+    #: Fases del servicio que puede dar: 1 o 3.
+    fases_servicio: int
+
+
+def fases_servicio(t: TransformadorSIG) -> int:
+    """1 o 3 según las fases conectadas: un banco de dos transformadores (delta abierta)
+    da servicio trifásico."""
+    letras = sum(1 for c in (t.fases or "") if c.upper() in "ABC")
+    if letras >= 3:
+        return 3
+    if letras == 2 and ";" in t.id:
+        return 3
+    return 1
+
+
+def transformadores_cercanos(
+    perfil: Perfil,
+    lat: Decimal,
+    lon: Decimal,
+    radio_m: int = 300,
+    leer: Lector | None = None,
+) -> tuple[list[TransformadorCercano], list[str]]:
+    """Transformadores del geoportal alrededor de un punto, del más cercano al más lejano."""
+    from electric.mt.calculo import proyectar
+
+    red, avisos = consultar_geoportal(perfil, lat, lon, radio_m, leer, {"transformadores"})
+    salida: list[TransformadorCercano] = []
+    for t in red.transformadores:
+        x, y = proyectar(t.lat, t.lon, lat, lon)
+        demanda = None
+        if t.kva is not None and t.cargabilidad_pct is not None and t.cargabilidad_pct > 0:
+            demanda = (t.kva * t.cargabilidad_pct / 100).quantize(Decimal("0.1"))
+        salida.append(
+            TransformadorCercano(
+                transformador=t,
+                distancia_m=Decimal(str(round((x * x + y * y) ** 0.5, 1))),
+                demanda_kva=demanda,
+                fases_servicio=fases_servicio(t),
+            )
+        )
+    salida.sort(key=lambda c: c.distancia_m)
+    return salida, avisos

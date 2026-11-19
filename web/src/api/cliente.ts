@@ -38,6 +38,7 @@ export type IndustriaDetalle = S["IndustriaDetalle"];
 export type IndustriaResumen = S["IndustriaResumen"];
 export type AnalisisIndustrial = S["AnalisisOut"];
 export type OpcionesIndustriales = S["OpcionesIndustriales"];
+export type Cercanos = S["Cercanos"];
 
 /** Lo mínimo para crear un proyecto; el servidor completa el resto. */
 export type BorradorNuevo = Partial<Borrador> & Pick<Borrador, "nombre" | "perfil">;
@@ -184,6 +185,8 @@ export const api = {
       { method: "POST", body: archivo, headers: { "Content-Type": "application/octet-stream" } },
     ),
   analisisIndustria: (id: string) => pedir<AnalisisIndustrial>(`/industrias/${id}/analisis`),
+  cercanosIndustria: (id: string, radio: number) =>
+    pedir<Cercanos>(`/industrias/${id}/geoportal?${new URLSearchParams({ radio: String(radio) })}`),
   opcionesIndustriales: () => pedir<OpcionesIndustriales>("/industrial/opciones"),
   urlPlantillaIndustrial: "/api/v1/industrial/plantilla",
   urlCamara: (id: string, formato: "dxf" | "png" | "pdf", revision: number) =>

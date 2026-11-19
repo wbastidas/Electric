@@ -149,3 +149,51 @@ def test_camara_de_transformacion(cliente: TestClient) -> None:
     )
     assert cliente.get(f"{BASE}/industrias/{pequena}/analisis").json()["camara"] is None
     assert cliente.get(f"{BASE}/industrias/{pequena}/camara.png").status_code == 422
+
+
+def test_transformadores_del_geoportal(
+    cliente: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import json
+
+    from electric.mt import sig
+
+    def leer(url: str) -> str:
+        if url.endswith("MapServer?f=json"):
+            return json.dumps({"layers": [{"id": 9, "name": "Puesto TransfDistribucion"}]})
+        if "/query?" in url:
+            atr = {"TRAFO": "T-1", "POTENCIAKVA": 100.0, "FASECONEXION": 7,
+                   "TOTALCLIENTES": 30, "CARGABILIDAD": 50.0}  # fmt: skip
+            return json.dumps(
+                {"features": [{"attributes": atr, "geometry": {"x": -79.9003, "y": -2.17}}]}
+            )
+        fases = {"codedValues": [{"name": "ABC", "code": 7}]}
+        campos = ["TRAFO", "POTENCIAKVA", "TOTALCLIENTES", "CARGABILIDAD"]
+        return json.dumps(
+            {"name": "Puesto TransfDistribucion",
+             "fields": [{"name": n} for n in campos]
+             + [{"name": "FASECONEXION", "domain": fases}]}
+        )  # fmt: skip
+
+    monkeypatch.setattr(sig, "leer_url", leer)
+    industria = cliente.post(f"{BASE}/industrias", json={"nombre": "Planta"}).json()
+    id = industria["id"]
+    sin = cliente.get(f"{BASE}/industrias/{id}/geoportal")
+    assert sin.status_code == 422 and sin.json()["codigo"] == "falta_ubicacion"
+    datos = {**industria["datos"], "ubicacion": {"lat": -2.17, "lon": -79.9}}
+    guardada = cliente.put(
+        f"{BASE}/industrias/{id}", json={"revision": industria["revision"], "datos": datos}
+    )
+    assert guardada.status_code == 200
+    r = cliente.get(f"{BASE}/industrias/{id}/geoportal").json()
+    t = r["transformadores"][0]
+    assert t["codigo"] == "T-1" and t["fases"] == "ABC" and t["fases_servicio"] == 3
+    assert t["demanda_kva"] == 50.0
+    assert t["existente"]["origen"] == "geoportal" and t["existente"]["fases"] == 3
+    assert 30 < t["distancia_m"] < 37
+
+    def caido(url: str) -> str:
+        raise sig.ErrorSIG("no se pudo conectar con el geoportal: rechazado")
+
+    monkeypatch.setattr(sig, "leer_url", caido)
+    assert cliente.get(f"{BASE}/industrias/{id}/geoportal").status_code == 502

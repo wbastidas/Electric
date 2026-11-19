@@ -301,6 +301,10 @@ class FilaCapaSIG(Dato):
     url: str | None = None
     #: Palabras con que se reconoce la capa por su nombre en el servicio.
     palabras: tuple[str, ...] = ()
+    #: Palabras que descartan una capa (p. ej. «bt» para la red de media tensión).
+    excluir: tuple[str, ...] = ()
+    #: Si se usan todas las capas que coinciden (tramos aéreos y subterráneos) o solo la primera.
+    todas: bool = False
     #: Campo preferido para cada dato.
     campos: dict[str, str]
     #: Otros nombres posibles de cada campo, en orden de preferencia.

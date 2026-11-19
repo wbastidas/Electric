@@ -182,10 +182,6 @@ export function Industria({ id, pestana }: { id: string; pestana?: string }) {
               </a>
             </p>
           ) : null}
-          <p className="tenue">
-            La búsqueda automática del transformador más cercano en el geoportal de CNEL está pendiente; por ahora
-            ingrese sus datos en «Transformador existente».
-          </p>
         </section>
 
         <ExistenteForm
@@ -195,6 +191,15 @@ export function Industria({ id, pestana }: { id: string; pestana?: string }) {
           cambiar={cambiarExistente}
         />
       </div>
+      ) : null}
+      {activa === "datos" ? (
+        <BuscarGeoportal
+          id={id}
+          ubicada={industria.data?.datos.ubicacion != null}
+          cambios={cambios}
+          elegido={existente?.origen === "geoportal" ? existente.codigo ?? null : null}
+          usar={(t) => cambiar({ existente: t })}
+        />
       ) : null}
 
       {activa === "cuadro" ? (
@@ -237,6 +242,105 @@ export function Industria({ id, pestana }: { id: string; pestana?: string }) {
       ) : null}
       {seleccion ? <Detalle resultado={seleccion} cerrar={() => setSeleccion(null)} /> : null}
     </div>
+  );
+}
+
+/** Transformadores de CNEL alrededor de la industria, leídos del geoportal. */
+function BuscarGeoportal({
+  id,
+  ubicada,
+  cambios,
+  elegido,
+  usar,
+}: {
+  id: string;
+  ubicada: boolean;
+  cambios: boolean;
+  elegido: string | null;
+  usar: (t: Existente) => void;
+}) {
+  const [radio, setRadio] = useState(300);
+  const [todos, setTodos] = useState(false);
+  const buscar = useMutation({ mutationFn: () => api.cercanosIndustria(id, radio) });
+  const completa = buscar.data?.transformadores ?? [];
+  const lista = todos ? completa : completa.slice(0, 10);
+  const listo = ubicada;
+  return (
+    <section className="tarjeta geoportal-cercanos">
+      <h2>Transformadores de CNEL cercanos (geoportal)</h2>
+      <div className="acciones izquierda">
+        <Campo etiqueta="Radio (m)">
+          <select value={radio} onChange={(e) => setRadio(Number(e.target.value))}>
+            {[100, 200, 300, 500, 1000].map((r) => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
+        </Campo>
+        <button className="primario" disabled={!listo || buscar.isPending} onClick={() => buscar.mutate()}>
+          {buscar.isPending ? "Consultando el geoportal…" : "Buscar en el geoportal"}
+        </button>
+      </div>
+      {!ubicada ? <p className="tenue">Escriba la latitud y longitud y guarde para buscar en el geoportal de CNEL.</p> : null}
+      {ubicada && cambios ? <p className="tenue">La búsqueda usa la última ubicación guardada.</p> : null}
+      {buscar.isError ? <MensajeError error={buscar.error} /> : null}
+      {buscar.data?.avisos.length ? <Aviso tipo="nota">{buscar.data.avisos.join(" ")}</Aviso> : null}
+      {buscar.isSuccess && lista.length === 0 ? <p className="tenue">No hay transformadores en ese radio.</p> : null}
+      {lista.length ? (
+        <div className="tabla-ancha">
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th className="num">Distancia (m)</th>
+                <th className="num">kVA</th>
+                <th>Fases</th>
+                <th className="num">Cargabilidad</th>
+                <th className="num">Demanda (kVA)</th>
+                <th className="num">Clientes</th>
+                <th>Alimentador</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {lista.map((t) => (
+                <tr key={`${t.codigo}-${t.lat}`} className={elegido === t.codigo ? "elegida" : undefined}>
+                  <td>{t.codigo}</td>
+                  <td className="num">{num(t.distancia_m)}</td>
+                  <td className="num">{num(t.kva)}</td>
+                  <td>
+                    {t.fases ?? "—"} {t.fases_servicio === 3 ? "(3F)" : "(1F)"}
+                  </td>
+                  <td className={`num ${t.cargabilidad_pct && t.cargabilidad_pct > 100 ? "mal" : ""}`}>
+                    {t.cargabilidad_pct ? `${num(t.cargabilidad_pct)} %` : "—"}
+                  </td>
+                  <td className="num">{num(t.demanda_kva)}</td>
+                  <td className="num">{t.clientes ?? "—"}</td>
+                  <td>{t.alimentador ?? "—"}</td>
+                  <td>
+                    {t.existente ? (
+                      <button onClick={() => usar(t.existente as Existente)}>
+                        {elegido === t.codigo ? "En uso" : "Usar"}
+                      </button>
+                    ) : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+      {completa.length > 10 ? (
+        <button className="enlace" onClick={() => setTodos(!todos)}>
+          {todos ? "Ver solo los 10 más cercanos" : `Ver los ${completa.length} transformadores`}
+        </button>
+      ) : null}
+      {lista.length ? (
+        <p className="tenue">
+          Demanda = potencia × cargabilidad del SIG. Si el SIG no trae cargabilidad, se estima con los clientes
+          (supuestos de estrato C; corríjalos abajo). Revise los datos antes de guardar.
+        </p>
+      ) : null}
+    </section>
   );
 }
 

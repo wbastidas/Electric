@@ -279,3 +279,111 @@ def test_camaras_pequenas_usan_el_limite_de_20_ohm(perfil_cnel: Perfil) -> None:
     from electric.mt.camara import disenar_camara
 
     assert disenar_camara(D(150), perfil_cnel).malla.limite_ohm == 20
+
+
+def _servicio_como_cnel(llamadas: list[str]):  # type: ignore[no-untyped-def]
+    """Forma del servicio REP/CNELEPN revisada el 2026-11-19 (valores inventados)."""
+    base = "https://geoportal.cnelep.gob.ec/arcgis/rest/services/REP/CNELEPN/MapServer"
+    fases = {"domain": {"codedValues": [{"name": "C", "code": 1}, {"name": "ABC", "code": 7},
+                                        {"name": "BC", "code": 3}]}}  # fmt: skip
+    voltaje = {"domain": {"codedValues": [{"name": "13.8 kV", "code": 13800}]}}
+    capas = {
+        "layers": [
+            {"id": 5, "name": "Seccionador Cuchilla"},
+            {"id": 6, "name": "Seccionador Fusible"},
+            {"id": 9, "name": "Puesto TransfDistribucion"},
+            {"id": 11, "name": "Tramo BT Aereo"},
+            {"id": 13, "name": "Tramo MT  Aereo"},
+            {"id": 14, "name": "Tramo MT Subterraneo"},
+            {"id": 15, "name": "Tramo Subtransmisión"},
+            {"id": 18, "name": "Poste"},
+            {"id": 46, "name": "Poste Codigo"},
+        ]
+    }
+    tramo = [{"name": "OBJECTID"}, {"name": "CODIGOCONDUCTORFASE"},
+             {"name": "FASECONEXION", **fases}, {"name": "VOLTAJE", **voltaje}]  # fmt: skip
+    campos = {
+        5: [{"name": "CODIGOPUESTO"}, {"name": "CORRIENTE"}],
+        6: [{"name": "CODIGOADMS"}, {"name": "TIRAFUSIBLE"}],
+        9: [
+            {"name": "TRAFO"},
+            {"name": "POTENCIAKVA"},
+            {"name": "FASECONEXION", **fases},
+            {"name": "TOTALCLIENTES"},
+            {"name": "CARGABILIDAD"},
+        ],  # fmt: skip
+        13: tramo,
+        14: tramo,
+        18: [{"name": "CODIGOELEMENTO"}, {"name": "ESTRUCTURAENPOSTE"}],
+    }
+    linea = {"paths": [[[-79.9, -2.17], [-79.899, -2.17]]]}
+
+    def punto(x: float, **atr: object) -> dict[str, object]:
+        return {"attributes": atr, "geometry": {"x": x, "y": -2.17}}
+
+    rasgos = {
+        5: [punto(-79.9, CODIGOPUESTO="SC1", CORRIENTE=200)],
+        6: [punto(-79.9, CODIGOADMS="SF1", TIRAFUSIBLE="10K")],
+        9: [
+            punto(-79.902, TRAFO="LEJOS", POTENCIAKVA=50.0, FASECONEXION=1,
+                  TOTALCLIENTES=20, CARGABILIDAD=0.0),
+            punto(-79.9003, TRAFO="A; B", POTENCIAKVA=75.0, FASECONEXION=3,
+                  TOTALCLIENTES=40, CARGABILIDAD=80.0),
+        ],
+        13: [{"attributes": {"OBJECTID": 1, "FASECONEXION": 7, "VOLTAJE": 13800},
+              "geometry": linea}],
+        14: [{"attributes": {"OBJECTID": 2, "FASECONEXION": 1, "VOLTAJE": 13800},
+              "geometry": linea}],
+        18: [punto(-79.9, CODIGOELEMENTO="P1", ESTRUCTURAENPOSTE="3ED")],
+    }  # fmt: skip
+
+    def leer(url: str) -> str:
+        llamadas.append(url)
+        if url == f"{base}?f=json":
+            return json.dumps(capas)
+        numero = int(url.split("MapServer/")[1].split("/")[0].split("?")[0])
+        if "/query?" in url:
+            return json.dumps({"features": rasgos[numero]})
+        nombre = next(c["name"] for c in capas["layers"] if c["id"] == numero)
+        return json.dumps({"name": nombre, "fields": campos[numero]})
+
+    return leer
+
+
+def test_capas_como_el_geoportal_de_cnel(perfil_cnel: Perfil) -> None:
+    llamadas: list[str] = []
+    red, avisos = consultar_geoportal(
+        perfil_cnel, D("-2.17"), D("-79.9"), leer=_servicio_como_cnel(llamadas)
+    )
+    # Tramos aéreos y subterráneos, sin BT ni subtransmisión; dominios traducidos.
+    assert sorted((t.id, t.fases, t.tension) for t in red.tramos) == [
+        ("1", "ABC", "13.8 kV"),
+        ("2", "C", "13.8 kV"),
+    ]
+    assert not any("/11/query" in u or "/15/query" in u or "/46/query" in u for u in llamadas)
+    assert {(p.tipo, p.capacidad) for p in red.protecciones} == {
+        ("Seccionador Cuchilla", "200"),
+        ("Seccionador Fusible", "10K"),
+    }
+    assert red.postes[0].estructura == "3ED"
+    t = next(t for t in red.transformadores if t.id == "A; B")
+    assert t.kva == D("75.0") and t.fases == "BC" and t.cargabilidad_pct == D("80.0")
+    assert not any("tipo" in a for a in avisos)
+
+
+def test_transformador_mas_cercano(perfil_cnel: Perfil) -> None:
+    from electric.mt.sig import transformadores_cercanos
+
+    llamadas: list[str] = []
+    cercanos, _ = transformadores_cercanos(
+        perfil_cnel, D("-2.17"), D("-79.9"), 300, leer=_servicio_como_cnel(llamadas)
+    )
+    assert [c.transformador.id for c in cercanos] == ["A; B", "LEJOS"]
+    primero, segundo = cercanos
+    assert D(30) < primero.distancia_m < D(37)
+    # Banco de dos transformadores en BC: servicio trifásico; demanda por cargabilidad.
+    assert primero.fases_servicio == 3 and primero.demanda_kva == D("60.0")
+    # Cargabilidad 0 se toma como dato faltante.
+    assert segundo.fases_servicio == 1 and segundo.demanda_kva is None
+    # Solo se consulta la capa de transformadores.
+    assert all("/9/" in u for u in llamadas if "/query?" in u)

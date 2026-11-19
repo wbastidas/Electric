@@ -95,6 +95,8 @@ class TransformadorSIG(Dato):
     fases: str | None = None
     clientes: int | None = None
     alimentador: str | None = None
+    #: Carga del transformador en % de su potencia, según el SIG de CNEL.
+    cargabilidad_pct: Decimal | None = None
 
 
 class ProteccionSIG(Dato):

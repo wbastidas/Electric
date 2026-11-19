@@ -1,6 +1,6 @@
 id: cnel-ep/sig
 tipo: sig
-version: 0.2.0
+version: 0.3.0
 vigente_desde: 2026-11-19
 fuente:
   norma: Geoportal de CNEL EP (servicios ArcGIS REST)
@@ -8,48 +8,53 @@ fuente:
   url: https://geoportal.cnelep.gob.ec/arcgis/rest/services/REP/CNELEPN/MapServer
 estado: por_verificar
 nota: >-
-  Servicio y capa de transformadores (9) indicados por el usuario. Las demás
-  capas se buscan por nombre en la lista del servicio y los campos por sus
-  nombres posibles; el diagnóstico del geoportal muestra lo que se encontró.
-  Sin probar contra el servicio real: el entorno de desarrollo no tiene acceso.
+  Servicio y capa de transformadores (9) indicados por el usuario. Campos
+  revisados contra el servicio real el 2026-11-19 (capas 9 Puesto
+  TransfDistribucion, 13/14 Tramo MT aéreo/subterráneo, 18 Poste, 5/6/7
+  seccionadores y protección dinámica). Las capas sin URL se buscan por nombre;
+  los dominios codificados (FASECONEXION, VOLTAJE) se traducen solos.
 servicio: https://geoportal.cnelep.gob.ec/arcgis/rest/services/REP/CNELEPN/MapServer
 filas:
   - capa: postes
     url: null
     palabras: [poste, estructura, apoyo]
-    campos: {id: CODIGO, estructura: ESTRUCTURA, material: MATERIAL, altura: ALTURA, alimentador: ALIMENTADOR}
+    excluir: [codigo, tensor]
+    campos: {id: CODIGOELEMENTO, estructura: ESTRUCTURAENPOSTE, material: CODIGOESTRUCTURA, alimentador: ALIMENTADOR}
     alternativos:
-      id: [CODIGO, COD_POSTE, CODIGOPOSTE, NUMERO, ID_POSTE, OBJECTID]
-      estructura: [ESTRUCTURA, TIPO_ESTRUCTURA, ESTRUCTURA_MT, ARMADO, UNIDAD_PROPIEDAD, UP]
-      material: [MATERIAL, TIPO_POSTE, CLASE]
-      altura: [ALTURA, LONGITUD, ALTURA_POSTE]
-      alimentador: [ALIMENTADOR, ALIM, COD_ALIMENTADOR, CIRCUITO]
+      id: [CODIGOELEMENTO, CODIGO, COD_POSTE, CODIGOPOSTE, NUMERO, ID_POSTE, OBJECTID]
+      estructura: [ESTRUCTURAENPOSTE, ESTRUCTURA, TIPO_ESTRUCTURA, ESTRUCTURA_MT, ARMADO, UNIDAD_PROPIEDAD, UP]
+      material: [CODIGOESTRUCTURA, MATERIAL, TIPO_POSTE, CLASE]
+      alimentador: [ALIMENTADOR, ALIMENTADORID, ALIM, COD_ALIMENTADOR, CIRCUITO]
   - capa: tramos_mt
     url: null
-    palabras: [media tension, medio voltaje, primario, tramo mt, red mt, linea mt, mt]
-    campos: {id: CODIGO, conductor: CONDUCTOR, fases: FASES, alimentador: ALIMENTADOR, tension: VOLTAJE}
+    palabras: [tramo mt, media tension, medio voltaje, primario, red mt, linea mt]
+    excluir: [bt, baja tension, subtransmision]
+    todas: true
+    campos: {id: OBJECTID, conductor: CODIGOCONDUCTORFASE, fases: FASECONEXION, alimentador: ALIMENTADORID, tension: VOLTAJE}
     alternativos:
-      id: [CODIGO, COD_TRAMO, OBJECTID]
-      conductor: [CONDUCTOR, CALIBRE, TIPO_CONDUCTOR, CONDUCTOR_FASE]
-      fases: [FASES, FASE, NUM_FASES, CONFIGURACION]
-      alimentador: [ALIMENTADOR, ALIM, COD_ALIMENTADOR, CIRCUITO]
+      id: [OBJECTID, CODIGO, COD_TRAMO]
+      conductor: [CODIGOCONDUCTORFASE, COMENTARIOS, CONDUCTOR, CALIBRE, TIPO_CONDUCTOR, CONDUCTOR_FASE]
+      fases: [FASECONEXION, FASES, FASE, NUM_FASES, CONFIGURACION]
+      alimentador: [ALIMENTADORID, ALIMENTADOR, ALIM, COD_ALIMENTADOR, CIRCUITO]
       tension: [VOLTAJE, TENSION, NIVEL_TENSION, KV]
   - capa: transformadores
     url: https://geoportal.cnelep.gob.ec/arcgis/rest/services/REP/CNELEPN/MapServer/9
-    palabras: [transformador]
-    campos: {id: CODIGO, kva: POTENCIA, fases: FASES, clientes: CLIENTES, alimentador: ALIMENTADOR}
+    palabras: [transf, transformador]
+    campos: {id: TRAFO, kva: POTENCIAKVA, fases: FASECONEXION, clientes: TOTALCLIENTES, alimentador: ALIMENTADORID, cargabilidad: CARGABILIDAD}
     alternativos:
-      id: [CODIGO, COD_TRAFO, CODIGOTRAFO, NUMERO, OBJECTID]
-      kva: [POTENCIA, KVA, POTENCIA_KVA, CAPACIDAD, POT_NOMINAL]
-      fases: [FASES, FASE, NUM_FASES, TIPO]
-      clientes: [CLIENTES, NUM_CLIENTES, NUMERO_CLIENTES, ABONADOS]
-      alimentador: [ALIMENTADOR, ALIM, COD_ALIMENTADOR, CIRCUITO]
+      id: [TRAFO, CODIGOPUESTO, CODIGO, COD_TRAFO, CODIGOTRAFO, NUMERO, OBJECTID]
+      kva: [POTENCIAKVA, POTENCIA, KVA, POTENCIA_KVA, CAPACIDAD, POT_NOMINAL]
+      fases: [FASECONEXION, FASES, FASE, NUM_FASES]
+      clientes: [TOTALCLIENTES, CLIENTES, NUM_CLIENTES, NUMERO_CLIENTES, ABONADOS]
+      alimentador: [ALIMENTADORID, ALIMENTADOR, ALIM, COD_ALIMENTADOR, CIRCUITO]
+      cargabilidad: [CARGABILIDAD, CARGA_PCT]
   - capa: protecciones
     url: null
     palabras: [seccionador, proteccion, fusible, reconectador, interruptor]
-    campos: {id: CODIGO, tipo: TIPO, capacidad: CAPACIDAD, alimentador: ALIMENTADOR}
+    todas: true
+    campos: {id: CODIGOADMS, tipo: TIPOPROTECCION, capacidad: TIRAFUSIBLE, alimentador: ALIMENTADORID}
     alternativos:
-      id: [CODIGO, COD_EQUIPO, OBJECTID]
-      tipo: [TIPO, TIPO_EQUIPO, CLASE]
-      capacidad: [CAPACIDAD, CORRIENTE, AMPERAJE, FUSIBLE, TIRAFUSIBLE]
-      alimentador: [ALIMENTADOR, ALIM, COD_ALIMENTADOR, CIRCUITO]
+      id: [CODIGOADMS, CODIGOPUESTO, CODIGO, COD_EQUIPO, OBJECTID]
+      tipo: [TIPOPROTECCION, TIPO_EQUIPO, PROTECCION]
+      capacidad: [TIRAFUSIBLE, CAPACIDADEQUIPO, CORRIENTE, CAPACIDAD, AMPERAJE, FUSIBLE]
+      alimentador: [ALIMENTADORID, ALIMENTADOR, ALIM, COD_ALIMENTADOR, CIRCUITO]

@@ -1164,6 +1164,61 @@
         }
       }
     },
+    "/api/v1/industrias/{id}/geoportal": {
+      "get": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Transformadores Del Geoportal",
+        "description": "Transformadores de CNEL alrededor de la ubicación de la industria, del más cercano.",
+        "operationId": "transformadores_del_geoportal_api_v1_industrias__id__geoportal_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "radio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 2000,
+              "minimum": 20,
+              "default": 300,
+              "title": "Radio"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Cercanos"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/industrias/{id}/unifilar.{formato}": {
       "get": {
         "tags": [
@@ -3752,6 +3807,31 @@
           "conexion"
         ],
         "title": "CargaOut"
+      },
+      "Cercanos": {
+        "properties": {
+          "transformadores": {
+            "items": {
+              "$ref": "#/components/schemas/TransformadorCercanoOut"
+            },
+            "type": "array",
+            "title": "Transformadores"
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "transformadores",
+          "avisos"
+        ],
+        "title": "Cercanos"
       },
       "Circuito": {
         "properties": {
@@ -7314,6 +7394,123 @@
         ],
         "title": "TramoSIG"
       },
+      "TransformadorCercanoOut": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "lat": {
+            "type": "number",
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          },
+          "distancia_m": {
+            "type": "number",
+            "title": "Distancia M"
+          },
+          "kva": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kva"
+          },
+          "fases": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fases"
+          },
+          "fases_servicio": {
+            "type": "integer",
+            "title": "Fases Servicio"
+          },
+          "clientes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clientes"
+          },
+          "cargabilidad_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cargabilidad Pct"
+          },
+          "demanda_kva": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demanda Kva"
+          },
+          "alimentador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alimentador"
+          },
+          "existente": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TransformadorExistente"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "codigo",
+          "lat",
+          "lon",
+          "distancia_m",
+          "kva",
+          "fases",
+          "fases_servicio",
+          "clientes",
+          "cargabilidad_pct",
+          "demanda_kva",
+          "alimentador",
+          "existente"
+        ],
+        "title": "TransformadorCercanoOut"
+      },
       "TransformadorExistente": {
         "properties": {
           "codigo": {
@@ -7519,6 +7716,20 @@
               }
             ],
             "title": "Alimentador"
+          },
+          "cargabilidad_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cargabilidad Pct"
           }
         },
         "additionalProperties": false,

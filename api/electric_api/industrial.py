@@ -23,6 +23,7 @@ from electric.industrial.coordinacion import Coordinacion, coordinar, grafico
 from electric.industrial.estudios import Estudios, estudiar
 from electric.industrial.unifilar import generar_unifilar
 from electric.mt.camara import Camara, disenar_camara, generar_plano_camara
+from electric.mt.sig import ErrorSIG, transformadores_cercanos
 from electric.perfiles import Perfil
 from electric.perfiles.esquema import Estado, TablaSistemas, peor_estado
 from electric.salida_cad import renderizar
@@ -647,6 +648,90 @@ def analizar_industria(id: str, sesion: SesionDep, perfiles: PerfilesDep) -> Ana
         salida.resultados += [resultado_a_salida(r, perfil) for r in camara.resultados]
         salida.avisos += list(camara.avisos)
     return salida
+
+
+class TransformadorCercanoOut(Esquema):
+    codigo: str
+    lat: float
+    lon: float
+    distancia_m: float
+    kva: float | None
+    fases: str | None
+    fases_servicio: int
+    clientes: int | None
+    cargabilidad_pct: float | None
+    demanda_kva: float | None
+    alimentador: str | None
+    #: Datos listos para «existente» de la industria (None si el SIG no da la potencia).
+    existente: TransformadorExistente | None
+
+
+class Cercanos(Esquema):
+    transformadores: list[TransformadorCercanoOut]
+    avisos: list[str]
+
+
+@rutas.get("/industrias/{id}/geoportal")
+def transformadores_del_geoportal(
+    id: str,
+    sesion: SesionDep,
+    perfiles: PerfilesDep,
+    radio: Annotated[int, Query(ge=20, le=2000)] = 300,
+) -> Cercanos:
+    """Transformadores de CNEL alrededor de la ubicación de la industria, del más cercano."""
+    fila = _buscar(sesion, id)
+    datos = BorradorIndustria.model_validate_json(fila.datos)
+    if datos.ubicacion is None:
+        raise Problema(
+            422,
+            "falta_ubicacion",
+            "Falta la ubicación de la industria",
+            "Indique la latitud y longitud en «Datos y ubicación» antes de buscar en el geoportal.",
+        )
+    perfil = _perfil(perfiles, datos.perfil)
+    try:
+        cercanos, avisos = transformadores_cercanos(
+            perfil, datos.ubicacion.lat, datos.ubicacion.lon, radio
+        )
+    except ErrorSIG as error:
+        raise Problema(
+            502,
+            error.codigo,
+            "No se pudo leer el geoportal de CNEL",
+            f"{error}. Mientras tanto puede escribir los datos del transformador a mano.",
+        ) from error
+    salida: list[TransformadorCercanoOut] = []
+    for c in cercanos:
+        t = c.transformador
+        existente = None
+        if t.kva is not None and t.kva > 0:
+            existente = TransformadorExistente(
+                codigo=t.id,
+                kva=t.kva,
+                fases=3 if c.fases_servicio == 3 else 1,
+                demanda_kva=c.demanda_kva,
+                # Sin cargabilidad, la demanda se estima con los clientes (estrato C supuesto).
+                clientes={"C": t.clientes} if c.demanda_kva is None and t.clientes else {},
+                distancia_m=c.distancia_m,
+                origen="geoportal",
+            )
+        salida.append(
+            TransformadorCercanoOut(
+                codigo=t.id,
+                lat=float(t.lat),
+                lon=float(t.lon),
+                distancia_m=float(c.distancia_m),
+                kva=_opt(t.kva),
+                fases=t.fases,
+                fases_servicio=c.fases_servicio,
+                clientes=t.clientes,
+                cargabilidad_pct=_opt(t.cargabilidad_pct),
+                demanda_kva=_opt(c.demanda_kva),
+                alimentador=t.alimentador,
+                existente=existente,
+            )
+        )
+    return Cercanos(transformadores=salida, avisos=avisos)
 
 
 TIPOS = {

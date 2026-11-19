@@ -1136,3 +1136,9 @@ dl.datos-camara dd {
   margin: 0;
   font-weight: 600;
 }
+
+/* Transformadores cercanos del geoportal */
+.geoportal-cercanos { margin-top: 1rem; }
+.geoportal-cercanos tr.elegida td { background: color-mix(in srgb, var(--acento, #2563eb) 12%, transparent); }
+.geoportal-cercanos td.mal { color: #b91c1c; font-weight: 600; }
+.geoportal-cercanos td button { padding: 0.15rem 0.6rem; }

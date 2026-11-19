@@ -392,6 +392,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/industrias/{id}/geoportal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Transformadores Del Geoportal
+         * @description Transformadores de CNEL alrededor de la ubicación de la industria, del más cercano.
+         */
+        get: operations["transformadores_del_geoportal_api_v1_industrias__id__geoportal_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/industrias/{id}/unifilar.{formato}": {
         parameters: {
             query?: never;
@@ -1360,6 +1380,13 @@ export interface components {
             especial: boolean;
             /** Conexion */
             conexion: string;
+        };
+        /** Cercanos */
+        Cercanos: {
+            /** Transformadores */
+            transformadores: components["schemas"]["TransformadorCercanoOut"][];
+            /** Avisos */
+            avisos: string[];
         };
         /** Circuito */
         Circuito: {
@@ -2641,6 +2668,32 @@ export interface components {
             /** Tension */
             tension?: string | null;
         };
+        /** TransformadorCercanoOut */
+        TransformadorCercanoOut: {
+            /** Codigo */
+            codigo: string;
+            /** Lat */
+            lat: number;
+            /** Lon */
+            lon: number;
+            /** Distancia M */
+            distancia_m: number;
+            /** Kva */
+            kva: number | null;
+            /** Fases */
+            fases: string | null;
+            /** Fases Servicio */
+            fases_servicio: number;
+            /** Clientes */
+            clientes: number | null;
+            /** Cargabilidad Pct */
+            cargabilidad_pct: number | null;
+            /** Demanda Kva */
+            demanda_kva: number | null;
+            /** Alimentador */
+            alimentador: string | null;
+            existente: components["schemas"]["TransformadorExistente"] | null;
+        };
         /**
          * TransformadorExistente
          * @description El transformador de CNEL desde el que se podría atender la industria.
@@ -2700,6 +2753,8 @@ export interface components {
             clientes?: number | null;
             /** Alimentador */
             alimentador?: string | null;
+            /** Cargabilidad Pct */
+            cargabilidad_pct?: number | string | null;
         };
         /**
          * Ubicacion
@@ -3595,6 +3650,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnalisisOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    transformadores_del_geoportal_api_v1_industrias__id__geoportal_get: {
+        parameters: {
+            query?: {
+                radio?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Cercanos"];
                 };
             };
             /** @description Validation Error */
