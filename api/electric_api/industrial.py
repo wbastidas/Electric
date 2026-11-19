@@ -22,6 +22,7 @@ from electric.industrial import (
 from electric.industrial.coordinacion import Coordinacion, coordinar, grafico
 from electric.industrial.estudios import Estudios, estudiar
 from electric.industrial.unifilar import generar_unifilar
+from electric.mt.camara import Camara, disenar_camara, generar_plano_camara
 from electric.perfiles import Perfil
 from electric.perfiles.esquema import Estado, TablaSistemas, peor_estado
 from electric.salida_cad import renderizar
@@ -71,6 +72,8 @@ class BorradorIndustria(Esquema):
     distancias_m: dict[str, Decimal] = {}
     #: Potencia de cortocircuito de la red de CNEL; si falta, la del perfil.
     scc_red_mva: Decimal | None = Field(default=None, gt=0)
+    #: Resistividad medida del suelo, para la malla de una cámara de transformación.
+    resistividad_ohm_m: Decimal | None = Field(default=None, gt=0)
     #: Nombre del último cuadro de cargas cargado.
     cuadro: str | None = None
 
@@ -170,6 +173,8 @@ class AnalisisOut(Esquema):
     #: Fuente usada en el cortocircuito: transformador particular o existente.
     fuente_cortocircuito: str = ""
     coordinacion: CoordinacionOut | None = None
+    #: Cámara de transformación, si el transformador va en cuarto o se mide en MT.
+    camara: CamaraOut | None = None
     avisos: list[str] = []
     estado_tablas: Estado | None = None
 
@@ -215,6 +220,23 @@ class CoordinacionOut(Esquema):
     fusible: str | None
     transformador: list[ComprobacionOut]
     pares: list[ParOut]
+
+
+class CamaraOut(Esquema):
+    kva: float
+    tension_kv: float
+    corriente_primaria_a: float
+    fusible: str | None
+    tc: str | None
+    tp: str
+    celdas: list[list[str]]
+    dimensiones: str | None
+    malla: str
+    resistencia_ohm: float
+    limite_ohm: float
+    cumple: bool
+    resistividad_ohm_m: float
+    avisos: list[str]
 
 
 class OpcionTexto(Esquema):
@@ -548,7 +570,7 @@ def subir_cuadro(
 
 def _estudiar(
     datos: BorradorIndustria, perfil: Perfil
-) -> tuple[AnalisisIndustrial, Estudios, Coordinacion] | str:
+) -> tuple[AnalisisIndustrial, Estudios, Coordinacion, Camara | None] | str:
     """Análisis y estudios, o el motivo por el que todavía no se puede."""
     if not datos.maquinas:
         return "Cargue el cuadro de cargas o agregue al menos una máquina."
@@ -565,7 +587,20 @@ def _estudiar(
         )
         analisis = analizar(industria, perfil)
         estudios = estudiar(analisis, perfil)
-        return analisis, estudios, coordinar(analisis, estudios, perfil)
+        decision = analisis.decision
+        camara = None
+        if (
+            decision.opcion != "existente"
+            and decision.transformador is not None
+            and (decision.transformador.montaje == "cuarto" or decision.nivel.medicion == "mt")
+        ):
+            camara = disenar_camara(
+                decision.transformador.kva,
+                perfil,
+                v_bt=analisis.sistema.v_linea,
+                resistividad_ohm_m=datos.resistividad_ohm_m,
+            )
+        return analisis, estudios, coordinar(analisis, estudios, perfil), camara
     except (ErrorElectric, ValueError) as error:
         return str(error)
 
@@ -583,8 +618,35 @@ def analizar_industria(id: str, sesion: SesionDep, perfiles: PerfilesDep) -> Ana
             aviso=AVISO_BORRADOR,
             pendientes=[resultado],
         )
-    analisis, estudios, coordinacion = resultado
-    return analisis_a_salida(analisis, estudios, coordinacion, perfil, fila.revision)
+    analisis, estudios, coordinacion, camara = resultado
+    salida = analisis_a_salida(analisis, estudios, coordinacion, perfil, fila.revision)
+    if camara is not None:
+        m = camara.malla
+        salida.camara = CamaraOut(
+            kva=_f(camara.kva),
+            tension_kv=_f(camara.tension_kv),
+            corriente_primaria_a=_f(camara.corriente_primaria_a),
+            fusible=camara.fusible,
+            tc=camara.tc,
+            tp=camara.tp,
+            celdas=[[t, d] for t, d in camara.celdas],
+            dimensiones=(
+                f"{camara.dimensiones.largo_m} × {camara.dimensiones.ancho_m} × "
+                f"{camara.dimensiones.alto_m} m".replace(".", ",")
+                if camara.dimensiones
+                else None
+            ),
+            malla=f"{m.largo_m:.1f} × {m.ancho_m:.1f} m cada {m.separacion_m:.1f} m, "
+            f"{m.varillas} varillas".replace(".", ","),
+            resistencia_ohm=round(m.resistencia_ohm, 2),
+            limite_ohm=m.limite_ohm,
+            cumple=m.cumple,
+            resistividad_ohm_m=_f(camara.resistividad_ohm_m),
+            avisos=list(camara.avisos),
+        )
+        salida.resultados += [resultado_a_salida(r, perfil) for r in camara.resultados]
+        salida.avisos += list(camara.avisos)
+    return salida
 
 
 TIPOS = {
@@ -609,7 +671,7 @@ def descargar_unifilar(
         raise Problema(
             422, "industria_incompleta", "Todavía no se puede dibujar el unifilar", resultado
         )
-    analisis, estudios, coordinacion = resultado
+    analisis, estudios, coordinacion, _ = resultado
     dxf = generar_unifilar(analisis, estudios, coordinacion.fusible_a)
     contenido = dxf if formato == "dxf" else renderizar(dxf, formato)
     disposicion = "attachment" if formato == "dxf" else "inline"
@@ -636,4 +698,40 @@ def descargar_curvas(id: str, sesion: SesionDep, perfiles: PerfilesDep) -> Respo
         grafico(resultado[2], f"Coordinación · {datos.nombre}"),
         media_type="image/png",
         headers={"Content-Disposition": 'inline; filename="curvas.png"'},
+    )
+
+
+@rutas.get(
+    "/industrias/{id}/camara.{formato}",
+    response_class=Response,
+    responses={200: {"content": {t: {} for t in TIPOS.values()}}},
+)
+def descargar_camara(
+    id: str, formato: Literal["dxf", "png", "pdf"], sesion: SesionDep, perfiles: PerfilesDep
+) -> Response:
+    """Planta de la cámara de transformación con la malla y el unifilar del cliente en MT."""
+    fila = _buscar(sesion, id)
+    datos = BorradorIndustria.model_validate_json(fila.datos)
+    resultado = _estudiar(datos, _perfil(perfiles, datos.perfil))
+    if isinstance(resultado, str) or resultado[3] is None:
+        raise Problema(
+            422,
+            "sin_camara",
+            "Esta industria no lleva cámara de transformación",
+            resultado if isinstance(resultado, str) else "El transformador va en poste o pedestal.",
+        )
+    analisis, _, _, camara = resultado
+    assert camara is not None
+    breaker = analisis.resultado("breaker_principal").valor
+    dxf = generar_plano_camara(
+        camara, datos.nombre, f"{breaker} A" if isinstance(breaker, Decimal) else None
+    )
+    contenido = dxf if formato == "dxf" else renderizar(dxf, formato)
+    return Response(
+        contenido,
+        media_type=TIPOS[formato],
+        headers={
+            "Content-Disposition": f"{'attachment' if formato == 'dxf' else 'inline'}; "
+            f'filename="camara.{formato}"'
+        },
     )

@@ -66,3 +66,8 @@ filas:
   - {clave: factor_carga_transformador_mt, valor: 0.8, nota: Propuesta - carga de cada transformador nuevo como fracción de su potencia para la caída de tensión.}
   - {clave: capacidad_seccionador_ka, valor: 10, unidad: kA, nota: Propuesta - capacidad de interrupción del seccionador fusible de la derivación.}
   - {clave: altura_poste_mt_m, valor: 12, unidad: m, nota: Propuesta - poste de hormigón para red de MT.}
+  - {clave: resistividad_suelo_ohm_m, valor: 100, unidad: ohm·m, nota: Supuesto si no hay medición de resistividad del suelo; se debe medir en sitio.}
+  - {clave: resistencia_tierra_mt_max_ohm, valor: 10, unidad: ohm, nota: 'Propuesta - resistencia de la malla de una cámara de más de 250 kVA; confirmar con CNEL.'}
+  - {clave: varilla_tierra_m, valor: 1.8, unidad: m, nota: Varilla de puesta a tierra (RC-14).}
+  - {clave: margen_malla_m, valor: 1.0, unidad: m, nota: Propuesta - la malla sobresale este margen alrededor de la cámara.}
+  - {clave: factor_tc, valor: 1.25, nota: Propuesta - corriente primaria del TC sobre la nominal del transformador.}

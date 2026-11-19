@@ -1,0 +1,13 @@
+id: general/relaciones-tc
+tipo: serie
+serie: relaciones_tc
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: Corrientes primarias normalizadas de transformadores de corriente (IEC 61869-2)
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: Corriente primaria del TC; el secundario es de 5 A.
+unidades: {valor: A}
+filas: [5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 150, 200, 300, 400]

@@ -1,0 +1,21 @@
+id: cnel-ep/camaras
+tipo: camaras
+version: 0.1.0
+vigente_desde: 2026-11-01
+fuente:
+  norma: CNEL MN-COM-AC-001 (dimensiones hasta 75 y 300 kVA); demás filas propuestas
+  numeral: por confirmar
+  url: null
+estado: por_verificar
+nota: >-
+  Dimensiones interiores mínimas de la cámara de transformación. Las filas de 75
+  y 300 kVA vienen del manual de acometidas de CNEL según un resumen; las demás
+  son propuestas por interpolación y deben confirmarse.
+unidades: {kva_max: kVA, largo_m: m, ancho_m: m, alto_m: m}
+filas:
+  - {kva_max: 75, largo_m: 2.0, ancho_m: 2.0, alto_m: 2.5}
+  - {kva_max: 150, largo_m: 3.0, ancho_m: 2.5, alto_m: 2.5}
+  - {kva_max: 300, largo_m: 4.0, ancho_m: 3.0, alto_m: 2.8}
+  - {kva_max: 630, largo_m: 5.0, ancho_m: 3.5, alto_m: 3.0}
+  - {kva_max: 1250, largo_m: 6.0, ancho_m: 4.0, alto_m: 3.2}
+  - {kva_max: 2500, largo_m: 7.0, ancho_m: 4.5, alto_m: 3.5}

@@ -1122,3 +1122,17 @@ details.diagnostico summary {
   cursor: pointer;
   font-weight: 600;
 }
+dl.datos-camara {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.5rem 1rem;
+  margin: 0.5rem 0;
+}
+dl.datos-camara dt {
+  font-size: 0.8rem;
+  color: var(--tenue);
+}
+dl.datos-camara dd {
+  margin: 0;
+  font-weight: 600;
+}

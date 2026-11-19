@@ -284,6 +284,15 @@ class FilaEstructuraMT(Dato):
     codigo_1f: str | None = None
 
 
+class FilaCamara(Dato):
+    """Dimensiones interiores mínimas de una cámara de transformación."""
+
+    kva_max: Decimal = Field(gt=0)
+    largo_m: Decimal = Field(gt=0)
+    ancho_m: Decimal = Field(gt=0)
+    alto_m: Decimal = Field(gt=0)
+
+
 class FilaCapaSIG(Dato):
     """Capa del geoportal y el nombre de cada campo que se usa."""
 
@@ -364,6 +373,7 @@ class TablaSerie(TablaBase):
         "capacitores_kvar",
         "capacidad_interruptiva_ka",
         "fusibles_mt",
+        "relaciones_tc",
     ]
     filas: tuple[Decimal, ...]
 
@@ -449,6 +459,11 @@ class TablaEstructurasMT(TablaBase):
     filas: tuple[FilaEstructuraMT, ...]
 
 
+class TablaCamaras(TablaBase):
+    tipo: Literal["camaras"]
+    filas: tuple[FilaCamara, ...]
+
+
 class TablaSIG(TablaBase):
     tipo: Literal["sig"]
     #: URL del MapServer con todas las capas.
@@ -489,6 +504,7 @@ Tabla = Annotated[
     | TablaConductoresMT
     | TablaEstructurasMT
     | TablaSIG
+    | TablaCamaras
     | TablaRedondeo,
     Field(discriminator="tipo"),
 ]

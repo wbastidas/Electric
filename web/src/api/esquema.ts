@@ -429,6 +429,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/industrias/{id}/camara.{formato}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Descargar Camara
+         * @description Planta de la cámara de transformación con la malla y el unifilar del cliente en MT.
+         */
+        get: operations["descargar_camara_api_v1_industrias__id__camara__formato__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/edificaciones": {
         parameters: {
             query?: never;
@@ -849,6 +869,7 @@ export interface components {
              */
             fuente_cortocircuito: string;
             coordinacion?: components["schemas"]["CoordinacionOut"] | null;
+            camara?: components["schemas"]["CamaraOut"] | null;
             /**
              * Avisos
              * @default []
@@ -1000,6 +1021,8 @@ export interface components {
             };
             /** Scc Red Mva */
             scc_red_mva?: number | string | null;
+            /** Resistividad Ohm M */
+            resistividad_ohm_m?: number | string | null;
             /** Cuadro */
             cuadro?: string | null;
         };
@@ -1241,6 +1264,37 @@ export interface components {
              * @default []
              */
             tablas_sin_verificar: components["schemas"]["TablaPendiente"][];
+        };
+        /** CamaraOut */
+        CamaraOut: {
+            /** Kva */
+            kva: number;
+            /** Tension Kv */
+            tension_kv: number;
+            /** Corriente Primaria A */
+            corriente_primaria_a: number;
+            /** Fusible */
+            fusible: string | null;
+            /** Tc */
+            tc: string | null;
+            /** Tp */
+            tp: string;
+            /** Celdas */
+            celdas: string[][];
+            /** Dimensiones */
+            dimensiones: string | null;
+            /** Malla */
+            malla: string;
+            /** Resistencia Ohm */
+            resistencia_ohm: number;
+            /** Limite Ohm */
+            limite_ohm: number;
+            /** Cumple */
+            cumple: boolean;
+            /** Resistividad Ohm M */
+            resistividad_ohm_m: number;
+            /** Avisos */
+            avisos: string[];
         };
         /**
          * CambiarCircuito
@@ -3606,6 +3660,40 @@ export interface operations {
                 };
                 content: {
                     "image/png": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descargar_camara_api_v1_industrias__id__camara__formato__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                formato: "dxf" | "png" | "pdf";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/dxf": unknown;
+                    "image/png": unknown;
+                    "application/pdf": unknown;
                 };
             };
             /** @description Validation Error */

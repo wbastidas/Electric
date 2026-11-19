@@ -97,6 +97,7 @@ export function Industria({ id, pestana }: { id: string; pestana?: string }) {
       alerta: noSelectivos + fallasTrafo > 0,
     },
     { id: "unifilar", titulo: "Unifilar" },
+    ...(listo?.camara ? [{ id: "camara", titulo: "Cámara MT", marca: listo.camara.cumple ? null : "✗", alerta: !listo.camara.cumple }] : []),
   ];
   const activa = elegirPestana(pestana ?? (datos.maquinas.length ? "decision" : "cuadro"), pestanas);
 
@@ -160,6 +161,13 @@ export function Industria({ id, pestana }: { id: string; pestana?: string }) {
                 onChange={(e) => cambiar({ scc_red_mva: e.target.value === "" ? null : e.target.value })}
               />
             </Campo>
+            <Campo etiqueta="Resistividad del suelo (Ω·m)" ayuda="Para la malla de tierra de la cámara; vacío: 100.">
+              <input
+                inputMode="decimal"
+                value={datos.resistividad_ohm_m ?? ""}
+                onChange={(e) => cambiar({ resistividad_ohm_m: e.target.value === "" ? null : e.target.value })}
+              />
+            </Campo>
             <Campo etiqueta="Latitud">
               <input inputMode="decimal" value={lat} placeholder="-2.1709" onChange={(e) => ubicar("lat", e.target.value)} />
             </Campo>
@@ -211,7 +219,8 @@ export function Industria({ id, pestana }: { id: string; pestana?: string }) {
       {analisis.data?.estado === "incompleto" && activa !== "datos" ? (
         <Aviso tipo="nota">{analisis.data.pendientes.join(" ")}</Aviso>
       ) : null}
-      {listo && activa !== "datos" && activa !== "cuadro" ? (
+      {listo?.camara && activa === "camara" ? <TarjetaCamara id={id} analisis={listo} /> : null}
+      {listo && activa !== "datos" && activa !== "cuadro" && activa !== "camara" ? (
         <Resultados
           vista={activa as Vista}
           id={id}
@@ -577,5 +586,83 @@ function ResumenIndustria({ analisis }: { analisis: AnalisisIndustrial }) {
         </div>
       ) : null}
     </div>
+  );
+}
+
+function TarjetaCamara({ id, analisis }: { id: string; analisis: AnalisisIndustrial }) {
+  const c = analisis.camara;
+  if (!c) return null;
+  return (
+    <>
+      <div className="columnas dos">
+        <section className="tarjeta">
+          <h2>Cámara de transformación</h2>
+          <p className="tenue">
+            Medición en media tensión: el transformador de {num(c.kva)} kVA va en una cámara del cliente.
+          </p>
+          <dl className="datos-camara">
+            <div>
+              <dt>Dimensiones interiores</dt>
+              <dd>{c.dimensiones ?? "sin tabla para esta potencia"}</dd>
+            </div>
+            <div>
+              <dt>Corriente primaria</dt>
+              <dd>{num(c.corriente_primaria_a, 2)} A a {num(c.tension_kv)} kV</dd>
+            </div>
+            <div>
+              <dt>Fusibles de MT</dt>
+              <dd>{c.fusible ?? "use interruptor de MT"}</dd>
+            </div>
+            <div>
+              <dt>Transformadores de medida</dt>
+              <dd>
+                TC {c.tc ?? "—"} · TP {c.tp}
+              </dd>
+            </div>
+          </dl>
+          <h3>Celdas</h3>
+          <ul>
+            {c.celdas.map(([titulo, texto]) => (
+              <li key={titulo}>
+                <strong>{titulo}:</strong> {texto}
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section className={`tarjeta decision ${c.cumple ? "existente" : "particular"}`}>
+          <h2>Malla de puesta a tierra</h2>
+          <p className="cifra-media">
+            R = {num(c.resistencia_ohm, 2)} Ω {c.cumple ? "≤" : ">"} {num(c.limite_ohm, 0)} Ω
+          </p>
+          <p>{c.malla}</p>
+          <p className="tenue">
+            Resistividad del suelo {num(c.resistividad_ohm_m, 0)} Ω·m. Fórmula de Sverak (IEEE 80) con la malla a 0,6 m.
+            Mida la resistividad en sitio y escríbala en «Datos y ubicación».
+          </p>
+          {c.avisos.length ? (
+            <Aviso tipo="alerta">
+              <ul>
+                {c.avisos.map((a) => (
+                  <li key={a}>{a}</li>
+                ))}
+              </ul>
+            </Aviso>
+          ) : null}
+        </section>
+      </div>
+      <section className="tarjeta">
+        <h2>Plano de la cámara</h2>
+        <div className="acciones izquierda">
+          <a className="boton" href={api.urlCamara(id, "dxf", analisis.revision)}>
+            Descargar DXF
+          </a>
+          <a className="boton" href={api.urlCamara(id, "pdf", analisis.revision)} target="_blank" rel="noreferrer">
+            Abrir PDF
+          </a>
+        </div>
+        <img className="unifilar" src={api.urlCamara(id, "png", analisis.revision)} alt="Planta de la cámara de transformación" />
+        <p className="tenue">{analisis.aviso}</p>
+      </section>
+    </>
   );
 }

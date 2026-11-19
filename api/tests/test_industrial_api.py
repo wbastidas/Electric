@@ -115,3 +115,37 @@ def test_cuadro_con_errores(cliente: TestClient) -> None:
 def test_unifilar_sin_maquinas(cliente: TestClient) -> None:
     id = cliente.post(f"{BASE}/industrias", json={"nombre": "Vacía"}).json()["id"]
     assert cliente.get(f"{BASE}/industrias/{id}/unifilar.png").status_code == 422
+
+
+def test_camara_de_transformacion(cliente: TestClient) -> None:
+    id = cliente.post(f"{BASE}/industrias", json={"nombre": "Planta grande"}).json()["id"]
+    cuadro = "Código,Tipo,Potencia,Fu,Fs\nH1,resistiva,700,1,1\n".encode()
+    cargada = cliente.post(
+        f"{BASE}/industrias/{id}/cuadro?revision=1&nombre=c.csv",
+        content=cuadro,
+        headers={"Content-Type": "application/octet-stream"},
+    )
+    assert cargada.status_code == 200, cargada.text
+    analisis = cliente.get(f"{BASE}/industrias/{id}/analisis").json()
+    assert analisis["decision"]["nivel"] == "cuarto_mt"
+    camara = analisis["camara"]
+    assert camara and camara["fusible"] and camara["tc"].endswith("/5 A")
+    assert [c[0] for c in camara["celdas"]] == [
+        "Llegada",
+        "Protección",
+        "Medición",
+        "Transformador",
+    ]
+    assert camara["resistencia_ohm"] > 0
+    for formato, inicio in (("dxf", b"  0"), ("png", b"\x89PNG")):
+        respuesta = cliente.get(f"{BASE}/industrias/{id}/camara.{formato}")
+        assert respuesta.status_code == 200 and respuesta.content.startswith(inicio)
+    # Una industria pequeña con transformador en poste no lleva cámara.
+    pequena = cliente.post(f"{BASE}/industrias", json={"nombre": "Taller"}).json()["id"]
+    cliente.post(
+        f"{BASE}/industrias/{pequena}/cuadro?revision=1&nombre=c.csv",
+        content=b"Codigo,Tipo,Potencia\nR,resistiva,30\n",
+        headers={"Content-Type": "application/octet-stream"},
+    )
+    assert cliente.get(f"{BASE}/industrias/{pequena}/analisis").json()["camara"] is None
+    assert cliente.get(f"{BASE}/industrias/{pequena}/camara.png").status_code == 422

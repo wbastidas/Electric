@@ -42,3 +42,5 @@ tablas:
   - tablas/conductores_mt.yaml
   - tablas/estructuras_mt.yaml
   - tablas/sig_cnel.yaml
+  - tablas/camaras.yaml
+  - tablas/relaciones_tc.yaml

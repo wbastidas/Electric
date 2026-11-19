@@ -245,3 +245,37 @@ def test_geoportal_que_no_responde(perfil_cnel: Perfil) -> None:
     capa = perfil_cnel.capas_sig()[0]
     with pytest.raises(ErrorSIG, match="URL"):
         url_consulta(capa, D("-2.17"), D("-79.9"), 300)
+
+
+# --- Cámara de transformación ------------------------------------------------------------
+
+
+def test_camara_de_500_kva(perfil_cnel: Perfil) -> None:
+    from electric.mt.camara import disenar_camara, generar_plano_camara
+
+    camara = disenar_camara(D(500), perfil_cnel)
+    # 500 kVA a 13,8 kV: 20,9 A; × 1,5 = 31,4 A → 40K; TC 20,9 × 1,25 = 26,2 A → 30/5.
+    assert abs(camara.corriente_primaria_a - D("20.92")) < D("0.01")
+    assert camara.fusible == "40K" and camara.tc == "30/5 A"
+    assert camara.dimensiones is not None and camara.dimensiones.kva_max == D(630)
+    assert camara.malla.cumple and camara.malla.limite_ohm == 10
+    texto = generar_plano_camara(camara, "Prueba", "3P 1600 A").decode("utf-8", errors="replace")
+    assert "CÁMARA DE TRANSFORMACIÓN" in texto or "CMARA" in texto
+    assert "UNIFILAR DEL CLIENTE EN MT" in texto
+
+
+def test_malla_con_suelo_de_alta_resistividad(perfil_cnel: Perfil) -> None:
+    from electric.mt.camara import _sverak, disenar_camara
+
+    camara = disenar_camara(D(500), perfil_cnel, resistividad_ohm_m=D(400))
+    assert not camara.malla.cumple
+    assert any("malla" in a for a in camara.avisos)
+    # La fórmula baja con más conductor y con más área.
+    assert _sverak(100, 80, 30) < _sverak(100, 40, 30)
+    assert _sverak(100, 80, 60) < _sverak(100, 80, 30)
+
+
+def test_camaras_pequenas_usan_el_limite_de_20_ohm(perfil_cnel: Perfil) -> None:
+    from electric.mt.camara import disenar_camara
+
+    assert disenar_camara(D(150), perfil_cnel).malla.limite_ohm == 20

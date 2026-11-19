@@ -19,6 +19,7 @@ from electric.errores import ErrorPerfil, FilaNoEncontrada
 from electric.perfiles.esquema import (
     FilaAire,
     FilaArranque,
+    FilaCamara,
     FilaCapaSIG,
     FilaCarga,
     FilaConductor,
@@ -43,6 +44,7 @@ from electric.perfiles.esquema import (
     TablaAires,
     TablaArranques,
     TablaBase,
+    TablaCamaras,
     TablaCargas,
     TablaCircuitosMinimos,
     TablaConductores,
@@ -338,6 +340,13 @@ class Perfil:
     def estructuras_mt(self) -> tuple[tuple[FilaEstructuraMT, ...], RefTabla]:
         tabla = self._tabla("estructuras_mt", TablaEstructurasMT)
         return tabla.filas, self._ref(tabla, "tipos de estructura")
+
+    def camara_para(self, kva: Decimal) -> tuple[FilaCamara, RefTabla]:
+        tabla = self._tabla("camaras", TablaCamaras)
+        for fila in sorted(tabla.filas, key=lambda f: f.kva_max):
+            if kva <= fila.kva_max:
+                return fila, self._ref(tabla, f"hasta {fila.kva_max} kVA")
+        raise FilaNoEncontrada(tabla.id, f"una cámara de {kva} kVA")
 
     def servicio_sig(self) -> str | None:
         if "sig" not in self.tablas:

@@ -1257,6 +1257,61 @@
         }
       }
     },
+    "/api/v1/industrias/{id}/camara.{formato}": {
+      "get": {
+        "tags": [
+          "industrial"
+        ],
+        "summary": "Descargar Camara",
+        "description": "Planta de la cámara de transformación con la malla y el unifilar del cliente en MT.",
+        "operationId": "descargar_camara_api_v1_industrias__id__camara__formato__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "formato",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "dxf",
+                "png",
+                "pdf"
+              ],
+              "type": "string",
+              "title": "Formato"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/dxf": {},
+              "image/png": {},
+              "application/pdf": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/edificaciones": {
       "get": {
         "tags": [
@@ -2575,6 +2630,16 @@
               }
             ]
           },
+          "camara": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CamaraOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "avisos": {
             "items": {
               "type": "string"
@@ -2951,6 +3016,21 @@
               }
             ],
             "title": "Scc Red Mva"
+          },
+          "resistividad_ohm_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resistividad Ohm M"
           },
           "cuadro": {
             "anyOf": [
@@ -3364,6 +3444,115 @@
           "aviso"
         ],
         "title": "Calculos"
+      },
+      "CamaraOut": {
+        "properties": {
+          "kva": {
+            "type": "number",
+            "title": "Kva"
+          },
+          "tension_kv": {
+            "type": "number",
+            "title": "Tension Kv"
+          },
+          "corriente_primaria_a": {
+            "type": "number",
+            "title": "Corriente Primaria A"
+          },
+          "fusible": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fusible"
+          },
+          "tc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tc"
+          },
+          "tp": {
+            "type": "string",
+            "title": "Tp"
+          },
+          "celdas": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Celdas"
+          },
+          "dimensiones": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dimensiones"
+          },
+          "malla": {
+            "type": "string",
+            "title": "Malla"
+          },
+          "resistencia_ohm": {
+            "type": "number",
+            "title": "Resistencia Ohm"
+          },
+          "limite_ohm": {
+            "type": "number",
+            "title": "Limite Ohm"
+          },
+          "cumple": {
+            "type": "boolean",
+            "title": "Cumple"
+          },
+          "resistividad_ohm_m": {
+            "type": "number",
+            "title": "Resistividad Ohm M"
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kva",
+          "tension_kv",
+          "corriente_primaria_a",
+          "fusible",
+          "tc",
+          "tp",
+          "celdas",
+          "dimensiones",
+          "malla",
+          "resistencia_ohm",
+          "limite_ohm",
+          "cumple",
+          "resistividad_ohm_m",
+          "avisos"
+        ],
+        "title": "CamaraOut"
       },
       "CambiarCircuito": {
         "properties": {

@@ -160,6 +160,17 @@ cliente **no está probado contra el geoportal real**: el servidor necesita
 acceso a geoportal.cnelep.gob.ec. Mientras tanto se puede cargar desde un GeoJSON
 exportado del SIG. Ejemplo: `ejemplos/red-mt` y `electric red-mt extension.json`.
 
+### Cámara de transformación (medición en MT)
+
+Cuando una industria lleva el transformador en cuarto o mide en media tensión,
+la pestaña «Cámara MT» propone: fusibles de MT, TC y TP, las celdas de
+llegada, protección, medición y transformador, las dimensiones interiores de
+la cámara y la malla de puesta a tierra (Sverak, IEEE 80) con la resistividad
+del suelo medida (o 100 Ω·m supuesta) hasta quedar bajo 20 Ω (hasta 250 kVA) o
+10 Ω. Entrega la planta de la cámara con la malla y el unifilar del cliente en
+DXF y PDF. Las dimensiones de 75 y 300 kVA vienen del manual de acometidas de
+CNEL; las demás son propuestas.
+
 ### Industrias: cuadro de cargas y transformador
 
 Para una industria se parte del cuadro de cargas en Excel o CSV: una fila por
